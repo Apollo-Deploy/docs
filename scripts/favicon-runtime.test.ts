@@ -39,6 +39,7 @@ function createBrowser(pathname: string) {
   const links: FakeLink[] = [];
   const eventListeners = new Map<string, Listener[]>();
   const mediaListeners: Listener[] = [];
+  const mutationObservers: Array<{ listener: Listener; target: object }> = [];
   const mediaQuery = {
     matches: false,
     addEventListener: (_event: string, listener: Listener) => {
@@ -47,18 +48,30 @@ function createBrowser(pathname: string) {
   };
 
   const head = {
-    append: (link: FakeLink) => {
-      links.push(link);
+    append: (...appendedLinks: FakeLink[]) => {
+      appendedLinks.forEach((link) => {
+        const existingIndex = links.indexOf(link);
+        if (existingIndex !== -1) links.splice(existingIndex, 1);
+        links.push(link);
+      });
     },
-    querySelectorAll: () =>
-      links.filter(
-        (link) =>
-          link.rel.split(" ").includes("icon") &&
-          !link.className.split(" ").includes("js-site-favicon"),
-      ),
+    querySelectorAll: (selector: string) => {
+      const excludesManaged = selector.includes(
+        ":not(.js-site-favicon)",
+      );
+      return links.filter((link) => {
+        const isIcon = link.rel.split(" ").includes("icon");
+        const isManaged = link.className
+          .split(" ")
+          .includes("js-site-favicon");
+        return isIcon && (!excludesManaged || !isManaged);
+      });
+    },
   };
 
+  const body = {};
   const document = {
+    body,
     createElement: () => {
       const link = new FakeLink(() => {
         const index = links.indexOf(link);
@@ -104,8 +117,11 @@ function createBrowser(pathname: string) {
   };
 
   class FakeMutationObserver {
-    constructor(_listener: Listener) {}
-    observe() {}
+    constructor(private readonly listener: Listener) {}
+
+    observe(target: object) {
+      mutationObservers.push({ listener: this.listener, target });
+    }
   }
 
   const window = {
@@ -121,12 +137,26 @@ function createBrowser(pathname: string) {
   };
 
   return {
+    addFrameworkFavicon: () => {
+      const link = document.createElement();
+      link.rel = "icon";
+      link.type = "image/png";
+      link.href = "/favicons/favicon-32x32.png";
+      head.append(link);
+      return link;
+    },
     document,
     history,
     links,
     mediaListeners,
     mediaQuery,
     MutationObserver: FakeMutationObserver,
+    notifyMutation: (target: object) => {
+      mutationObservers
+        .filter((observer) => observer.target === target)
+        .forEach((observer) => observer.listener());
+    },
+    setPath: updatePath,
     window,
   };
 }
@@ -182,7 +212,30 @@ describe("isSignalDocsPath", () => {
 });
 
 describe("installFaviconRuntime", () => {
-  test("updates the favicon when product navigation changes the route", async () => {
+  test("does not replace the framework's History API methods", () => {
+    const browser = createBrowser("/signal/quickstart");
+    const originalPushState = browser.history.pushState;
+    const originalReplaceState = browser.history.replaceState;
+    Object.assign(globalThis, browser);
+
+    installFaviconRuntime();
+
+    expect(browser.history.pushState).toBe(originalPushState);
+    expect(browser.history.replaceState).toBe(originalReplaceState);
+  });
+
+  test("preserves framework-owned favicon metadata", () => {
+    const browser = createBrowser("/signal/quickstart");
+    const frameworkFavicon = browser.addFrameworkFavicon();
+    Object.assign(globalThis, browser);
+
+    installFaviconRuntime();
+
+    expect(browser.links).toContain(frameworkFavicon);
+    expect(frameworkFavicon.href).toBe("/favicons/favicon-32x32.png");
+  });
+
+  test("updates the favicon after one client-side navigation", async () => {
     const browser = createBrowser("/signal/quickstart");
     Object.assign(globalThis, browser);
 
@@ -195,7 +248,8 @@ describe("installFaviconRuntime", () => {
       "/favicons/signal/favicon.png",
     );
 
-    browser.history.pushState({}, "", "/deploy");
+    browser.setPath("/deploy");
+    browser.notifyMutation(browser.document.body);
     await Promise.resolve();
 
     expect(getManagedLink(browser.links, "image/svg+xml")?.href).toBe(
@@ -205,7 +259,8 @@ describe("installFaviconRuntime", () => {
       "/favicon.png",
     );
 
-    browser.history.replaceState({}, "", "/signal/knowledge-base");
+    browser.setPath("/signal/knowledge-base");
+    browser.notifyMutation(browser.document.body);
     await Promise.resolve();
 
     expect(getManagedLink(browser.links, "image/svg+xml")?.href).toBe(

@@ -31,30 +31,30 @@ function createManagedFavicon(type: "image/svg+xml" | "image/png") {
     link.setAttribute("sizes", "32x32");
   }
 
-  document.head.append(link);
+  return link;
+}
+
+function getManagedFavicon(type: "image/svg+xml" | "image/png") {
+  return document.querySelector<HTMLLinkElement>(
+    `.${MANAGED_FAVICON_CLASS}[type="${type}"]`,
+  );
 }
 
 function ensureManagedFavicons() {
-  document.head
-    .querySelectorAll<HTMLLinkElement>(
-      `link[rel~="icon"]:not(.${MANAGED_FAVICON_CLASS})`,
-    )
-    .forEach((link) => link.remove());
-
-  if (
-    !document.querySelector<HTMLLinkElement>(
-      `.${MANAGED_FAVICON_CLASS}[type="image/svg+xml"]`,
-    )
-  ) {
+  const svgFavicon =
+    getManagedFavicon("image/svg+xml") ??
     createManagedFavicon("image/svg+xml");
-  }
+  const pngFavicon =
+    getManagedFavicon("image/png") ?? createManagedFavicon("image/png");
+  const faviconLinks = Array.from(
+    document.head.querySelectorAll<HTMLLinkElement>('link[rel~="icon"]'),
+  );
+  const managedFaviconsAreLast =
+    faviconLinks[faviconLinks.length - 2] === svgFavicon &&
+    faviconLinks[faviconLinks.length - 1] === pngFavicon;
 
-  if (
-    !document.querySelector<HTMLLinkElement>(
-      `.${MANAGED_FAVICON_CLASS}[type="image/png"]`,
-    )
-  ) {
-    createManagedFavicon("image/png");
+  if (!managedFaviconsAreLast) {
+    document.head.append(svgFavicon, pngFavicon);
   }
 }
 
@@ -72,33 +72,22 @@ export function installFaviconRuntime() {
   window.__apolloDocsFaviconRuntimeInstalled = true;
 
   let updateScheduled = false;
+  let currentPathname = window.location.pathname;
+  const applyCurrentFavicon = () => {
+    updateFaviconForCurrentDocument();
+    currentPathname = window.location.pathname;
+  };
   const scheduleUpdate = () => {
     if (updateScheduled) return;
     updateScheduled = true;
     queueMicrotask(() => {
       updateScheduled = false;
-      updateFaviconForCurrentDocument();
+      applyCurrentFavicon();
     });
   };
 
-  const originalPushState = window.history.pushState;
-  window.history.pushState = function (
-    data: unknown,
-    unused: string,
-    url?: string | URL | null,
-  ) {
-    originalPushState.call(this, data, unused, url);
-    scheduleUpdate();
-  };
-
-  const originalReplaceState = window.history.replaceState;
-  window.history.replaceState = function (
-    data: unknown,
-    unused: string,
-    url?: string | URL | null,
-  ) {
-    originalReplaceState.call(this, data, unused, url);
-    scheduleUpdate();
+  const scheduleUpdateAfterNavigation = () => {
+    if (window.location.pathname !== currentPathname) scheduleUpdate();
   };
 
   window.addEventListener("popstate", scheduleUpdate);
@@ -112,7 +101,16 @@ export function installFaviconRuntime() {
   const headObserver = new MutationObserver(scheduleUpdate);
   headObserver.observe(document.head, { childList: true });
 
-  updateFaviconForCurrentDocument();
+  if (document.body) {
+    const pageObserver = new MutationObserver(scheduleUpdateAfterNavigation);
+    pageObserver.observe(document.body, {
+      characterData: true,
+      childList: true,
+      subtree: true,
+    });
+  }
+
+  applyCurrentFavicon();
 }
 
 if (typeof window !== "undefined") {
