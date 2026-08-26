@@ -1,0 +1,65 @@
+---
+title: "Attachments"
+description: "Encode safe attachment and inline file payloads for the Email API"
+---
+
+The Email API accepts attachments as base64-encoded content.
+Decode and validate the source file before building the request so an oversized or unsafe file does not consume retry capacity.
+
+## Attachment fields
+
+| Field | Requirement |
+| --- | --- |
+| `filename` | Required, non-blank, and must not contain slashes, backslashes, or control characters |
+| `content` | Required base64-encoded bytes, without a data-URL prefix |
+| `contentType` | Required MIME type such as `application/pdf` or `image/png` |
+| `disposition` | `attachment` or `inline` |
+| `contentId` | Optional identifier referenced by inline HTML |
+
+```json
+{
+  "from": "billing@mail.company.com",
+  "to": "alex@example.com",
+  "subject": "Invoice 1042",
+  "html": "<p>Your invoice is attached.</p>",
+  "attachments": [
+    {
+      "filename": "invoice-1042.pdf",
+      "content": "JVBERi0xLjQK...",
+      "contentType": "application/pdf",
+      "disposition": "attachment"
+    }
+  ]
+}
+```
+
+## Limits
+
+Keep combined decoded attachment content at or below 10 MiB, the default service ceiling.
+The message may contain at most 500 MIME parts, including text and HTML body parts.
+Base64 increases the HTTP payload size, so set client timeouts and upstream body limits accordingly.
+
+<Note>
+A deployment-specific lower configured limit wins.
+Handle the returned validation problem instead of retrying the same oversized payload.
+</Note>
+
+## Inline images
+
+Set `disposition` to `inline` and provide a unique `contentId`.
+Reference it from HTML with `cid:<contentId>`.
+Also provide useful alt text because clients can block images.
+
+## Security checklist
+
+- Derive the filename on the server; do not trust a client path.
+- Allowlist content types your product actually needs.
+- Scan untrusted files before sending.
+- Do not log base64 content or sensitive document bodies.
+- Use a short-lived object-store workflow for large files instead of forcing them into email.
+- Explain sensitive attachments in the message so recipients can judge them safely.
+
+## Common failures
+
+Invalid base64, a missing content type, an unsafe filename, too many MIME parts, or an oversized decoded total causes validation failure before delivery.
+Correct the payload; do not retry unchanged.

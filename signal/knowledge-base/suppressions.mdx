@@ -1,0 +1,51 @@
+---
+title: "Suppression behavior"
+description: "Understand why Signal blocks an address, when the fence is rechecked, and what removal changes"
+---
+
+A suppression is a project-scoped delivery block for an email address.
+The address can still have a contact profile, segment membership, and topic records while provider delivery remains blocked.
+
+## Current reasons
+
+| Reason | Source represented |
+| --- | --- |
+| `bounce` | Bounce feedback |
+| `complaint` | Complaint or abuse feedback |
+| `unsubscribe` | Recipient unsubscribe action |
+| `manual` | Operator, API caller, or normalized import decision |
+
+The public add endpoint creates a `manual` suppression for a normalized email address.
+Imports normalize supported reason aliases, count imported rows, and count invalid or duplicate rows as skipped.
+
+## Send-time fence
+
+Signal checks recipient addresses against the project's suppressions before provider delivery.
+A blocked recipient becomes a `suppressed` message outcome instead of crossing the provider boundary.
+
+Signal checks again when a queued or scheduled message is about to be delivered.
+This second check matters when a bounce, complaint, unsubscribe, or manual block is recorded after admission but before dispatch.
+
+## Import and export
+
+The API supports paginated listing, manual addition, deletion by email, import, and export.
+The dashboard can import one address per line with an optional reason and can export project suppression state.
+Treat exports as customer data and keep the target project explicit during imports.
+
+## Removing a suppression
+
+Removal deletes the current project delivery fence for that address.
+It does not send a previously blocked message, restore a deleted contact, create topic consent, or prove the address is safe.
+
+Before removal:
+
+1. Identify the recorded reason and source event.
+2. Confirm whether the underlying address or complaint condition changed.
+3. Confirm current recipient permission for the intended communication.
+4. Record who authorized the removal.
+5. Use a controlled send rather than replaying a backlog automatically.
+
+<Warning>
+Do not bulk-remove bounce, complaint, or unsubscribe entries to increase audience size.
+Those entries are delivery-safety evidence, not stale contact tags.
+</Warning>

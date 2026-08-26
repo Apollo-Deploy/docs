@@ -1,0 +1,54 @@
+---
+title: "Topics and subscription state"
+description: "Model communication categories and understand the exact audience Signal resolves"
+---
+
+A topic is a project communication category with a name, optional description, default subscription value, and visibility.
+Contacts store explicit `opt_in` or `opt_out` records for topics.
+
+## Topic fields
+
+| Field | Current contract |
+| --- | --- |
+| `name` | Required, trimmed, 1 to 200 characters |
+| `description` | Optional developer-facing explanation |
+| `defaultSubscription` | Required `opt_in` or `opt_out` value |
+| `visibility` | `public` or `private`; defaults to `private` |
+
+The update operation can change name, description, and visibility.
+It does not expose a default-subscription replacement in the current public update body.
+
+## Explicit subscriptions
+
+A contact's topic record contains the topic ID and `opt_in` or `opt_out`.
+You can set initial topic records when creating the contact and replace the contact's topic states through the contact-topics endpoint.
+
+The topic contacts endpoint lists explicit opt-in contacts.
+The email audience resolver uses those opt-in records for a `top_…` send.
+Do not assume that a missing subscription row will be expanded into an audience merely because the topic metadata has an `opt_out` default.
+
+## Sending to a topic
+
+Place one `top_…` ID in `to`.
+It must be the only recipient value and cannot be combined with `cc` or `bcc`.
+Signal resolves at most 50 opt-in recipients and creates an independent message record for each resolved address.
+An empty audience and an audience above the ceiling are explicit failures.
+
+## Visibility
+
+`public` and `private` describe how a topic can be exposed in recipient preference experiences.
+Private visibility does not remove the separate requirements for consent, global unsubscribe handling, or suppression.
+
+## Topic metrics
+
+Topic performance includes total emails, delivered, opened, clicked, bounced, complained, unsubscribed, read engagement, opt-in count, opt-out count, and the corresponding rates for the selected window.
+
+## Ownership boundary
+
+Signal records the topic configuration and explicit preferences.
+Your organization remains responsible for deciding which default and message purpose match its customer promises and applicable rules.
+
+<Warning>
+Do not treat a topic name as proof of consent.
+Use the contact's explicit state and project suppression evidence.
+</Warning>

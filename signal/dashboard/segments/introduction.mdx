@@ -1,0 +1,49 @@
+---
+title: "Segments"
+description: "Create static contact groups and use them as explicit audiences"
+---
+
+A segment is a named static group of contacts.
+Membership changes only when an operator or API caller adds or removes a contact.
+
+<Note>
+Segments do not continuously evaluate property rules.
+If your application needs rule-driven membership, calculate the rule in your system and synchronize the resulting membership deliberately.
+</Note>
+
+## Create a segment
+
+Open **Segments**, create a clear name, then add existing contacts.
+Use names that explain the business boundary, such as **Cape Town beta customers** or **Security incident contacts**.
+Avoid names tied to a one-time date unless the group is intentionally temporary.
+
+## Manage membership
+
+Open a segment to inspect its contacts.
+Add an existing contact or remove a current member.
+Removing membership does not delete the contact, its properties, or its topic preferences.
+
+## Send to a segment
+
+The Email API accepts one segment ID in `to`.
+The ID must be the only recipient and cannot be combined with CC or BCC.
+Signal resolves at most 50 recipients for one audience send.
+Each resolved recipient receives an independent message record and lifecycle.
+
+Before sending:
+
+- Confirm the membership is current.
+- Confirm the communication purpose and topic preference.
+- Account for global subscription and suppression state.
+- Use test mode for request-path validation, then perform a controlled real send.
+
+## Delete a segment
+
+Deleting the segment removes the grouping.
+It does not delete member contacts.
+Remove or replace application references to the segment ID before deletion.
+
+<Warning>
+Do not treat segment membership as consent.
+A member can still be unsubscribed, topic-ineligible, or suppressed.
+</Warning>

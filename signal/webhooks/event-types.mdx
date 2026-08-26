@@ -1,0 +1,47 @@
+---
+title: "Webhook event types"
+description: "Choose the email and endpoint-test events your receiver handles"
+---
+
+Subscribe an endpoint only to events its application can process.
+Adding an event changes the receiver's input contract, so deploy compatible handling before changing the subscription.
+
+## Dashboard events
+
+| Event | Meaning |
+| --- | --- |
+| `email.sent` | Signal handed the message into provider delivery |
+| `email.delivered` | The recipient server accepted the message |
+| `email.bounced` | Delivery produced a bounce outcome |
+| `email.complained` | Signal received a complaint event |
+| `email.opened` | Open tracking observed an open-compatible event |
+| `email.clicked` | Click tracking observed a followed link |
+| `email.failed` | Signal or provider delivery failed |
+| `email.rejected` | Policy or provider logic rejected the message |
+| `email.delivery_delayed` | Provider delivery reported a temporary delay |
+| `email.suppressed` | Signal blocked provider delivery because of suppression state |
+| `webhook.test` | Synthetic event created by the endpoint test action |
+
+## API-managed subscriptions
+
+The public endpoint schema also accepts `email.unsubscribed` and `email.read_engaged`.
+Use the API reference when managing those subscriptions programmatically.
+The current dashboard event selector does not expose them.
+
+## Event semantics
+
+Events describe observed state, not a guaranteed linear funnel.
+For example, a privacy proxy can affect opens, a security scanner can affect clicks, and a late provider event can arrive after your application already displayed an earlier state.
+
+## Consumer rules
+
+- Ignore unknown event types safely after recording them.
+- Do not fail the whole receiver because one optional field is absent.
+- Use the payload's identifiers to fetch current state when your workflow needs reconciliation.
+- Treat bounce, complaint, unsubscribe, and suppression events as recipient-safety signals.
+- Keep `webhook.test` out of production business metrics.
+
+<Warning>
+Do not trigger irreversible customer actions from open or click events alone.
+Mail clients and security infrastructure can generate those signals.
+</Warning>

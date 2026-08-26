@@ -1,0 +1,55 @@
+---
+title: "SMTP relay settings and failures"
+description: "Connect with STARTTLS, use the deployment-specific endpoint, and diagnose accepted mail correctly"
+---
+
+Use Signal SMTP when a server application or mail transfer agent can use a relay but cannot call the REST Email API directly.
+
+## Connection contract
+
+| Setting | Value |
+| --- | --- |
+| Host | Copy the host displayed by **Settings → SMTP** |
+| Port | Copy the displayed port; the current default is `587` |
+| Security | `STARTTLS` |
+| Username | `apikey` |
+| Password | An active Signal API key with `emails:send` |
+
+The host is derived from the active deployment or an explicit deployment configuration.
+Do not hard-code a guessed universal SMTP hostname.
+
+## Sender requirements
+
+The API key determines project scope.
+Both the SMTP envelope sender and visible From address must use a domain verified in that project.
+The key must be active, unexpired, and authorized to send.
+
+## Setup sequence
+
+1. Create a dedicated key with only `emails:send`.
+2. Copy the host, port, security mode, and username from **Settings → SMTP**.
+3. Require STARTTLS; do not silently fall back to plaintext.
+4. Configure envelope and visible sender addresses on a verified domain.
+5. Send one controlled message to an inbox you own.
+6. Open **Emails** and follow provider and delivery outcomes.
+
+## SMTP versus REST
+
+SMTP returns SMTP acceptance and reply codes rather than an HTTP `201` JSON response.
+It does not expose the REST request body's `idempotencyKey`.
+If a caller can retry after an ambiguous SMTP disconnect, manage duplicate risk in that caller or prefer REST for the workflow.
+
+## Failure map
+
+| Failure | Verify |
+| --- | --- |
+| Cannot connect | Displayed host and port, outbound firewall, DNS, STARTTLS support |
+| Authentication fails | Username exactly `apikey`, key active, `emails:send` present |
+| Sender rejected | Envelope sender and From domain verified in the key's project |
+| TLS fails | Client STARTTLS behavior, system clock, trust store, TLS interception |
+| Accepted but not delivered | Message timeline, bounce, rejection, suppression, provider failure |
+
+<Warning>
+SMTP acceptance is not recipient-server delivery.
+Use the Signal message record for later outcomes.
+</Warning>

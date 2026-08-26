@@ -1,0 +1,73 @@
+---
+title: "Errors"
+description: "Parse problem details and retry safely"
+---
+
+Apollo Signal returns errors as RFC 9457-style problem details with:
+
+```http
+Content-Type: application/problem+json
+```
+
+Errors are not wrapped in an `error` object.
+
+## Problem document
+
+```json
+{
+  "type": "https://apollodeploy.com/problems/api-key/invalid",
+  "title": "Invalid API key",
+  "status": 401,
+  "code": "api_key.invalid",
+  "detail": "The supplied credential could not be authenticated.",
+  "instance": "urn:uuid:0d5b5754-56b7-43bf-8a85-913cc8d71c21",
+  "requestId": "..."
+}
+```
+
+| Field | Required | Meaning |
+| --- | --- | --- |
+| `type` | Yes | Stable URI identifying the problem category |
+| `title` | Yes | Short human-readable summary |
+| `status` | Yes | HTTP status repeated in the body |
+| `code` | Yes | Stable machine-readable Apollo Signal error code |
+| `detail` | No | Context for this occurrence; wording may change |
+| `instance` | No | Unique `urn:uuid:…` identifier for this occurrence |
+| `requestId` | No | Request correlation ID to include in support reports |
+| `errors` | No | Field-level validation problems |
+
+When a problem includes field-level validation, `errors` uses JSON Pointer-style locations:
+
+```json
+{
+  "errors": [
+    {
+      "pointer": "/to/0",
+      "detail": "Must be a valid email address"
+    }
+  ]
+}
+```
+
+## Status codes
+
+| Status | Meaning | Client action |
+| --- | --- | --- |
+| `400` | Malformed input or invalid parameters | Fix the request; do not retry unchanged |
+| `401` | Missing or inactive credential | Replace or restore the key |
+| `402` | Plan feature or quota unavailable | Change the plan or reduce usage |
+| `403` | Permission or project mismatch | Use the correct scoped key and project |
+| `404` | Resource not found in this project | Verify the opaque ID and project |
+| `409` | State or concurrent idempotency conflict | Re-read state; retry only when the specific `code` permits it |
+| `413` | Payload or import too large | Split or reduce the request |
+| `415` | Unsupported media type | Send the content type required by the endpoint |
+| `422` | Domain rule failed | Correct the named requirement, such as domain verification |
+| `429` | HTTP limit or sending quota exceeded | Wait at least `Retry-After` seconds |
+| `500` | Unexpected server failure | Retry with backoff and retain `requestId` |
+| `502` / `503` | Upstream or service temporarily unavailable | Retry with exponential backoff and jitter |
+
+## Retry policy
+
+Retry only idempotent reads, deletes whose semantics permit it, or email sends carrying the same JSON-body `idempotencyKey`. For `429`, wait for the integer number of seconds in `Retry-After`. For transient `5xx` responses, use capped exponential backoff with jitter.
+
+Do not automatically retry other `4xx` responses. Log `code`, `status`, `requestId`, and `instance`, but never log the API key or sensitive request content.

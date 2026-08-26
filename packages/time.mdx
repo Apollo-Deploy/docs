@@ -1,0 +1,285 @@
+---
+title: "Time Utilities"
+description: "Date/time formatting, ISO 8601 duration parsing, and auto-updating relative time components."
+---
+
+The `time` utility module provides framework-agnostic date/time formatting, ISO 8601 duration parsing, and a React component for auto-updating relative time displays. All instances share a single `setInterval` — no per-component timers.
+
+## Installation
+
+The time utilities are part of `@apollo-deploy/components`:
+
+```ts
+import {
+  Duration,
+  formatRelative,
+  formatDatetime,
+  formatDuration,
+  formatDurationMs,
+  formatMicro,
+  formatElapsed,
+  RelativeTime,
+  timezone,
+} from "@apollo-deploy/components/utils";
+```
+
+## Format modes
+
+Six display formats are supported via `formatRelative()` (or the `RelativeTime` component's `format` prop):
+
+| Format       | Description                          | Example output              |
+| ------------ | ------------------------------------ | --------------------------- |
+| `auto`       | Alias for `relative` (default)       | `2 hours ago`               |
+| `relative`   | Human-readable relative time         | `on Jul 9, 2026`            |
+| `datetime`   | Absolute date/time                   | `Jul 9, 2026, 5:00 PM`      |
+| `duration`   | Countdown/up from now                | `2h 30m 5s`                 |
+| `micro`      | Compact single-unit relative display | `2h` / `2h ago` / `in 2h`  |
+| `elapsed`    | Duration with narrow style (deprecated) | `2h 30m 5s`              |
+
+---
+
+## `RelativeTime` — Auto-updating component
+
+The `RelativeTime` component renders a relative time string that automatically updates every second using a shared module-level clock.
+
+```tsx
+import { RelativeTime } from "@apollo-deploy/components/utils";
+
+// Basic usage
+<RelativeTime datetime="2026-07-09T12:00:00Z" />
+
+// With a Date object
+<RelativeTime datetime={new Date()} />
+
+// Compact micro format
+<RelativeTime datetime={someDate} format="micro" tense="past" />
+
+// Absolute datetime with locale
+<RelativeTime datetime={someDate} format="datetime" lang="fr" />
+
+// Duration countdown with precision
+<RelativeTime datetime={someDate} format="duration" precision="hour" />
+```
+
+### Props
+
+| Prop            | Type                                             | Default      | Description                                                                 |
+| --------------- | ------------------------------------------------ | ------------ | --------------------------------------------------------------------------- |
+| `datetime`      | `string \| Date \| number`                       | _(required)_ | ISO 8601 string, Date object, or milliseconds timestamp.                    |
+| `format`        | `RelativeTimeFormat`                             | `"auto"`     | Display format (`"auto"`, `"relative"`, `"datetime"`, `"duration"`, `"micro"`, `"elapsed"`). |
+| `formatStyle`   | `"long" \| "short" \| "narrow"`                  | varies       | Passed to `Intl` formatters.                                                |
+| `tense`         | `"auto" \| "past" \| "future"`                   | `"auto"`     | Force past or future tense.                                                 |
+| `precision`     | `RelativeTimeUnit`                               | `"second"`   | Smallest unit to display. Units below are truncated.                        |
+| `threshold`     | `string`                                         | `"P30D"`     | ISO 8601 duration string. Past this threshold, falls back to absolute date. |
+| `prefix`        | `string`                                         | `"on"`       | Text prepended to absolute dates past the threshold.                        |
+| `lang`          | `string`                                         | —            | Language for `Intl` formatting (e.g. `"en"`, `"fr"`).                       |
+| `noTitle`       | `boolean`                                        | `false`      | Suppress the default `title` attribute (full datetime tooltip).             |
+| `as`            | `keyof JSX.IntrinsicElements`                    | `"time"`     | Custom HTML tag name.                                                       |
+| `className`     | `string`                                         | —            | CSS class on the element.                                                   |
+
+**Datetime-specific props** (forwarded to `Intl.DateTimeFormat`):
+
+| Prop           | Type                      | Description                      |
+| -------------- | ------------------------- | -------------------------------- |
+| `second`       | `DateTimeDigit`           | Second representation.           |
+| `minute`       | `DateTimeDigit`           | Minute representation.           |
+| `hour`         | `DateTimeDigit`           | Hour representation.             |
+| `weekday`      | `"short" \| "long" \| "narrow"` | Weekday representation.   |
+| `day`          | `DateTimeDigit`           | Day representation.              |
+| `month`        | `DateTimeDigit \| "short" \| "long" \| "narrow"` | Month representation. |
+| `year`         | `DateTimeDigit`           | Year representation.             |
+| `timeZoneName` | `"long" \| "short" \| ...` | Time zone name style.          |
+| `timeZone`     | `string`                  | IANA time zone (e.g. `"America/New_York"`). |
+| `hourCycle`    | `"h11" \| "h12" \| "h23" \| "h24"` | Hour cycle.             |
+
+---
+
+## `formatRelative()` — Framework-agnostic formatter
+
+Use `formatRelative()` when you need formatted output without a React component (e.g. in server components, API responses, or plain functions).
+
+```ts
+import { formatRelative } from "@apollo-deploy/components/utils";
+
+// Relative time
+formatRelative("2026-07-09T10:00:00Z");
+// → "a few seconds ago"
+
+// Explicit format
+formatRelative(someDate, { format: "datetime", lang: "de" });
+// → "9. Juli 2026"
+
+// Compact micro
+formatRelative(someDate, { format: "micro" });
+// → "2h"
+
+// With threshold and custom prefix
+formatRelative(oldDate, {
+  threshold: "P7D",
+  prefix: "last updated",
+  lang: "en",
+});
+// → "last updated Jul 2, 2026"
+
+// Duration with precision
+formatRelative(futureDate, {
+  format: "duration",
+  precision: "minute",
+});
+// → "3 hours, 15 minutes"
+```
+
+### Options
+
+The `RelativeTimeOptions` object accepts the same options as the `RelativeTime` component plus:
+
+| Option       | Type   | Default           | Description                                |
+| ------------ | ------ | ----------------- | ------------------------------------------ |
+| `relativeTo` | `Date` | `new Date()`      | Reference date to compare against.         |
+
+---
+
+## Convenience formatters
+
+Shorthand functions for specific formats:
+
+```ts
+import {
+  formatDatetime,
+  formatDuration,
+  formatDurationMs,
+  formatMicro,
+  formatElapsed,
+} from "@apollo-deploy/components/utils";
+
+// Absolute date/time
+formatDatetime("2026-07-09T12:00:00Z", { lang: "en" });
+// → "July 9, 2026"
+
+// Duration from a datetime (relative to now)
+formatDuration(futureDate, { precision: "hour" });
+// → "3 hours"
+
+// Duration from raw milliseconds
+formatDurationMs(3661000, { formatStyle: "narrow" });
+// → "1h 1m 1s"
+
+formatDurationMs(3661000, { precision: "minute" });
+// → "1 hour, 1 minute"
+
+// Micro format (compact)
+formatMicro(someDate);
+// → "2h"
+
+// Elapsed format (duration, narrow — deprecated)
+formatElapsed(someDate);
+// → "2h 30m 5s"
+```
+
+---
+
+## `Duration` — ISO 8601 duration parser
+
+Parse and manipulate ISO 8601 duration strings like `"P1DT2H30M"` or `"PT5M30S"`.
+
+```ts
+import { Duration } from "@apollo-deploy/components/utils";
+
+// Parse an ISO 8601 duration string
+const dur = Duration.parse("P1DT2H30M");
+// → Duration { days: 1, hours: 2, minutes: 30 }
+
+// Null if invalid
+Duration.parse("invalid");
+// → null
+
+// Create from milliseconds
+const dur2 = Duration.fromMilliseconds(3661000);
+// → Duration { hours: 1, minutes: 1, seconds: 1 }
+
+// Convert to milliseconds
+dur.toMilliseconds();
+// → 95400000
+
+// Convert to seconds
+dur.toSeconds();
+// → 95400
+
+// Check if zero
+dur.isZero;
+// → false
+```
+
+### Note on approximations
+
+Months and years use approximate conversions (30 days/month, 365 days/year). For exact calendar math, use `date-fns` or a dedicated date library.
+
+---
+
+## `timezone()` — Detect user timezone
+
+Returns the browser's IANA timezone string using `Intl.DateTimeFormat`.
+
+```ts
+import { timezone } from "@apollo-deploy/components/utils";
+
+const tz = timezone();
+// → "America/New_York"
+```
+
+Returns `undefined` if `Intl` is not available.
+
+---
+
+## `Ago` (deprecated)
+
+<Warning>
+  The `Ago` component and `agoString` function are deprecated. Use `RelativeTime` instead.
+</Warning>
+
+```ts
+// Deprecated — use RelativeTime instead
+import { agoString } from "@apollo-deploy/components/utils";
+
+agoString(new Date("2026-07-09T10:00:00Z"));
+// → "a few seconds ago"
+```
+
+---
+
+## Type reference
+
+```ts
+type RelativeTimeUnit = "second" | "minute" | "hour" | "day" | "week" | "month" | "year";
+
+type RelativeTimeFormat = "auto" | "relative" | "datetime" | "duration" | "micro" | "elapsed";
+
+type Tense = "auto" | "past" | "future";
+
+type FormatStyle = "long" | "short" | "narrow";
+
+type DateTimeDigit = "numeric" | "2-digit" | undefined;
+
+interface DateTimeFormatOptions {
+  second?: DateTimeDigit;
+  minute?: DateTimeDigit;
+  hour?: DateTimeDigit;
+  weekday?: "short" | "long" | "narrow" | undefined;
+  day?: DateTimeDigit;
+  month?: "numeric" | "2-digit" | "short" | "long" | "narrow" | undefined;
+  year?: DateTimeDigit;
+  timeZoneName?: "long" | "short" | "shortOffset" | "longOffset" | "shortGeneric" | "longGeneric" | undefined;
+  timeZone?: string;
+  hourCycle?: "h11" | "h12" | "h23" | "h24";
+}
+
+interface DurationComponents {
+  years: number;
+  months: number;
+  weeks: number;
+  days: number;
+  hours: number;
+  minutes: number;
+  seconds: number;
+}
+```

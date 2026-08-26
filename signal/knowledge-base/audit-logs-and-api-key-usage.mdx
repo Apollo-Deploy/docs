@@ -1,0 +1,50 @@
+---
+title: "Audit logs and API-key usage"
+description: "Choose the correct evidence source for customer actions, credential requests, and message delivery"
+---
+
+Signal exposes different records for different operational questions.
+Use audit logs for meaningful customer actions, API-key usage for requests made with one credential, and email timelines for delivery state.
+
+## Evidence map
+
+| Question | Evidence source |
+| --- | --- |
+| Who changed or triggered a customer-visible resource? | **Logs** audit trail |
+| Is a replacement API key receiving traffic? | API-key detail and usage |
+| Which status and duration did recent key requests record? | API-key usage list |
+| What happened to one message after admission? | Email detail and timeline |
+| How did outcomes change in aggregate? | Metrics |
+
+## Audit logs
+
+The **Logs** page is an organization-wide customer audit trail available to owner and administrator roles.
+It is not a raw record of every Email API request.
+
+Filter by text, date, module, action, resource, or status.
+A detail can include actor and role context, resource identity, timestamp, action status, customer-visible security and request context, a change summary, related activity, and technical identifiers.
+
+Customer-visible modules include email, webhook, API key, settings, notification, and export activity.
+Actions include create, update, delete, deliver, trigger, retry, fail, and export.
+
+## API-key usage
+
+A key record exposes its masked value, permissions, status, total requests, last-used time, creation time, and expiry.
+The raw secret is never returned after creation.
+
+With `usage:read`, the API can list recent requests for one key with a maximum page size of 500 and `before`/`after` ISO 8601 filters.
+It can export the full selected range as CSV or JSON.
+The dashboard usage view includes request status code and duration when available.
+
+## Rotation evidence
+
+1. Create and deploy the replacement key.
+2. Confirm its last-used time and usage records advance.
+3. Confirm the old key stops receiving the expected requests.
+4. Delete the old key.
+5. Inspect audit logs for the key lifecycle actions.
+
+<Warning>
+Audit and usage output can contain customer and infrastructure context.
+Restrict access and redact it before copying evidence into public tickets.
+</Warning>

@@ -1,0 +1,64 @@
+---
+title: "Contacts"
+description: "Manage recipient identity, properties, consent, membership, and engagement history"
+---
+
+A contact is a recipient identity inside one Signal project.
+Contacts combine an email address with profile fields, custom properties, segment membership, topic preferences, validation state, and recent engagement.
+
+## Create a contact
+
+| Field | Behavior |
+| --- | --- |
+| Email | Required primary identifier and read-only after creation |
+| First name | Optional profile value |
+| Last name | Optional profile value |
+| Subscribed | Global contact state used alongside topic preferences and suppressions |
+
+<Warning>
+The email address is the contact identity.
+If an address changes, create the correct contact and deliberately migrate the data you still need instead of editing identity in place.
+</Warning>
+
+## Contact detail
+
+Open a contact to work through five areas:
+
+| Area | What it contains |
+| --- | --- |
+| Profile | Email, name, global subscribed state, validation state, and summary information |
+| Properties | Values for project-defined string or number properties |
+| Segments | Static groups this contact belongs to |
+| Topics | Per-topic subscription preferences |
+| Activity | Customer-visible email and engagement history associated with the contact |
+
+## Subscription decisions
+
+Do not use one field as the entire consent model.
+Before an audience send, account for:
+
+1. The contact's global subscribed state.
+2. The selected topic's default behavior.
+3. The contact's explicit preference for that topic.
+4. The project's suppression state for the address.
+
+A suppression is a delivery block even when the contact profile still exists.
+
+## Engagement and validation
+
+When data is available, Signal shows an engagement score based on the last 90 days of opens, clicks, bounces, and complaints.
+Use it as an operational signal, not proof that a person read a specific message.
+
+Recorded address validation can be `valid`, `risky`, `invalid`, or `unknown`.
+An unknown result means Signal does not have a conclusive recorded result.
+A valid result does not override consent or suppression.
+
+## Delete a contact
+
+Contact deletion is permanent.
+Confirm whether you need the contact's profile, property, preference, or activity evidence before deleting it.
+Deleting a contact is not a substitute for suppressing an address that must not receive mail.
+
+<Tip>
+Use a property for stable customer facts, a segment for explicit grouping, a topic for communication preference, and suppression for delivery prohibition.
+</Tip>

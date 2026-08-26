@@ -1,0 +1,50 @@
+---
+title: "Troubleshoot send and cancellation errors"
+description: "Map email operation status codes to the customer state that must be corrected"
+---
+
+Start with the HTTP status and structured problem response.
+Then confirm the authenticated project, request shape, domain, recipient state, and current usage.
+
+## Send-email responses
+
+| Status | Verified meaning | First checks |
+| --- | --- | --- |
+| `201` | Request accepted | Follow the returned message status; this is not delivery proof |
+| `400` | Invalid request | Required fields, email syntax, body presence, schedule, attachments, recipient shape |
+| `401` | Invalid or expired credential | Authorization value, key status, expiry, project binding |
+| `403` | Permission or project access denied | Required permission and authenticated project |
+| `413` | Resolved audience exceeds 50 recipients | Topic or segment size; split through an authorized workflow |
+| `422` | Valid shape but send cannot proceed | Verified From domain, active project, resolved audience, sending state |
+| `429` | Endpoint or abuse-control limit applied | `Retry-After`, request rate, live Usage page |
+
+The send endpoint requires `from`, `to`, and `subject` plus at least one of `html` or `text`.
+An audience ID must be the only `to` value and cannot be combined with `cc` or `bcc`.
+
+## Cancellation responses
+
+A single-message cancellation succeeds only while the record is `scheduled`.
+If dispatch already began, Signal returns a conflict rather than claiming the message was cancelled.
+The bulk cancellation operation affects messages that are currently scheduled; it does not recall messages already handed off.
+
+## Structured problems
+
+Capture the response's problem type, title, status, detail, and structured fields.
+Do not reduce every failure to the HTTP reason phrase; the problem body identifies the relevant customer condition.
+
+## Before retrying
+
+- Correct `400`, `401`, `403`, `413`, and `422` conditions first.
+- For `429`, honor `Retry-After` and use bounded backoff.
+- Preserve the same body `idempotencyKey` for the same logical send.
+- Do not automatically resend bounced, complained, unsubscribed, or suppressed recipients.
+- For `indeterminate`, inspect the existing record before creating any new send.
+
+## Evidence for support
+
+Provide the Signal email ID, UTC timestamp, endpoint, HTTP status, problem type, and project identifier.
+Redact API keys, Authorization headers, recipient content, and attachment data.
+
+<Card title="API errors" icon="circle-exclamation" href="/signal/api-reference/errors">
+Review the shared problem format and status-code behavior.
+</Card>

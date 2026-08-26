@@ -1,0 +1,56 @@
+---
+title: "DMARC reports"
+description: "Import aggregate reports and analyze SPF, DKIM, alignment, and disposition"
+---
+
+The **DMARC** page turns aggregate mailbox-provider reports into project-level authentication evidence.
+Use it to see which sources send for your domains and whether SPF and DKIM align with the visible From domain.
+
+## Import a report
+
+Import one file at a time.
+Signal accepts `.xml`, `.gz`, `.gzip`, `.zip`, and `.eml` files.
+The result identifies newly imported reports and duplicates.
+
+<Steps>
+  <Step title="Obtain the aggregate report">
+Use a report sent to the rua destination in your DMARC record or exported from your reporting mailbox.
+  </Step>
+  <Step title="Preserve the original file">
+Do not edit provider XML before import.
+Keep the original if your operational policy requires evidence retention.
+  </Step>
+  <Step title="Import">
+Open **DMARC**, choose the file, and review the imported and duplicate counts.
+  </Step>
+  <Step title="Investigate sources">
+Find unexpected source IPs, authentication failures, or disposition changes.
+  </Step>
+</Steps>
+
+## Time ranges
+
+Choose 30 minutes, 1 hour, 6 hours, 12 hours, 24 hours, 7 days, 30 days, 90 days, or a custom range up to 90 days.
+A short range helps incident work; a longer range establishes normal sender inventory.
+
+## Metrics
+
+| Metric | Meaning |
+| --- | --- |
+| Observed messages | Message count represented by imported aggregate data |
+| DMARC alignment | Messages where an authenticated identifier aligns with the From domain |
+| DKIM alignment | DKIM signing domain alignment |
+| SPF alignment | Envelope sender domain alignment |
+| Reports | Aggregate files represented in the selected window |
+| Sources | Distinct sending sources reported for the domain |
+
+## Dispositions
+
+A report can show pass or policy actions such as `none`, `quarantine`, or `reject`.
+Investigate an unexpected source before authorizing it in SPF or changing policy.
+Adding every observed sender to SPF can legitimize abuse and exceed SPF lookup limits.
+
+<Warning>
+DMARC aggregate data is delayed and summarized.
+Use it for authentication analysis, not real-time per-recipient delivery tracking.
+</Warning>

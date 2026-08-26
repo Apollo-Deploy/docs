@@ -1,0 +1,59 @@
+---
+title: "Manage webhook endpoints"
+description: "Create, enable, test, inspect, replay, and remove project webhook endpoints"
+---
+
+The **Webhooks** page manages project endpoints that receive signed email events.
+Endpoint availability and endpoint count can depend on the project's plan.
+
+## Create an endpoint
+
+The dashboard requires a name, a public HTTPS URL, and at least one event.
+Signal rejects localhost and blocked private-network destinations.
+Use a path dedicated to Signal, such as `https://api.company.com/webhooks/signal`.
+
+<Steps>
+  <Step title="Deploy the receiver">
+Read the raw request body, verify the Signal signature, enqueue the accepted event, and return quickly.
+  </Step>
+  <Step title="Create the endpoint">
+Name the integration, enter its HTTPS URL, and choose the events the application handles.
+  </Step>
+  <Step title="Store the signing secret">
+When you create through the API, store the `secret` from the create response.
+Normal endpoint reads never return it.
+  </Step>
+  <Step title="Send a test">
+Use the endpoint test action and confirm both signature verification and application processing.
+  </Step>
+</Steps>
+
+<Warning>
+If you lose the signing secret, do not disable verification.
+Create a replacement endpoint, deploy its secret, test it, and then delete the old endpoint.
+</Warning>
+
+## Endpoint operations
+
+| Action | Use |
+| --- | --- |
+| Enable or disable | Control whether the endpoint receives matching new events |
+| Test | Send a synthetic `webhook.test` event |
+| Delivery history | Review event type, state, response code, error, and attempt count |
+| Replay | Resend an identical previous payload after the receiver is fixed |
+| Delete | Permanently remove the endpoint and stop retrying in-flight deliveries |
+
+## Delivery states
+
+Deliveries can be pending, processing, successful, failed, or cancelled.
+The dashboard groups the customer-facing history around pending, success, and failure states while detail exposes attempt information.
+
+## Production receiver checklist
+
+- Verify signatures against the raw body.
+- Reject stale timestamps according to your replay-risk policy.
+- Return any 2xx only after durable acceptance.
+- Process business work asynchronously.
+- Make event handling idempotent.
+- Monitor repeated non-2xx and network failures.
+- Preserve the delivery and event identifiers needed for support.

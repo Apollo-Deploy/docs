@@ -1,0 +1,58 @@
+---
+title: "Authentication"
+description: "Use project-bound API keys and least-privilege permissions"
+---
+
+Apollo Signal API keys are Bearer credentials. Keys begin with `ap_signal_` and are bound to one project.
+
+```http
+Authorization: Bearer ap_signal_...
+```
+
+Create, rotate, and revoke keys in the Apollo Signal dashboard. The raw key is shown only when it is created; API key read endpoints return metadata, never the secret.
+
+<Warning>
+  Keep API keys on trusted servers. Do not embed them in browser bundles, mobile applications, public repositories, logs, analytics events, or error messages.
+</Warning>
+
+## Project access
+
+The authenticated key determines the organization and project. When a route contains `{projectId}`, use the project bound to the key. A different project is rejected even if it belongs to the same organization.
+
+The email stream-token endpoint is a special case: API-key authentication always selects the key's project. Its `{projectId}` value supports dashboard-session callers.
+
+## Permissions
+
+Give each key only the permissions its integration needs.
+
+| Permission | Allows |
+| --- | --- |
+| `emails:send` | Send, batch-send, cancel, validate email links, and issue stream tokens |
+| `emails:read` | Read emails, timelines, and email metrics |
+| `domains:read` | List and inspect sending domains |
+| `domains:write` | Register, verify, update BIMI, and delete sending domains |
+| `webhooks:read` | List endpoints and inspect delivery history |
+| `webhooks:write` | Create, update, delete, test, and replay webhooks |
+| `suppressions:read` | List and export suppressions |
+| `suppressions:write` | Add, remove, and import suppressions |
+| `usage:read` | Inspect API key metadata and usage |
+| `projects:read` | List and inspect projects |
+| `projects:write` | Update project settings |
+| `contacts:read` | Read contacts, properties, segments, topics, activity, and engagement |
+| `contacts:write` | Mutate contacts, properties, segments, topics, images, and derived contact data |
+| `metrics:read` | Read project, topic, email, and deliverability analytics |
+
+Metrics endpoints accept any one of `emails:send`, `emails:read`, or `metrics:read`. Every other endpoint page names its exact required permission.
+
+## Authentication failures
+
+Authentication and authorization failures are problem documents:
+
+- `401` means the key is missing, malformed, invalid, revoked, expired, disabled, or otherwise inactive.
+- `403` means the key is valid but lacks the required permission or cannot access the path's project.
+
+Branch on the problem document's stable `code`, not on human-readable `title` or `detail` text.
+
+## Stream authentication
+
+Native `EventSource` clients cannot attach a Bearer header. To open the email event stream, exchange an `emails:send` key for a one-time token and pass that token in the stream's `token` query parameter. The token expires after 60 seconds and is consumed by the first connection. See [Event streams](/signal/api-reference/event-streams).

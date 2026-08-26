@@ -1,0 +1,289 @@
+---
+title: "User-Agent Utilities"
+description: "Parse and display browser, OS, device, engine, and CPU information from user-agent strings."
+---
+
+The `user-agent` utility module wraps [ua-parser-js](https://github.com/faisalman/ua-parser-js) to provide clean, type-safe user-agent parsing and a React component for compact display in tables and session lists.
+
+## Installation
+
+The user-agent utilities are part of `@apollo-deploy/components`:
+
+```ts
+import {
+  parseUserAgent,
+  parseUserAgentRaw,
+  getBrowser,
+  getOS,
+  getDevice,
+  getEngine,
+  getCPU,
+  formatBrowser,
+  formatOS,
+  formatDevice,
+  clearUserAgentCache,
+  UserAgentDisplay,
+} from "@apollo-deploy/components/utils";
+```
+
+---
+
+## Parsing user-agent strings
+
+### `parseUserAgent()`
+
+Parses a user-agent string into a flat, easy-to-use object. Results are cached per unique UA string for performance.
+
+```ts
+import { parseUserAgent } from "@apollo-deploy/components/utils";
+
+const ua = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36";
+
+const info = parseUserAgent(ua);
+// {
+//   ua: "Mozilla/5.0 ...",
+//   browserName: "Chrome",
+//   browserVersion: "150.0.0.0",
+//   browserMajor: "150",
+//   osName: "macOS",
+//   osVersion: "10.15.7",
+//   deviceType: undefined,
+//   deviceVendor: undefined,
+//   deviceModel: undefined,
+//   engineName: "Blink",
+//   engineVersion: "150.0.0.0",
+//   cpuArchitecture: undefined,
+// }
+```
+
+Passing `null` or `undefined` returns an empty result (all fields `undefined`):
+
+```ts
+parseUserAgent(null);
+// { ua: "", browserName: undefined, ... }
+```
+
+### `ParsedUserAgent` type
+
+```ts
+interface ParsedUserAgent {
+  ua: string;
+  browserName: string | undefined;
+  browserVersion: string | undefined;
+  browserMajor: string | undefined;
+  osName: string | undefined;
+  osVersion: string | undefined;
+  deviceType: string | undefined;
+  deviceVendor: string | undefined;
+  deviceModel: string | undefined;
+  engineName: string | undefined;
+  engineVersion: string | undefined;
+  cpuArchitecture: string | undefined;
+}
+```
+
+---
+
+## Individual accessors
+
+For cases where you only need a specific piece of information, use the individual accessor functions. These avoid parsing fields you don't need.
+
+```ts
+import { getBrowser, getOS, getDevice, getEngine, getCPU } from "@apollo-deploy/components/utils";
+
+const ua = "Mozilla/5.0 ...";
+
+const browser = getBrowser(ua);
+// IBrowser { name: "Chrome", version: "150.0.0.0", major: "150", ... }
+
+const os = getOS(ua);
+// IOS { name: "macOS", version: "10.15.7", ... }
+
+const device = getDevice(ua);
+// IDevice { type: undefined, vendor: undefined, model: undefined, ... }
+
+const engine = getEngine(ua);
+// IEngine { name: "Blink", version: "150.0.0.0", ... }
+
+const cpu = getCPU(ua);
+// ICPU { architecture: undefined, ... }
+```
+
+When `ua` is `null` or `undefined`, each accessor returns a stub object with `is()` returning `false` and `toString()` returning `""`.
+
+---
+
+## Raw access
+
+### `parseUserAgentRaw()`
+
+Returns the full raw `IResult` from `ua-parser-js` (nested objects):
+
+```ts
+import { parseUserAgentRaw } from "@apollo-deploy/components/utils";
+
+const raw = parseUserAgentRaw(ua);
+// IResult {
+//   ua: "...",
+//   browser: { name: "Chrome", version: "150.0.0.0", major: "150" },
+//   os: { name: "macOS", version: "10.15.7" },
+//   device: { type: undefined, vendor: undefined, model: undefined },
+//   engine: { name: "Blink", version: "150.0.0.0" },
+//   cpu: { architecture: undefined },
+// }
+```
+
+Returns `null` when `ua` is `null` or `undefined`.
+
+---
+
+## Human-readable formatters
+
+Convenience functions that return ready-to-display labels:
+
+```ts
+import { formatBrowser, formatOS, formatDevice } from "@apollo-deploy/components/utils";
+
+formatBrowser(ua);
+// → "Chrome 150"
+
+formatOS(ua);
+// → "macOS 10.15.7"
+
+formatDevice(ua);
+// → "Unknown" (when no device info is present)
+
+// Mobile example
+const mobileUA = "Mozilla/5.0 (iPhone; CPU iPhone OS 18_0...)";
+formatOS(mobileUA);
+// → "iOS 18.0"
+
+formatDevice(mobileUA);
+// → "Apple iPhone"
+```
+
+All formatters return `"Unknown"` when the UA is `null`/`undefined` or cannot be parsed.
+
+---
+
+## `UserAgentDisplay` — Display component
+
+A React component for rendering user-agent information in a consistent format, designed for use in tables, cards, and session lists.
+
+```tsx
+import { UserAgentDisplay } from "@apollo-deploy/components/utils";
+
+// Stack variant (default) — for table cells
+<UserAgentDisplay ua={session.userAgent} />
+// Renders:
+//   macOS 15.7          ← OS (title, text-sm font-medium)
+//   Chrome 150          ← Browser (subtitle, text-xs muted)
+
+// Include device info
+<UserAgentDisplay ua={ua} showDevice />
+// Adds device line below browser
+
+// Inline variant — single line
+<UserAgentDisplay ua={ua} variant="inline" />
+// Renders: "Chrome 150 on macOS 15"
+
+// Show only browser
+<UserAgentDisplay ua={ua} showOS={false} />
+// Renders only the browser line
+
+// Show only OS
+<UserAgentDisplay ua={ua} showBrowser={false} />
+// Renders only the OS line
+
+// Custom class
+<UserAgentDisplay ua={ua} className="my-custom-class" />
+```
+
+### Props
+
+| Prop         | Type                         | Default   | Description                                                  |
+| ------------ | ---------------------------- | --------- | ------------------------------------------------------------ |
+| `ua`         | `string \| null \| undefined` | _(required)_ | The user-agent string to parse and display.              |
+| `variant`    | `"stack" \| "inline"`        | `"stack"` | Display variant. Stack shows OS as title + browser as subtitle; inline joins them on one line. |
+| `showDevice` | `boolean`                    | `false`   | Whether to include device info.                              |
+| `showBrowser`| `boolean`                    | `true`    | Whether to show browser info.                                |
+| `showOS`     | `boolean`                    | `true`    | Whether to show OS info.                                     |
+| `className`  | `string`                     | —         | Custom class name on the wrapper element.                    |
+
+### Layout examples
+
+**Stack variant** (default):
+
+```
+macOS 15.7.1
+Chrome 150
+Apple iPhone          ← only when showDevice
+```
+
+**Inline variant**:
+
+```
+Chrome 150 on macOS 15
+```
+
+---
+
+## Cache management
+
+The parser caches results per unique UA string. Use `clearUserAgentCache()` to reset the cache (useful for testing or memory management):
+
+```ts
+import { clearUserAgentCache } from "@apollo-deploy/components/utils";
+
+clearUserAgentCache();
+```
+
+---
+
+## Type reference
+
+Types re-exported from `ua-parser-js`:
+
+```ts
+// These match ua-parser-js internals and provide
+// methods like .is(), .toString(), .withClientHints()
+interface IBrowser {
+  name?: string;
+  version?: string;
+  major?: string;
+  // ... plus helper methods
+}
+
+interface IOS {
+  name?: string;
+  version?: string;
+  // ... plus helper methods
+}
+
+interface IDevice {
+  type?: string;
+  vendor?: string;
+  model?: string;
+  // ... plus helper methods
+}
+
+interface IEngine {
+  name?: string;
+  version?: string;
+  // ... plus helper methods
+}
+
+interface ICPU {
+  architecture?: string;
+  // ... plus helper methods
+}
+
+interface IUserAgentResult {
+  ua: string;
+  browser: IBrowser;
+  os: IOS;
+  device: IDevice;
+  engine: IEngine;
+  cpu: ICPU;
+}
+```

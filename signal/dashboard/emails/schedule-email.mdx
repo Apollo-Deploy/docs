@@ -1,0 +1,62 @@
+---
+title: "Schedule an email"
+description: "Request future delivery, inspect scheduled state, and cancel before dispatch"
+---
+
+Set `scheduledAt` on a send request when the message must not enter provider delivery immediately.
+The dashboard lists the accepted message as `scheduled` until dispatch.
+
+## Explicit schedule
+
+Send an ISO 8601 timestamp with a timezone offset or `Z`.
+The timestamp must be at least 30 seconds and no more than 30 days in the future.
+
+```json
+{
+  "from": "billing@mail.company.com",
+  "to": "alex@example.com",
+  "subject": "Your renewal reminder",
+  "text": "Your subscription renews tomorrow.",
+  "scheduledAt": "2026-09-10T08:00:00Z",
+  "idempotencyKey": "renewal-reminder-sub-1042-2026-09"
+}
+```
+
+<Tip>
+Generate the timestamp in UTC and display the chosen local time to the person scheduling it.
+This avoids daylight-saving and server-timezone mistakes.
+</Tip>
+
+## After acceptance
+
+Signal returns the message ID, `scheduled` state, and scheduled time.
+The message appears in **Emails** immediately even though it has not been sent.
+At the requested time Signal moves it into the normal delivery pipeline.
+
+## Cancel
+
+Cancel while the message still has `scheduled` status.
+Once dispatch starts, cancellation is no longer a reliable control.
+A successful cancellation changes the state to `cancelled`.
+
+## Safe rescheduling
+
+Treat rescheduling as cancel-then-create:
+
+1. Cancel the original scheduled message.
+2. Confirm it is cancelled.
+3. Create a new send with the new timestamp and a new logical idempotency key.
+4. Store the replacement Signal ID.
+
+## Common validation failures
+
+- Timestamp is less than 30 seconds ahead.
+- Timestamp is more than 30 days ahead.
+- Timestamp has no unambiguous timezone.
+- The From domain is no longer verified.
+- The same idempotency key already belongs to the original logical send.
+
+<Note>
+The API also documents optimal-time scheduling fields for eligible non-transactional categories.
+Use the API reference for that contract; the dashboard workflow described here uses an explicit time.
+</Note>

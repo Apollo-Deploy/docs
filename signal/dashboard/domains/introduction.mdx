@@ -1,0 +1,56 @@
+---
+title: "Manage domains"
+description: "Operate sending-domain verification, authentication, tracking, BIMI, and regional routing"
+---
+
+The **Domains** page shows every sending domain in the active project and the configuration that controls whether Signal can send from it.
+
+## Domain list
+
+Each row shows the domain, sending region, overall status, DKIM state, BIMI state, tracking state, and last update.
+Search or filter the list when a project owns several domains.
+
+## Statuses
+
+| Status | Meaning |
+| --- | --- |
+| Pending | Initial verification is not complete |
+| Verified | Required sending checks currently pass |
+| Failed | One or more required checks failed |
+| Degraded | The domain remains present but a previously healthy condition needs attention |
+| Deleted | The domain is no longer available for sending |
+| Unknown | Signal cannot currently classify the state |
+
+Open a domain instead of relying only on the overall badge.
+The record view identifies which DNS value is unresolved or mismatched.
+
+## Records tab
+
+The records table shows type, name, content, TTL, priority, and verification state.
+Copy each value exactly into the authoritative DNS provider.
+Use **Verify DNS** after propagation.
+
+## Configuration tab
+
+Use configuration for the hosted BIMI logo and tracking-domain setup.
+Tracking is currently project-wide even when you open it from one domain.
+Saving a tracking domain changes tracking for all project sends.
+
+## Provider detection
+
+Signal detects common DNS providers from authoritative nameservers.
+Automatic setup is available for supported providers; other detected providers remain manual.
+Provider detection is guidance, so verify that you are editing the account that actually hosts authoritative DNS.
+
+## Operational checks
+
+- Recheck domains after nameserver moves.
+- Alert on a verified domain becoming degraded or failed.
+- Keep mail-related CNAME records unproxied.
+- Remove old sending infrastructure from SPF and DMARC reports deliberately.
+- Inspect DMARC sources before tightening policy.
+
+<Warning>
+Deleting a domain stops new sending from it immediately.
+Confirm every production From address has moved first.
+</Warning>

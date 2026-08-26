@@ -1,0 +1,62 @@
+---
+title: "Pagination"
+description: "Traverse page, cursor, and time-bounded collections"
+---
+
+Apollo Signal uses three collection patterns. The endpoint schema is authoritative about which one applies.
+
+## Page and size
+
+Most list endpoints accept:
+
+- `page`: 1-based page number, default `1`.
+- `size`: records per page, default `20`, maximum `100`.
+
+They return:
+
+```json
+{
+  "data": [],
+  "page": {
+    "page": 1,
+    "size": 20,
+    "total": 0,
+    "totalPages": 0,
+    "hasNextPage": false,
+    "hasPreviousPage": false
+  }
+}
+```
+
+Continue while `hasNextPage` is `true`. Do not infer completion from `data.length < size`; use the returned metadata.
+
+## Membership cursors
+
+Segment and topic membership endpoints use keyset pagination. Omit `after` for the first request, then pass the returned `cursor.nextCursor` unchanged:
+
+```json
+{
+  "data": [],
+  "cursor": {
+    "nextCursor": "4821",
+    "previousCursor": null,
+    "hasNextPage": true,
+    "hasPreviousPage": false
+  }
+}
+```
+
+Treat cursor values as opaque. Do not increment, decode, or construct them yourself.
+
+## API key usage windows
+
+`GET /v1/projects/{projectId}/api-keys/{keyId}/usage` uses `limit`, `after`, and `before` instead of page numbers:
+
+- `limit` defaults to `100` and is clamped between `1` and `500`.
+- `after` and `before` are ISO 8601 timestamps that bound the usage window.
+
+Its `page` object reports `size`, `totalPages`, and `hasMore`. Move the time boundary when `hasMore` is `true`, and de-duplicate by the record identifier if new traffic can arrive while you paginate.
+
+<Note>
+  Collection totals and page boundaries can change while contacts, emails, or webhook deliveries are being created. For a stable export, use the endpoint's export operation when one is available.
+</Note>

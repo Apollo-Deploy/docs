@@ -1,0 +1,58 @@
+---
+title: "Why a domain is not verifying"
+description: "Diagnose authoritative DNS, duplicated zones, record mismatches, and stale resolver data"
+---
+
+Signal verifies the public authoritative DNS answer against the record returned for the registered domain.
+A record saved in a provider dashboard is not verified until public DNS returns the expected value.
+
+## Diagnostic sequence
+
+<Steps>
+  <Step title="Identify the failing component">
+Open the domain **Records** tab. Record the failing entry's type, name, value, priority, and status.
+  </Step>
+  <Step title="Find authoritative nameservers">
+Confirm which provider the domain's current NS records delegate to. Edit that active zone, not an old registrar or previous provider zone.
+  </Step>
+  <Step title="Inspect the final host name">
+Check whether the provider appended the zone automatically. A repeated suffix creates a different DNS name from the one Signal queries.
+  </Step>
+  <Step title="Compare the complete value">
+Match the returned value exactly. Remove accidental quotes, spaces, line breaks, or copied punctuation, and place MX priority in its dedicated field.
+  </Step>
+  <Step title="Remove proxy interference">
+Keep DKIM, tracking, and verification CNAME records in direct DNS mode so the public answer remains the expected target.
+  </Step>
+  <Step title="Account for cached answers">
+A recursive resolver can return the old value until its TTL expires. Verify again after public resolvers can see the new record.
+  </Step>
+</Steps>
+
+## Conflicts to check
+
+- A CNAME shares its owner name with another record.
+- A previous provider's DKIM record remains at the same selector.
+- More than one DMARC TXT record exists at the same policy host.
+- A proxy or CNAME-flattening feature changes the expected answer.
+- The domain moved nameservers, but changes were made in the old zone.
+- A delegated subdomain points to different nameservers from the parent zone.
+- DNSSEC validation broke after a nameserver or DS-record change.
+
+## When one record verifies and another does not
+
+Treat each record independently.
+A valid DKIM record does not prove the MAIL FROM MX or SPF record is correct.
+An optional DMARC or BIMI problem is also different from a required sending check.
+Use the component status returned by Signal rather than replacing all records at once.
+
+## When a verified domain becomes degraded
+
+A later degraded or failed status means a previously accepted public condition changed or could not be confirmed.
+Review recent DNS edits, nameserver changes, provider-account changes, proxy settings, and deleted records.
+Restore the exact expected answer before relying on that sender.
+
+<Warning>
+Deleting and re-adding the domain changes the diagnostic context but does not repair authoritative DNS.
+First identify the exact record that differs.
+</Warning>

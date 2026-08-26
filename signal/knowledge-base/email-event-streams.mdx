@@ -1,0 +1,52 @@
+---
+title: "Live email event streams"
+description: "Use the short-lived SSE stream correctly and know when webhooks are the durable choice"
+---
+
+Signal exposes a project-scoped Server-Sent Events stream for live email updates.
+It uses a one-time stream token rather than an API key in a long-lived browser URL.
+
+## Connection flow
+
+<Steps>
+  <Step title="Issue a stream token">
+Call `POST /v1/emails/{projectId}/stream/token` with a project-bound API key that has `emails:send`.
+  </Step>
+  <Step title="Connect within 60 seconds">
+Open `GET /v1/emails/stream?token=...` before the token expires.
+  </Step>
+  <Step title="Parse SSE messages">
+Each JSON payload includes `type`, `emailId`, `occurredAt`, and an event-specific `data` object.
+  </Step>
+  <Step title="Reconnect deliberately">
+Issue a fresh token when a new connection is required.
+  </Step>
+</Steps>
+
+## Stream events
+
+The current stream can emit `sent`, `delivered`, `bounced`, `complained`, `opened`, `clicked`, and `unsubscribed`.
+Not every accepted message produces every event.
+Tracking events require the corresponding tracking behavior and an observed event.
+
+## Security boundary
+
+The stream token expires after 60 seconds for connection admission.
+Treat it as a secret during that window: do not write it to logs, analytics, support tickets, or persistent client storage.
+Do not expose the project API key in browser JavaScript to create tokens directly.
+Issue tokens through your authenticated server boundary when a customer-facing client needs a stream.
+
+## SSE versus webhooks
+
+Use SSE for a live interface that can tolerate reconnecting and fetching current state.
+Use signed webhooks for server-to-server event processing, attempt history, automatic retry, and replay.
+For reconciliation, retrieve the current email record by ID instead of assuming a continuously connected stream observed every past event.
+
+<Warning>
+A live stream is not a durable job queue.
+Your client can disconnect, start after an event, or fail to process a message.
+</Warning>
+
+<Card title="Webhook delivery" icon="webhook" href="/signal/knowledge-base/webhook-retries-and-replays">
+Use durable signed deliveries when downstream processing must survive outages.
+</Card>

@@ -1,0 +1,64 @@
+---
+title: "Implement DMARC"
+description: "Publish aligned policy, receive aggregate reports, and move toward enforcement safely"
+---
+
+DMARC tells receiving providers how to evaluate mail that uses your visible From domain.
+It builds on SPF and DKIM alignment and can request aggregate reports.
+
+## DMARC record
+
+Publish a TXT record at `_dmarc.<sending-domain>` using the value Signal shows for the domain.
+A record normally contains a version, policy, and aggregate-report destination.
+
+```dns
+_dmarc.mail.company.com TXT "v=DMARC1; p=none; rua=mailto:dmarc@company.com"
+```
+
+<Note>
+Use the exact value generated for your project.
+The example illustrates record shape and is not a substitute for the dashboard value.
+</Note>
+
+## Alignment
+
+DMARC passes when an authenticated DKIM or SPF identifier aligns with the domain visible in the From header.
+A provider can authenticate a message but still fail DMARC if the domains do not align.
+
+## Roll out policy
+
+<Steps>
+  <Step title="Inventory senders">
+Start with reporting and identify every legitimate service that sends as the domain.
+  </Step>
+  <Step title="Fix authentication">
+Configure aligned DKIM wherever possible and correct authorized SPF paths.
+  </Step>
+  <Step title="Review aggregate reports">
+Investigate unknown sources and recurring alignment failures.
+  </Step>
+  <Step title="Move to enforcement">
+Adopt `quarantine` or `reject` only after legitimate traffic consistently aligns.
+Use percentage controls if your policy process calls for a staged rollout.
+  </Step>
+</Steps>
+
+## Policy values
+
+| Policy | Recipient-provider instruction |
+| --- | --- |
+| `none` | Monitor and report without requesting enforcement |
+| `quarantine` | Treat failing mail as suspicious |
+| `reject` | Reject failing mail |
+
+## Troubleshooting
+
+- Publish only one DMARC TXT record at the policy host.
+- Confirm the report mailbox can receive aggregate reports.
+- Check From-domain alignment, not only raw SPF or DKIM pass.
+- Avoid adding every reported source to SPF.
+- Account for forwarded mail and third-party senders before enforcement.
+
+<Card title="Analyze reports" icon="chart-line" href="/signal/dashboard/dmarc/introduction">
+Import and investigate aggregate DMARC evidence in Signal.
+</Card>

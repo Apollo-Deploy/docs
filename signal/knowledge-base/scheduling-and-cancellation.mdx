@@ -1,0 +1,57 @@
+---
+title: "Scheduling and cancellation"
+description: "Know which times are valid, when quota applies, and when a send can still be stopped"
+---
+
+Set `scheduledAt` to an ISO 8601 timestamp for an explicit schedule, to `optimal` for supported optimized delivery, or omit it for immediate sending.
+
+## Explicit schedules
+
+An explicit timestamp must be at least 30 seconds and no more than 30 days in the future.
+Signal returns an accepted message with status `scheduled` and holds it until the requested time.
+
+Store schedule values with an explicit offset or `Z`.
+The API accepts an ISO 8601 instant; a dashboard display can render that instant in the viewer's local time zone.
+
+## Optimal delivery
+
+`scheduledAt: "optimal"` allows Signal to select a send time for a non-transactional category.
+When optimization may delay the message, provide the required delivery window.
+The available categories are `transactional`, `marketing`, `notification`, and `digest`.
+`transactional` is the default and is never delayed by optimal-time scheduling.
+
+## Quota timing
+
+Signal admits the scheduled record before its delivery time.
+Send quota is consumed when the delivery becomes due, not when the schedule is created.
+A schedule can therefore be valid at creation and fail later if project, domain, quota, or recipient state changes.
+
+Immediately before provider delivery, Signal rechecks suppression state.
+An address added to suppression while the message waits does not cross the provider boundary.
+
+## Cancel one message
+
+`DELETE /v1/emails/{emailId}` cancels a message only while it is `scheduled`.
+A successful cancellation changes it to `cancelled`.
+If dispatch has already started or the message has been sent, the operation returns a conflict instead of pretending the send was stopped.
+
+## Cancel all scheduled messages
+
+`DELETE /v1/emails` cancels the project's messages that are currently scheduled.
+It does not recall messages already queued for immediate work, handed to the provider, or delivered.
+
+## Operational checks
+
+Before a campaign window or maintenance event:
+
+1. List scheduled records in **Emails**.
+2. Confirm the intended instant and time zone.
+3. Check the Usage page for future volume headroom.
+4. Confirm the From domain remains verified.
+5. Confirm recipient and suppression inputs are current.
+6. Cancel while records still show `scheduled` if the send must not proceed.
+
+<Warning>
+Email has no recall operation after provider dispatch.
+A dashboard button or API conflict cannot undo a message already handed off.
+</Warning>

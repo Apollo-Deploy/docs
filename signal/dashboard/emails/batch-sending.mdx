@@ -1,0 +1,63 @@
+---
+title: "Batch sending"
+description: "Queue up to 100 independent emails in one atomic API request"
+---
+
+Use `POST /v1/emails/batch` when one job already contains several independent email requests.
+A batch reduces HTTP overhead; it does not turn the items into one shared email.
+
+## Request shape
+
+Send an object with an `items` array.
+Each item uses the normal send-email fields and may have its own recipient, sender, subject, content, schedule, tags, metadata, tracking settings, and idempotency key.
+
+```json
+{
+  "items": [
+    {
+      "from": "billing@mail.company.com",
+      "to": "alex@example.com",
+      "subject": "Invoice 1042",
+      "text": "Your invoice is ready.",
+      "idempotencyKey": "invoice-1042-alex"
+    },
+    {
+      "from": "billing@mail.company.com",
+      "to": "sam@example.com",
+      "subject": "Invoice 1043",
+      "text": "Your invoice is ready.",
+      "idempotencyKey": "invoice-1043-sam"
+    }
+  ]
+}
+```
+
+## Limits and acceptance
+
+- A request contains at most 100 items.
+- The key needs `emails:send`.
+- The batch endpoint currently allows 30 requests per 60 seconds per API key.
+- Signal validates and queues the batch atomically: either every item is accepted or none is queued.
+- After acceptance, each message delivers independently and can reach a different terminal status.
+
+<Warning>
+Atomic queueing does not mean atomic delivery.
+One accepted message can deliver while another later bounces or fails.
+</Warning>
+
+## Correlate results
+
+The response returns `results` in input order.
+Each result includes its zero-based `index` and, when accepted, message identifiers and initial state.
+Persist the mapping between your job item and the returned Signal ID.
+
+## Retry safely
+
+Give every item its own project-scoped `idempotencyKey`.
+If the caller loses the response, submit the same logical items with the same keys.
+Do not generate a new key for each retry because that creates new sends.
+
+## When not to batch
+
+Use individual sends when each message is produced by a separate job, when failures need independent HTTP retry timing, or when your queue already controls concurrency.
+Use a topic or segment audience send when the intent is one audience operation rather than a collection of unrelated transactional messages.

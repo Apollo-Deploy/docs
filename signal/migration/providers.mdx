@@ -1,0 +1,51 @@
+---
+title: "Migration providers"
+description: "Prepare the credentials and verification steps for each supported source provider"
+---
+
+The current Signal dashboard supports Resend, SendGrid, Mailgun, Postmark, and Brevo as migration sources.
+The active dashboard job imports domains and suppressions.
+
+| Provider | Credential accepted by the dashboard | Current dashboard resources |
+| --- | --- | --- |
+| Resend | API key | Domains and suppressions |
+| SendGrid | API key | Domains and suppressions |
+| Mailgun | API key | Domains and suppressions |
+| Postmark | Account token or server token | Domains and suppressions |
+| Brevo | API key | Domains and suppressions |
+
+## Credential scope
+
+Create or choose a source credential with enough read access for the two imported resource types.
+Avoid unrelated write or account-administration permissions.
+Use a temporary credential where the provider supports it.
+
+## Postmark
+
+Enter at least one of the account or server token fields.
+An account token is appropriate for account-level domain access.
+A server token can scope access to one server's relevant data.
+Use both only when the source layout requires both access levels.
+
+## Domain verification after import
+
+Imported metadata does not replace live DNS.
+Open every migrated domain in Signal, compare the current required records, publish any changes, and run verification.
+Do not route production traffic until Signal shows the domain as verified.
+
+## Suppression reconciliation
+
+Compare source and destination counts and review the reasons retained by the import.
+Keep complaint, bounce, and unsubscribe entries blocked.
+Resolve duplicates by address and reason rather than deleting the destination entry.
+
+## Provider cutover
+
+1. Finish the import and reconcile results.
+2. Verify Signal domains.
+3. Create restricted Signal credentials.
+4. Run test mode.
+5. Deliver a controlled real message.
+6. Move a small traffic slice.
+7. Compare delivery and suppression behavior.
+8. Complete the cutover and revoke old credentials.

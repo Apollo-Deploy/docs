@@ -1,0 +1,64 @@
+---
+title: "SMTP relay"
+description: "Connect an application or MTA to Signal with STARTTLS and a restricted API key"
+---
+
+Use SMTP when an application can send mail through a relay but cannot call the Email API directly.
+Open **Settings → SMTP** for the host assigned to the current deployment.
+
+## Connection settings
+
+| Setting | Value |
+| --- | --- |
+| Host | Copy the deployment-specific host from **Settings → SMTP** |
+| Port | `587` |
+| Encryption | `STARTTLS` |
+| Username | `apikey` |
+| Password | A Signal API key with `emails:send` |
+
+<Warning>
+Do not guess or hard-code a generic SMTP hostname.
+Use the host displayed by the active Signal deployment.
+</Warning>
+
+## Sending requirements
+
+Both the SMTP envelope sender, often called MAIL FROM, and the visible From address must use a domain verified in the same project as the API key.
+The key determines project scope and must be active, unexpired, and permitted to send.
+
+## Configure a client
+
+<Steps>
+  <Step title="Create a dedicated key">
+Create an API key named for the SMTP caller and grant only **Emails: Send**.
+  </Step>
+  <Step title="Copy the connection values">
+Use **Copy settings** or copy host, port, encryption, and username individually.
+  </Step>
+  <Step title="Configure STARTTLS">
+Connect on port 587 and require the TLS upgrade.
+Do not silently fall back to an unencrypted connection.
+  </Step>
+  <Step title="Set sender identity">
+Configure MAIL FROM and From on a verified domain.
+  </Step>
+  <Step title="Send a controlled message">
+Deliver to an inbox you own and inspect the resulting message in **Emails**.
+  </Step>
+</Steps>
+
+## Operational differences from REST
+
+SMTP uses SMTP acceptance and reply codes instead of an HTTP 201 response.
+The relay does not provide the Email API's JSON-body `idempotencyKey` field.
+If the SMTP caller can retry after an ambiguous connection failure, control duplicate risk in the caller or prefer REST for that workflow.
+
+## Troubleshooting
+
+| Failure | Check |
+| --- | --- |
+| Cannot connect | Host, port 587, outbound firewall policy, DNS, and STARTTLS support |
+| Authentication fails | Username is exactly `apikey` and password is an active send-capable Signal key |
+| Sender rejected | MAIL FROM and From use a verified project domain |
+| Accepted but not delivered | Open **Emails** and inspect bounce, rejection, suppression, or provider failure |
+| TLS error | System clock, trust store, TLS interception, and whether the client actually performs STARTTLS |

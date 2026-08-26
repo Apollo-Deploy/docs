@@ -1,0 +1,91 @@
+---
+title: "Send emails with Go"
+description: "Send a transactional email from Go using the standard HTTP client"
+---
+
+Use this guide to send one server-side transactional email and confirm its lifecycle in Apollo Signal.
+
+<Note>
+Replace every `mail.company.com` example with a domain that is verified in your project.
+</Note>
+
+<Steps>
+  <Step title="Create a sending key">
+Open **API keys** in Apollo Signal. Create a key with **Emails: Send** permission, copy it once, and store it in a server-side secret.
+  </Step>
+  <Step title="Verify the From domain">
+Open **Domains**, add the sending domain, publish the required DNS records, and wait for the domain to show as verified.
+  </Step>
+  <Step title="Configure the process">
+Set `SIGNAL_API_KEY` in the environment available to your Go service.
+  </Step>
+  <Step title="Send the message">
+```go
+payload := []byte("{\n  \"from\": \"auth@mail.company.com\",\n  \"to\": \"alex@example.com\",\n  \"subject\": \"Reset your password\",\n  \"text\": \"Use the secure link in your account to choose a new password.\"\n}")
+request, err := http.NewRequest(http.MethodPost, "https://api.signal.apollodeploy.com/v1/emails", bytes.NewReader(payload))
+if err != nil {
+    log.Fatal(err)
+}
+
+request.Header.Set("Authorization", "Bearer "+os.Getenv("SIGNAL_API_KEY"))
+request.Header.Set("Content-Type", "application/json")
+
+response, err := http.DefaultClient.Do(request)
+if err != nil {
+    log.Fatal(err)
+}
+defer response.Body.Close()
+
+if response.StatusCode < 200 || response.StatusCode >= 300 {
+    log.Fatalf("Apollo Signal returned %s", response.Status)
+}
+```
+  </Step>
+</Steps>
+
+## Required values
+
+| Value | Requirement |
+| --- | --- |
+| API key | Must belong to the active project and include `emails:send`. REST requests use `Authorization: Bearer <key>`. SMTP uses the key as the password. |
+| From | Must use a verified sending domain in the same project. A display name is optional. |
+| To | Must be a valid recipient address for this first send. Keep recipient input on the server and validate it before use. |
+| Content | Include a non-empty subject and at least one of `html` or `text`. |
+
+## Understand the response
+
+A successful request returns HTTP `201 Created`.
+The returned ID identifies the accepted message and lets you correlate dashboard activity, API reads, and webhook events.
+A normal immediate send starts in `queued`. A future send starts in `scheduled`. A request with `testMode: true` is recorded as a test instead of reaching a provider.
+
+## Check the message
+
+Open **Emails** and select the message. Check its current status, recipient, timestamps, provider response, content preview, and event timeline.
+Delivery events are asynchronous, so do not treat the initial API or SMTP acceptance as final delivery.
+
+## Common failures
+
+| Symptom | What to check |
+| --- | --- |
+| `401 Unauthorized` | The key is missing, malformed, expired, or no longer active. |
+| `403 Forbidden` | The key does not include `emails:send` or belongs to another project. |
+| Validation error | The From domain is unverified, the recipient is invalid, or both `html` and `text` are missing. |
+| `429 Too Many Requests` | Slow down, respect the response headers, and retry with backoff. |
+| Accepted but not delivered | Open the email timeline and check for bounce, complaint, suppression, rejection, or provider failure. |
+
+## Production checklist
+
+- Keep the API key in a secret manager.
+- Use a restricted key dedicated to this service.
+- Add an `idempotencyKey` when your job runner can retry the same logical send.
+- Configure signed webhooks for final delivery outcomes.
+- Monitor bounce, complaint, suppression, and quota signals in the dashboard.
+
+<CardGroup cols={2}>
+  <Card title="Email API" icon="code" href="/api-reference/emails/send-email">
+    Review every send field and response.
+  </Card>
+  <Card title="Manage emails" icon="envelope" href="/signal/dashboard/emails/introduction">
+    Learn the statuses and troubleshooting workflow.
+  </Card>
+</CardGroup>

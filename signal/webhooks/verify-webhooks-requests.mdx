@@ -1,0 +1,81 @@
+---
+title: "Verify webhook requests"
+description: "Validate the raw body, timestamp, and HMAC-SHA256 signature safely"
+---
+
+Verify every webhook before parsing it into trusted application data.
+Signal signs the timestamp and exact raw request body with the endpoint secret.
+
+## Headers
+
+| Header | Value |
+| --- | --- |
+| `X-Signal-Webhook-Timestamp` | Unix epoch seconds used in the signed input |
+| `X-Signal-Webhook-Signature` | `v1=<hex HMAC-SHA256>` |
+
+The signed bytes are:
+
+```text
+<timestamp>.<raw request body>
+```
+
+## Node.js example
+
+This function expects the raw body string before JSON parsing:
+
+```typescript
+import { createHmac, timingSafeEqual } from "node:crypto";
+
+export function verifySignalWebhook(
+  rawBody: string,
+  timestamp: string,
+  providedSignature: string,
+  secret: string,
+) {
+  const expected = "v1=" + createHmac("sha256", secret)
+    .update(timestamp + "." + rawBody)
+    .digest("hex");
+
+  const provided = Buffer.from(providedSignature);
+  const calculated = Buffer.from(expected);
+  return provided.length === calculated.length
+    && timingSafeEqual(provided, calculated);
+}
+```
+
+## Verification sequence
+
+<Steps>
+  <Step title="Read the raw body">
+Disable automatic body consumption for this route or preserve the raw bytes alongside the parsed value.
+  </Step>
+  <Step title="Read both headers">
+Reject the request if either header is missing or malformed.
+HTTP header names are case-insensitive.
+  </Step>
+  <Step title="Check timestamp freshness">
+Parse epoch seconds and reject requests outside your chosen tolerance.
+Account for small clock skew and keep server time synchronized.
+  </Step>
+  <Step title="Calculate HMAC">
+Join timestamp, a dot, and the exact raw body.
+Use HMAC-SHA256 with the endpoint secret.
+  </Step>
+  <Step title="Compare in constant time">
+Compare equal-length byte sequences with a timing-safe function.
+  </Step>
+  <Step title="Parse and enqueue">
+Only after verification, parse JSON and durably accept the event.
+  </Step>
+</Steps>
+
+<Warning>
+Serializing parsed JSON again changes whitespace, key ordering, or escaping and breaks verification.
+Always sign the body exactly as received.
+</Warning>
+
+## Secret handling
+
+Store one secret per endpoint in a secret manager.
+Do not log it or include it in exception output.
+Endpoint list and get responses do not return it after creation.

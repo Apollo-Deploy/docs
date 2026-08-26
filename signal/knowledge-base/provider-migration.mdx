@@ -1,0 +1,60 @@
+---
+title: "Provider migration facts and reconciliation"
+description: "Import only the resources the current dashboard supports and verify the destination before cutover"
+---
+
+The current Signal dashboard starts background imports from Resend, SendGrid, Mailgun, Postmark, and Brevo.
+The dashboard currently requests two resource types: domains and suppressions.
+
+## Provider credentials
+
+| Provider | Accepted credential | Current dashboard resources |
+| --- | --- | --- |
+| Resend | API key | Domains and suppressions |
+| SendGrid | API key | Domains and suppressions |
+| Mailgun | API key | Domains and suppressions |
+| Postmark | Account token, server token, or both | Domains and suppressions |
+| Brevo | API key | Domains and suppressions |
+
+Use a source credential with only the read access required for the imported resources.
+The dashboard submits credential values to start the job and clears its input after a successful start.
+They are not added as reusable project configuration.
+Revoke a temporary source credential after the job no longer requires it.
+
+## Job behavior
+
+Only one import can run for a project at a time.
+The job continues in the background and can be `queued`, `in_progress`, `completed`, `failed`, or `cancelled`.
+Progress exposes processed, imported, skipped, and failed counts per resource.
+
+A skipped row can be a duplicate, an already imported record, a plan-bound item, or provider data that cannot be mapped.
+Read the job's actual error samples instead of inventing a cause from the count.
+
+## Domains require new verification
+
+Imported domain metadata does not publish or validate current Signal DNS.
+Open every destination domain, compare the returned records, publish missing or changed values, and run Signal verification.
+Do not move a production From address until required checks pass.
+
+## Suppressions require reconciliation
+
+Compare source and destination counts and reasons.
+Keep bounce, complaint, unsubscribe, and deliberate manual blocks intact.
+Resolve duplicates by normalized address and reason instead of deleting the destination fence.
+
+## Cutover sequence
+
+1. Export or preserve the source evidence you require.
+2. Run the import and review every resource result.
+3. Verify Signal DNS.
+4. Reconcile suppression counts and samples.
+5. Create restricted Signal credentials.
+6. Run test mode.
+7. Deliver one controlled real message.
+8. Move a small traffic slice and compare outcomes.
+9. Complete the cutover and revoke old credentials.
+
+<Warning>
+The current migration does not claim to import message history, every contact, or unsupported product features.
+Treat domains and suppressions as the verified dashboard scope.
+</Warning>

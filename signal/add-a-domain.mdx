@@ -1,0 +1,72 @@
+---
+title: "Add and verify a domain"
+description: "Authenticate a sending domain and understand every DNS record Signal checks"
+---
+
+Signal requires a verified domain before it delivers production email from that domain.
+Domain authentication also protects your reputation and helps receiving providers trust your messages.
+
+## Choose the domain
+
+Use a dedicated subdomain such as `mail.company.com`, `notifications.company.com`, or `auth.company.com`.
+The address `security@auth.company.com` must be verified under `auth.company.com`.
+Choose the domain before you wire production From addresses into code.
+
+<Steps>
+  <Step title="Add the domain">
+Open **Domains**, select **Add domain**, enter the sending domain, and choose its region where the dashboard asks for one.
+  </Step>
+  <Step title="Review provider detection">
+Signal inspects the domain nameservers and identifies common DNS providers.
+Use automatic setup when offered or copy the records into your provider manually.
+  </Step>
+  <Step title="Publish the records">
+Add each host, record type, and value exactly.
+Do not add extra quotes.
+If the provider automatically appends the zone name, enter only the host portion shown by that provider.
+  </Step>
+  <Step title="Verify">
+Return to the domain and select **Verify**.
+Verification runs asynchronously, so refresh the record state after public DNS has propagated.
+  </Step>
+</Steps>
+
+## Records Signal uses
+
+| Record | Requirement | Purpose |
+| --- | --- | --- |
+| DKIM | Required | Cryptographically signs messages for the domain |
+| Sending MX and SPF | Required for the sending setup shown by Signal | Authorizes and routes the sending domain |
+| DMARC | Recommended | Publishes alignment policy and enables aggregate reporting |
+| Tracking CNAME | Optional | Brands open, click, and unsubscribe tracking under your domain |
+| BIMI | Optional | Associates a hosted brand mark with an authenticated domain |
+
+## Verification states
+
+A pending record has not resolved to the expected value yet.
+A verified record matches.
+A failed record needs attention.
+Compare the exact public response with the value shown in Signal before editing the record again.
+
+## DNS troubleshooting
+
+- Wait at least one full TTL after a change.
+- Disable HTTP proxying for mail-related CNAME records.
+- Check whether the provider duplicated the root domain in the host.
+- Remove stale records that conflict at the same host.
+- Confirm you changed the authoritative nameserver provider, not an old registrar DNS screen.
+- Use the domain record view to identify the specific record that remains unresolved.
+
+<Warning>
+Deleting a sending domain stops new sends from that domain immediately.
+Update application From addresses before you remove a production domain.
+</Warning>
+
+<CardGroup cols={2}>
+  <Card title="Domain Connect" href="/signal/dashboard/domains/domain-connect">
+    Use supported automatic DNS setup.
+  </Card>
+  <Card title="DMARC" href="/signal/dashboard/domains/dmarc">
+    Publish policy and inspect aggregate reports.
+  </Card>
+</CardGroup>

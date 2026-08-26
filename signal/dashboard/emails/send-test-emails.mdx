@@ -1,0 +1,52 @@
+---
+title: "Test mode"
+description: "Exercise the send path without delivering to a real recipient provider"
+---
+
+Set `testMode: true` when you need Signal to validate and record a send without handing it to the delivery provider.
+Test mode is an API field; it is not a project-wide dashboard switch.
+
+```json
+{
+  "from": "auth@mail.company.com",
+  "to": "alex@example.com",
+  "subject": "Integration smoke test",
+  "text": "This message must not leave test mode.",
+  "testMode": true,
+  "idempotencyKey": "deploy-8f31-email-smoke"
+}
+```
+
+## What test mode proves
+
+- The API key authenticates and has send permission.
+- The JSON request passes Signal validation.
+- Signal can create the customer-visible message record.
+- Your application can persist and correlate the response.
+- Your read and operational tooling can identify a test message.
+
+## What it does not prove
+
+- DNS authentication is accepted by external mailbox providers.
+- The provider can deliver to the recipient domain.
+- The message reaches an inbox.
+- Open or click tracking behaves in a real mail client.
+- Your bounce and complaint handling sees a real provider event.
+
+## Find the test
+
+Open **Emails** and select the recorded message.
+The detail identifies test mode and shows test state rather than real provider delivery.
+Use a distinctive tag, metadata value, subject, and idempotency key so smoke tests are easy to separate from production activity.
+
+## Test in layers
+
+1. Use test mode in automated deployment checks.
+2. Send a controlled real message to an inbox your team owns.
+3. Verify the signed webhook path with the endpoint test action.
+4. Monitor real delivery metrics after rollout.
+
+<Warning>
+Do not build a production delivery guarantee around test mode.
+It intentionally stops before provider delivery.
+</Warning>

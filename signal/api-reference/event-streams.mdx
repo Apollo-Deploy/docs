@@ -1,0 +1,72 @@
+---
+title: "Email event streams"
+description: "Consume live delivery events with one-time SSE tokens"
+---
+
+The email event stream sends live project-scoped delivery and engagement events over Server-Sent Events (SSE).
+
+## 1. Issue a stream token
+
+Use an API key with `emails:send`:
+
+```bash
+curl --request POST \
+  --url https://api.signal.apollodeploy.com/v1/emails/proj_01.../stream/token \
+  --header "Authorization: Bearer $APOLLO_SIGNAL_API_KEY"
+```
+
+```json
+{
+  "token": "qR8l5...mN2",
+  "expiresAt": "2026-08-25T10:01:00Z"
+}
+```
+
+The token expires after 60 seconds and is atomically consumed by the first stream connection. Issue it immediately before connecting, never persist it, and avoid recording the query string in access logs.
+
+## 2. Open the stream
+
+```javascript
+const tokenResponse = await fetch(
+  "https://api.signal.apollodeploy.com/v1/emails/proj_01.../stream/token",
+  {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${process.env.APOLLO_SIGNAL_API_KEY}`,
+    },
+  },
+);
+
+const { token } = await tokenResponse.json();
+const stream = new EventSource(
+  `https://api.signal.apollodeploy.com/v1/emails/stream?token=${encodeURIComponent(token)}`,
+);
+
+stream.onmessage = ({ data }) => {
+  const event = JSON.parse(data);
+  console.log(event.type, event.emailId, event.occurredAt);
+};
+```
+
+Each SSE message places a JSON object in the `data` field:
+
+```json
+{
+  "type": "delivered",
+  "emailId": "email_01...",
+  "occurredAt": "2026-08-25T10:00:00Z",
+  "data": {}
+}
+```
+
+Possible `type` values are `sent`, `delivered`, `bounced`, `complained`, `opened`, `clicked`, and `unsubscribed`. The `data` map contains event-specific string values when available.
+
+## Reconnect and recovery
+
+The token cannot be reused, so the browser's default `EventSource` reconnect with the same URL cannot re-authenticate. When the stream closes, dispose of it, issue a new token, and create a new connection with capped backoff.
+
+The stream is live and does not accept `Last-Event-ID`. After a disconnect, reconcile authoritative history with `GET /v1/projects/{projectId}/emails/{emailId}/events` for emails you track. Use webhooks when delivery across client disconnects must be durable.
+
+<Note>
+  Authentication errors returned before the stream opens are `application/problem+json`. After it opens, handle disconnects through the SSE client's network error path.
+</Note>

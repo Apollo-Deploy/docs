@@ -1,0 +1,57 @@
+---
+title: "Projects, regions, and data boundaries"
+description: "Understand what a Signal project isolates and which region choices are permanent"
+---
+
+A project is Signal's customer isolation boundary.
+Its domains, API keys, contacts, custom properties, segments, topics, suppressions, messages, webhooks, usage, and metrics belong to that project.
+
+## What project-bound means
+
+- An API key authenticates to one project.
+- A verified domain in one project does not make that domain available to another project.
+- Contact and suppression state does not cross project boundaries.
+- Message IDs, webhook endpoints, usage, and metrics are resolved in the authenticated project.
+- A topic or segment audience ID must belong to the same project as the sending key.
+
+Use separate projects when production and non-production data must not mix.
+This gives each environment its own credentials, sender configuration, audiences, suppressions, events, and usage record.
+
+## Project regions
+
+| Code | Dashboard location |
+| --- | --- |
+| `us-east-1` | US East, N. Virginia |
+| `af-south-1` | Africa, Cape Town |
+| `eu-west-1` | Europe, Ireland |
+| `ap-southeast-1` | Asia Pacific, Singapore |
+
+You select a project region when creating the project.
+Signal exposes the region as read-only afterward; changing it requires a separate project and a controlled migration.
+Availability can depend on the active plan, so use the choices shown by the creation dialog as the live entitlement.
+
+## Domain regions
+
+Every sending domain also has a region.
+Without multi-region domain capability, a new domain uses the project region and the dashboard locks that choice.
+With the capability enabled, the add-domain dialog exposes the supported regions.
+A domain's region cannot be changed after registration.
+
+To move a sender to another region:
+
+1. Register the replacement domain in the target region.
+2. Publish and verify its DNS records.
+3. Reconfigure tracking and BIMI when used.
+4. Move a controlled caller or traffic slice.
+5. Confirm message and webhook behavior.
+6. Move the remaining From addresses.
+7. Remove the old domain only after no caller uses it.
+
+<Warning>
+A region controls Signal's processing path for the project or domain.
+It is not evidence that a recipient server accepted a message or that a message reached an inbox.
+</Warning>
+
+<Card title="Project documentation" icon="diagram-project" href="/signal/dashboard/projects/introduction">
+Review project creation, environment separation, updates, and deletion.
+</Card>

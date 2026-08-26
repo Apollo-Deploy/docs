@@ -1,0 +1,53 @@
+---
+title: "Cloudflare DNS setup"
+description: "Configure Signal records in Cloudflare without proxy or CNAME-flattening interference"
+---
+
+Signal detects Cloudflare authoritative nameservers and currently supports the automatic DNS setup flow for Cloudflare.
+You can also publish every returned record manually.
+
+## Automatic setup
+
+1. Open the domain **Records** tab in Signal.
+2. Select **Setup**.
+3. Sign in to the Cloudflare account that owns the authoritative zone.
+4. Review the requested zone and every proposed DNS record.
+5. Approve the expected records only.
+6. Return to Signal and wait for each record to verify.
+
+## Manual setup
+
+Copy `type`, `name`, `value`, and `priority` exactly from Signal.
+Cloudflare displays the fully qualified host after a record is saved; use that display to catch a duplicated zone suffix.
+
+For CNAME records used by DKIM, tracking, or third-party verification, set **Proxy status** to **DNS only**.
+Cloudflare documents that a proxied CNAME returns Cloudflare anycast addresses instead of the configured origin target.
+That answer is not the CNAME value Signal is trying to verify.
+
+MX and TXT records are always DNS-only record types in Cloudflare.
+Cloudflare proxying applies only to A, AAAA, and CNAME records.
+
+## CNAME flattening
+
+Cloudflare documents that CNAME flattening can interfere with third-party ownership verification because the querying service may not receive the expected CNAME target.
+If a Signal verification CNAME does not resolve as shown, inspect proxy status and flattening behavior before changing the generated value.
+
+## Cloudflare checklist
+
+- The selected Cloudflare zone is authoritative for the Signal domain.
+- DKIM and tracking CNAME records show **DNS only**.
+- MX priority is in Cloudflare's priority field.
+- Only one DMARC TXT record exists at the required policy host.
+- No other record conflicts with a CNAME owner name.
+- The final host name contains the zone exactly once.
+- Signal, not only Cloudflare, shows the record as verified.
+
+## Official Cloudflare references
+
+- [Proxy status and supported record types](https://developers.cloudflare.com/dns/proxy-status/)
+- [CNAME-based domain verification troubleshooting](https://developers.cloudflare.com/dns/manage-dns-records/troubleshooting/cname-domain-verification/)
+
+<Warning>
+A saved Cloudflare record is configuration evidence, not Signal verification.
+Return to Signal and confirm the public DNS state.
+</Warning>

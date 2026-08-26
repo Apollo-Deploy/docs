@@ -1,0 +1,67 @@
+---
+title: "Apollo Signal"
+description: "Build, send, and operate transactional email with Apollo Signal"
+---
+
+Apollo Signal gives your application one place to send transactional email, authenticate sending domains, manage recipients, inspect delivery outcomes, and react to signed events.
+
+These guides cover the customer-visible workflows in the Signal dashboard and the public API.
+
+## Start here
+
+<Steps>
+  <Step title="Create or select a project">
+A project is the boundary for API keys, domains, contacts, messages, webhooks, usage, and metrics.
+Choose the project region carefully because you cannot change it after creation.
+  </Step>
+  <Step title="Verify a sending domain">
+Add the domain used by your From address, publish the DNS records Signal provides, and wait for the domain to become verified.
+  </Step>
+  <Step title="Create a restricted API key">
+Create a key with only the permissions your integration needs.
+Copy the raw key when it appears because Signal does not show it again.
+  </Step>
+  <Step title="Send and inspect one message">
+Send to an address you control, then open **Emails** and follow the message timeline through delivery or failure.
+  </Step>
+  <Step title="Add operational feedback">
+Configure signed webhooks, review suppression handling, and monitor delivery, bounce, complaint, and quota signals.
+  </Step>
+</Steps>
+
+<CardGroup cols={2}>
+  <Card title="Dashboard quickstart" icon="gauge-high" href="/signal/getting-started/dashboard-quickstart">
+    Complete the same setup flow shown in the Signal dashboard.
+  </Card>
+  <Card title="Send with your stack" icon="code" href="/signal/send-with/send-with-rest">
+    Use REST, SMTP, or a language-specific server example.
+  </Card>
+  <Card title="API reference" icon="brackets-curly" href="/signal/api-reference/introduction">
+    Review request fields, permissions, status codes, and response schemas.
+  </Card>
+  <Card title="Webhook guide" icon="webhook" href="/signal/webhooks/introduction">
+    Consume final delivery outcomes safely.
+  </Card>
+</CardGroup>
+
+## Core boundaries
+
+| Boundary | What it controls |
+| --- | --- |
+| Project | Region, domains, keys, recipient data, messages, endpoints, usage, and metrics |
+| API key | Which project the request reaches and which actions the caller can perform |
+| Sending domain | Which From addresses Signal may deliver in production |
+| Contact preferences | Whether an address may receive a message for a topic |
+| Suppression list | Addresses that Signal must block because of a bounce, complaint, unsubscribe, or manual action |
+
+## Message lifecycle
+
+The send response confirms acceptance, not inbox delivery.
+A message may move through `queued` or `scheduled`, then `sent`, `delivered`, `opened`, or `clicked`.
+It can instead become `bounced`, `complained`, `failed`, `rejected`, or `suppressed`.
+Use the email timeline and webhooks as the source of truth for asynchronous outcomes.
+
+<Warning>
+Never put a Signal API key in browser JavaScript, a mobile application, a public repository, or support output.
+Call Signal from infrastructure you control.
+</Warning>

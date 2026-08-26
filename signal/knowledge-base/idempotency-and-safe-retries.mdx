@@ -1,0 +1,59 @@
+---
+title: "Idempotency and safe send retries"
+description: "Retry admission failures without creating duplicate email records"
+---
+
+Signal uses `idempotencyKey` in the JSON send body.
+It does not use an idempotency header.
+
+## Contract
+
+- The key is scoped to the authenticated project.
+- Retrying a send with the same key returns the original send result.
+- A batch item has its own `idempotencyKey`; the batch wrapper does not replace item keys.
+- Keep the key stable for every retry of one logical message.
+- Generate a new key for a genuinely new logical message.
+
+A practical key can be your system's immutable notification or job ID.
+Do not derive it from the current timestamp inside each retry attempt.
+
+## Safe retry sequence
+
+<Steps>
+  <Step title="Create the key once">
+Persist or deterministically derive it before the first Signal request.
+  </Step>
+  <Step title="Send the request">
+Record the key and your internal operation ID. Do not record the API key or message body.
+  </Step>
+  <Step title="Classify the failure">
+Retry transient transport failures and eligible rate limits. Correct validation, authentication, permission, and domain errors first.
+  </Step>
+  <Step title="Reuse the same request identity">
+Send the same logical request with the original `idempotencyKey`.
+  </Step>
+  <Step title="Store the returned Signal ID">
+Follow that record through retrieval, webhooks, and your own job state.
+  </Step>
+</Steps>
+
+## Rate limits
+
+For `429`, honor `Retry-After` when present and add bounded backoff with jitter.
+Do not generate a new idempotency key to work around a rate limit; that changes the logical request identity and can create duplicate mail.
+
+## Indeterminate handoffs
+
+`indeterminate` means Signal could not prove whether the provider accepted the handoff.
+A brand-new send is unsafe because the first handoff might have succeeded.
+Inspect the existing record and preserve the original admission identity instead of blindly duplicating it.
+
+## Batch retries
+
+Keep a stable key per item and correlate the response by item index.
+Because the batch is admitted atomically, a failed admission queues none of its items.
+After a successful admission, follow each returned email ID independently rather than resubmitting the entire batch based on one later delivery failure.
+
+<Card title="Idempotency guide" icon="fingerprint" href="/signal/dashboard/emails/idempotency-keys">
+See request examples and integration guidance.
+</Card>

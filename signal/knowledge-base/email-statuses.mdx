@@ -1,0 +1,58 @@
+---
+title: "Email status reference"
+description: "Understand every public Signal email status and the next evidence to inspect"
+---
+
+The current email record exposes 15 statuses.
+Statuses describe Signal's latest known state; the timeline preserves the sequence of observed events.
+
+## Admission and processing
+
+| Status | Meaning |
+| --- | --- |
+| `queued` | Signal accepted an immediate message and queued provider work. |
+| `sending` | Signal started the provider handoff and has not recorded a later outcome yet. |
+| `scheduled` | Signal is holding the message until its requested send time. |
+| `test` | Signal exercised test behavior without real recipient delivery. |
+
+## Provider and recipient outcomes
+
+| Status | Meaning |
+| --- | --- |
+| `sent` | Signal recorded a successful handoff to the sending provider. |
+| `delivered` | The recipient mail server accepted the message. |
+| `opened` | The configured open-tracking pixel was loaded. |
+| `clicked` | A configured tracked link was followed. |
+| `bounced` | A bounce event was recorded for the recipient. |
+| `complained` | A complaint event was recorded for the recipient. |
+
+## Stops and uncertain outcomes
+
+| Status | Meaning |
+| --- | --- |
+| `cancelled` | A scheduled message was cancelled before provider dispatch. |
+| `suppressed` | Signal blocked the recipient because suppression state applied. |
+| `rejected` | Signal recorded a deterministic provider or policy rejection before successful handoff. |
+| `failed` | Signal or the provider could not complete the send and recorded a failure. |
+| `indeterminate` | The provider handoff outcome could not be determined confidently, including an uncertain response without a provider message ID. |
+
+## How to investigate
+
+1. Open the message and read the latest status and error.
+2. Read the timeline from the last successful transition to the first failing event.
+3. Check the recipient's suppression and contact preference state.
+4. Check whether the From domain remains verified.
+5. Correlate the Signal email ID with your request logs and webhook event IDs.
+
+Treat `indeterminate` differently from a clear rejection.
+It means Signal cannot prove whether the provider accepted the handoff.
+Do not create a fresh duplicate send automatically; inspect the record and use your original idempotency key for an admission retry.
+
+<Note>
+`opened` and `clicked` are tracking observations.
+Privacy systems and automated link scanners can produce those events, so they are not guaranteed human actions.
+</Note>
+
+<Card title="Manage emails" icon="envelope" href="/signal/dashboard/emails/introduction">
+See the customer dashboard fields, content tabs, timeline, and cancellation workflow.
+</Card>

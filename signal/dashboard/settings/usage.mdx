@@ -1,0 +1,49 @@
+---
+title: "Usage and quotas"
+description: "Read the current billing window, send consumption, plan limits, and capacity pressure"
+---
+
+Open **Settings → Usage** to compare current project and organization consumption with the active plan contract.
+Use the live values in this page instead of hard-coding plan limits into operational tooling.
+
+## Billing window
+
+The page shows aggregated usage for the current billing window.
+The dates define the denominator for monthly usage and reset expectations.
+Daily send controls can roll independently of the monthly window.
+
+## Current usage
+
+The dashboard groups usage into:
+
+| Group | Values |
+| --- | --- |
+| Sending | Daily sends and monthly sends |
+| Platform | Projects, domains, webhooks, and API keys |
+| Retention and add-ons | Data-retention allowance and available product add-ons |
+
+Each quota displays current consumption and the current limit.
+An **Unlimited** label means the live billing contract does not impose a numeric cap for that value.
+
+## Capacity review
+
+Before a launch or migration:
+
+1. Estimate expected daily and monthly send volume.
+2. Include retries, scheduled sends, and audience fan-out.
+3. Check domain, endpoint, and key counts.
+4. Review retention requirements.
+5. Leave operational headroom for incidents and one-off sends.
+
+## When usage approaches a limit
+
+- Stop avoidable duplicate traffic.
+- Confirm idempotency and job retry behavior.
+- Remove genuinely unused keys or endpoints after an ownership review.
+- Do not delete suppressions or authentication controls to create artificial capacity.
+- Change the plan before the expected workload reaches the current contract.
+
+<Note>
+The dashboard's live billing response is authoritative for feature availability and limits.
+A document cannot predict later plan or entitlement changes.
+</Note>

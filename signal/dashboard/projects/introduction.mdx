@@ -1,0 +1,58 @@
+---
+title: "Projects"
+description: "Use projects as isolated Signal environments and manage their lifecycle safely"
+---
+
+A project isolates Signal configuration and customer data.
+Domains, API keys, contacts, preferences, suppressions, messages, webhooks, usage, and metrics belong to a project.
+
+## Create a project
+
+| Field | Behavior |
+| --- | --- |
+| Name | Human-readable label shown in the dashboard |
+| Slug | URL-safe project identifier used by the dashboard |
+| Region | Data and processing location selected at creation |
+
+Current region choices are `us-east-1`, `af-south-1`, `eu-west-1`, and `ap-southeast-1`.
+The labels correspond to N. Virginia, Cape Town, Ireland, and Singapore.
+Some choices can depend on your plan.
+
+<Warning>
+You cannot change a project's region.
+Create a separate project and migrate the integration if the region requirement changes.
+</Warning>
+
+## Separate environments
+
+Use different projects for production and non-production when you need strict isolation.
+This keeps keys, domains, contacts, suppressions, usage, and event destinations from crossing environments.
+Name API keys and webhook endpoints with the same environment language.
+
+## Update project details
+
+Project settings let authorized users update the name and slug.
+The dashboard shows the region and current status as read-only operational facts.
+Changing the slug changes how the dashboard addresses the project, so update saved dashboard links.
+
+## Delete a project
+
+Project deletion is an operational shutdown, not a cosmetic archive.
+It stops new activity and cancels pending emails, webhook deliveries, and imports.
+Signal produces a verified archive for the deletion workflow and removes project resources, keys, domains, files, and Signal data.
+
+A restore request is available for 90 days.
+After that recovery window expires, treat the deletion as permanent.
+
+Before deleting a production project:
+
+1. Stop callers and background jobs.
+2. Replace or disable SMTP credentials.
+3. Export any customer data or evidence you are required to retain.
+4. Confirm no scheduled sends or migration jobs remain.
+5. Record the project and deletion decision in your operational change log.
+
+<Warning>
+Do not delete a project as a way to rotate credentials or pause sending.
+Revoke keys, disable endpoints, or stop callers for those narrower operations.
+</Warning>

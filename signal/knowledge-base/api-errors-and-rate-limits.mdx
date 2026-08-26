@@ -1,0 +1,58 @@
+---
+title: "API errors and retry decisions"
+description: "Parse Signal problem details, branch on stable codes, and retry only eligible operations"
+---
+
+Signal returns errors as RFC 9457-style problem details with `Content-Type: application/problem+json`.
+The error document is not wrapped in an `error` object.
+
+## Problem fields
+
+| Field | Use |
+| --- | --- |
+| `type` | Stable URI for the problem category |
+| `title` | Short human-readable summary |
+| `status` | HTTP status repeated in the body |
+| `code` | Stable machine-readable Signal code |
+| `detail` | Occurrence-specific context whose wording can change |
+| `instance` | Optional unique occurrence URN |
+| `requestId` | Optional support correlation identifier |
+| `errors` | Optional field-level validation entries with JSON Pointer locations |
+
+Branch application behavior on `code` and `status`.
+Do not parse `title` or `detail` strings as a programmatic contract.
+
+## Status map
+
+| Status | Meaning | Retry decision |
+| --- | --- | --- |
+| `400` | Malformed or invalid input | Fix the request |
+| `401` | Missing, invalid, revoked, expired, or inactive key | Replace or restore the credential |
+| `402` | Plan feature or quota unavailable | Change entitlement or usage |
+| `403` | Permission or project mismatch | Use the correct scoped key and project |
+| `404` | Resource absent from this project | Verify the opaque ID and project |
+| `409` | State or concurrent idempotency conflict | Re-read state; follow the specific code |
+| `413` | Payload, audience, or import too large | Reduce or split according to the endpoint |
+| `415` | Unsupported content type | Send the documented media type |
+| `422` | Domain or send rule failed | Correct the named requirement |
+| `429` | Request or sending boundary applied | Honor `Retry-After` |
+| `500` | Unexpected failure | Retry eligible work with bounded backoff |
+| `502` / `503` | Upstream or service temporarily unavailable | Retry eligible work with exponential backoff and jitter |
+
+## Safe retries
+
+Retry idempotent reads, deletes whose documented state semantics permit it, and email admissions carrying the same JSON-body `idempotencyKey`.
+For `429`, wait at least the integer seconds in `Retry-After` when returned.
+Cap retry count and elapsed time.
+
+Do not automatically retry other `4xx` failures unchanged.
+Do not create a new idempotency key for the same logical email.
+
+## Logging
+
+Record `code`, `status`, `requestId`, `instance`, endpoint, UTC time, and your own operation ID.
+Never record the API key, Authorization header, attachment content, or sensitive message body.
+
+<Card title="Error contract" icon="code" href="/signal/api-reference/errors">
+See the complete problem example and shared retry guidance.
+</Card>

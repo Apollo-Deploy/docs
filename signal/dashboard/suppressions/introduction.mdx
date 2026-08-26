@@ -1,0 +1,63 @@
+---
+title: "Suppression list"
+description: "Block unsafe delivery, import or export entries, and remove blocks deliberately"
+---
+
+The suppression list prevents Signal from delivering to addresses that should not receive mail.
+A suppressed address can still have a contact profile, but send attempts resolve to a suppressed outcome instead of provider delivery.
+
+## Reasons
+
+| Reason | Typical source |
+| --- | --- |
+| Bounce | A permanent delivery failure |
+| Complaint | A spam or abuse complaint |
+| Unsubscribe | A recipient preference action |
+| Manual | An operator, import, or application decision |
+
+## Add an address
+
+Use **Add suppression** for a deliberate block.
+Choose the reason that accurately reflects why delivery must stop.
+Do not label a complaint or unsubscribe as manual just to simplify reporting.
+
+## Import
+
+Use one entry per line.
+A line may contain only the email address or `email,reason`.
+Unknown or omitted reasons are treated as manual.
+
+```text
+bounced@example.com,bounce
+complained@example.com,complaint
+manual-block@example.com
+```
+
+Validate the file before a large import:
+
+- Normalize whitespace without changing the address meaning.
+- Use only supported reason values.
+- Remove headers unless the importer explicitly accepts them.
+- Review the target project before submitting.
+
+## Export
+
+Export when you need a customer-support review, provider migration, compliance workflow, or backup of delivery blocks.
+Protect the export as customer data.
+
+## Remove a suppression
+
+Removal allows future eligible messages to reach provider delivery again.
+It does not automatically send anything that was previously blocked.
+
+Before removal, establish:
+
+1. Why the entry exists.
+2. Whether the address is now valid.
+3. Whether the recipient has current consent.
+4. Whether the original bounce or complaint risk is resolved.
+
+<Warning>
+Never bulk-remove complaint, bounce, or unsubscribe entries merely to increase sendable audience size.
+That damages recipient trust and sending reputation.
+</Warning>

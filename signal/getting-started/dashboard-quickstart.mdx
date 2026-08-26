@@ -1,0 +1,82 @@
+---
+title: "Dashboard quickstart"
+description: "Create a project, verify a domain, create a key, and send your first email"
+---
+
+Use this workflow when you are setting up a new Signal project for the first time.
+It follows the setup checklist shown on the project overview.
+
+## Before you begin
+
+You need permission to create or manage a Signal project and access to the DNS provider for your sending domain.
+Choose an address you control for the first delivery check.
+
+<Steps>
+  <Step title="Create the project">
+Create a project with a recognizable name and URL-safe slug.
+Select the region where Signal should hold and process project data.
+Current region choices are **US East (N. Virginia)**, **Africa (Cape Town)**, **Europe (Ireland)**, and **Asia Pacific (Singapore)**.
+Region availability can depend on your plan.
+
+<Warning>
+The region is permanent for the project. Create a different project if you need another region later.
+</Warning>
+  </Step>
+  <Step title="Add the sending domain">
+Open **Domains**, select **Add domain**, and enter the domain that will appear after the @ in your From address.
+A dedicated subdomain such as `mail.company.com` or `notifications.company.com` keeps transactional sending reputation separate from your root domain.
+  </Step>
+  <Step title="Publish and verify DNS">
+Publish every required record exactly as Signal displays it.
+Use automatic DNS setup when your provider is supported, or add the records manually.
+Return to the domain and select **Verify** after the records resolve publicly.
+  </Step>
+  <Step title="Create the sending key">
+Open **API keys**, select **Create API key**, give the key a service-specific name, choose an expiry, and grant **Emails: Send**.
+Copy the raw value immediately into your deployment secret manager.
+  </Step>
+  <Step title="Send to yourself">
+Open **Emails** and start a send.
+Enter one or more comma-separated recipients, choose a From address on the verified domain, add a subject, and provide HTML content.
+Send to an inbox you control so you can compare the dashboard timeline with the received message.
+  </Step>
+  <Step title="Inspect the result">
+Open the message detail.
+Confirm the recipient, From address, created and sent timestamps, current status, content preview, and event timeline.
+A successful submission may remain queued briefly while delivery happens asynchronously.
+  </Step>
+</Steps>
+
+## What completes the setup checklist
+
+| Checklist item | Completion condition |
+| --- | --- |
+| Add a domain | The project contains a sending domain |
+| Verify DNS | The domain passes the required verification checks |
+| Create an API key | The project contains an active API key |
+| Send your first email | Signal records a sent, delivered, bounced, failed, rejected, or suppressed message |
+
+## Prepare for production
+
+- Add DKIM, sending SPF/MX, and DMARC records.
+- Configure a branded tracking domain if you enable open or click tracking.
+- Create a key per service instead of sharing one broad key.
+- Use `idempotencyKey` for retryable jobs.
+- Add a webhook endpoint and verify every signature.
+- Handle suppressions as a normal delivery outcome.
+- Review **Usage** before a high-volume launch.
+
+## If the first send fails
+
+| Problem | Next check |
+| --- | --- |
+| From address rejected | Confirm its domain is verified in the active project |
+| Permission denied | Confirm the key has **Emails: Send** and belongs to this project |
+| Message suppressed | Open **Suppression list** and inspect the reason before removing it |
+| Domain stays pending | Compare every DNS host and value, remove proxying from mail records, and wait for TTL propagation |
+| Accepted but no inbox delivery | Inspect the message timeline for bounce, rejection, complaint, or provider failure |
+
+<CardGroup cols={2}>
+  <Card title="Create an API key" href="/signal/create-an-api-key" />
+  <Card title="Add and verify a domain" href="/signal/add-a-domain" />
+</CardGroup>

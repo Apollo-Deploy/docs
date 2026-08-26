@@ -1,0 +1,66 @@
+---
+title: "Manage API keys"
+description: "Inspect key access, usage, expiry, and revocation for the active project"
+---
+
+The **API keys** page is the credential inventory for the active project.
+Use it to answer which services can perform which actions and whether those credentials are still used.
+
+## Key list
+
+The list shows each key's name, masked value, permission set, status, request total, last-used time, creation time, and expiry when one exists.
+Signal never displays the complete key after creation.
+
+## Review access
+
+For each key, identify:
+
+- The application, worker, or operator that owns it.
+- The environment where it is deployed.
+- The minimum permissions that caller needs.
+- The expected request pattern.
+- The expiry and rotation owner.
+
+Open a key to inspect its permission detail and recent usage.
+Use recent requests to confirm the caller moved during rotation or to investigate unexpected access.
+
+## Permission strategy
+
+Separate write-capable credentials from read-only operational credentials.
+A sender normally needs only `emails:send`.
+A metrics collector normally needs only `metrics:read`.
+A domain administration tool should not share the production sender's key.
+
+## Expiry
+
+Creation options are no expiry, 7 days, 30 days, 90 days, and 1 year.
+Choose the shortest period your rotation process can reliably support.
+Monitor upcoming expiry before it becomes an authentication incident.
+
+## Delete a key
+
+Deletion revokes the credential immediately.
+Use it when a service is retired, a rotation is complete, or exposure is suspected.
+
+<Steps>
+  <Step title="Create the replacement">
+Use the same or narrower permissions and a new secret value.
+  </Step>
+  <Step title="Deploy it">
+Update every caller through the secret manager.
+  </Step>
+  <Step title="Confirm usage">
+Check that the replacement's last-used value changes and the old key stops receiving requests.
+  </Step>
+  <Step title="Delete the old key">
+Revoke it after the cutover is confirmed.
+  </Step>
+</Steps>
+
+<Warning>
+Do not paste raw keys into browser tools, client-side environment variables, analytics, error trackers, or customer-support tickets.
+</Warning>
+
+<Card title="Create a key" icon="key" href="/signal/create-an-api-key">
+Review creation fields, customer permissions, storage, and rotation.
+</Card>

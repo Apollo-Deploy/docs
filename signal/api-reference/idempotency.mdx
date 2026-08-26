@@ -1,0 +1,60 @@
+---
+title: "Idempotency"
+description: "Retry email sends without creating duplicate messages"
+---
+
+Email send requests accept an optional `idempotencyKey` in the JSON body.
+
+```json
+{
+  "from": "notifications@example.com",
+  "to": ["developer@example.net"],
+  "subject": "Invoice ready",
+  "text": "Invoice 1042 is ready.",
+  "idempotencyKey": "invoice-1042-email"
+}
+```
+
+<Warning>
+  Apollo Signal does not read an `Idempotency-Key` HTTP header. Put `idempotencyKey` in the send payload.
+</Warning>
+
+## How keys behave
+
+- Keys are scoped to the authenticated project.
+- Once a send is persisted, repeating its key returns the original settled result instead of creating another email.
+- The durable key follows the persisted email record; there is no separate documented 24-hour idempotency window.
+- Use one key for one logical send. If you reuse a key with different content, the earlier result still wins.
+
+If two requests with the same key arrive before either has persisted, one owns the short in-flight claim. The other request can receive `409` with code `email.idempotency_conflict`. Wait briefly and retry with the same key so the persisted result can be returned.
+
+## Batch requests
+
+`POST /v1/emails/batch` evaluates each item independently. Put a distinct `idempotencyKey` on every item that must be retry-safe:
+
+```json
+{
+  "items": [
+    {
+      "from": "notifications@example.com",
+      "to": ["one@example.net"],
+      "subject": "Invoice ready",
+      "text": "Invoice 1042 is ready.",
+      "idempotencyKey": "invoice-1042-one"
+    },
+    {
+      "from": "notifications@example.com",
+      "to": ["two@example.net"],
+      "subject": "Invoice ready",
+      "text": "Invoice 1042 is ready.",
+      "idempotencyKey": "invoice-1042-two"
+    }
+  ]
+}
+```
+
+A partial batch failure does not roll back successful items. Retry failed items with their original keys, or resend the batch only when every item has a stable key.
+
+## Choosing keys
+
+Use a stable identifier from your system, such as `invoice-1042-email` or `deployment-42-owner-notification`. Do not use a random value generated separately for every retry, because the server cannot associate those attempts.

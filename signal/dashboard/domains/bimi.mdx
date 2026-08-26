@@ -1,0 +1,47 @@
+---
+title: "Configure BIMI"
+description: "Publish a hosted SVG brand mark on top of SPF, DKIM, and enforced DMARC"
+---
+
+BIMI lets supporting mailbox providers display a brand logo next to authenticated email.
+It is optional and does not replace SPF, DKIM, or DMARC.
+
+## Typical prerequisites
+
+- SPF and DKIM are configured correctly.
+- DMARC aligns and uses an enforcement policy such as `quarantine` or `reject`.
+- The logo is a square, simple SVG hosted at a stable public HTTPS URL.
+- You have any certificate the target mailbox provider requires.
+
+Some providers, including Gmail, can require a Verified Mark Certificate tied to a trademark before broad display.
+Provider requirements can change independently of Signal.
+
+<Steps>
+  <Step title="Prepare the logo">
+Use an SVG that remains legible at inbox-icon size.
+Serve the SVG itself over HTTPS without redirecting to an HTML page.
+  </Step>
+  <Step title="Save the hosted URL">
+Open the domain **Configuration** tab, paste the HTTPS SVG URL, and save.
+Signal stores the URL; it does not ask you to upload the image file.
+  </Step>
+  <Step title="Publish the BIMI record">
+Open **Records** and add the BIMI DNS record shown for the domain.
+  </Step>
+  <Step title="Verify">
+Run DNS verification after the record and logo URL are publicly reachable.
+  </Step>
+</Steps>
+
+## Logo checks
+
+- Use a stable URL under a domain your organization controls.
+- Return an SVG content type.
+- Avoid scripts, external dependencies, and complex artwork.
+- Keep redirects and authentication out of the asset path.
+- Plan cache-safe updates because mailbox providers can retain the old image.
+
+<Warning>
+A verified BIMI record in Signal does not guarantee that every mailbox provider will display the logo.
+Each provider applies its own policy, reputation, certificate, and rollout decisions.
+</Warning>

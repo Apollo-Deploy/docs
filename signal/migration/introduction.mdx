@@ -1,0 +1,64 @@
+---
+title: "Migration"
+description: "Import sending domains and suppressions from a supported provider into one Signal project"
+---
+
+Open **Settings → Migration** to start a background import from Resend, SendGrid, Mailgun, Postmark, or Brevo.
+The current dashboard import submits domains and suppressions into the active project.
+
+<Warning>
+Select the project before entering provider credentials.
+A migration changes customer configuration and suppression state in that project.
+</Warning>
+
+## Before you start
+
+- Export a provider-side backup when available.
+- Confirm the credential can read domains and suppressions.
+- Remove write permissions the import does not need.
+- Review current Signal domain and suppression state for duplicates.
+- Decide who will verify imported domains after the job completes.
+
+## Start an import
+
+<Steps>
+  <Step title="Choose the provider">
+Expand the source provider in **Settings → Migration**.
+  </Step>
+  <Step title="Enter credentials">
+Resend, SendGrid, Mailgun, and Brevo use an API key.
+Postmark accepts an account token, a server token, or both.
+  </Step>
+  <Step title="Start">
+Signal validates the request and queues one background job for the active project.
+  </Step>
+  <Step title="Track progress">
+The job can be queued, in progress, completed, failed, or cancelled.
+Open detail for per-resource processed, imported, skipped, and failed counts.
+  </Step>
+  <Step title="Verify the result">
+Review imported suppressions and run current Signal DNS verification for each sending domain before sending.
+  </Step>
+</Steps>
+
+## Credential handling
+
+Provider secrets are sent in request headers to start the import and are not stored as project configuration.
+The dashboard clears the entered values after a successful start.
+Revoke temporary provider credentials after the job no longer needs them.
+
+## Job behavior
+
+Only one import can run for a project at a time.
+The import continues in the background, so you can dismiss the progress view and keep working.
+Repeated source records can be skipped as already imported or duplicate.
+Plan limits and unmappable provider data can also produce skips or failures.
+
+## After completion
+
+1. Compare imported counts with the provider.
+2. Review every skipped or failed reason.
+3. Verify domain DNS under Signal's current requirements.
+4. Export and compare suppression state if the migration is sensitive.
+5. Perform a test-mode request and a controlled real delivery.
+6. Keep the old provider available until reconciliation is complete.

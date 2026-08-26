@@ -1,72 +1,464 @@
 {
   "$schema": "https://mintlify.com/docs.json",
-  "theme": "mint",
-  "name": "Mintlify Starter Kit",
+  "theme": "luma",
+  "name": "Apollo Deploy",
+  "description": "Documentation for Apollo Deploy and Apollo Signal — release intelligence and transactional email for developers.",
   "colors": {
-    "primary": "#16A34A",
-    "light": "#07C983",
-    "dark": "#15803D"
+    "primary": "#171717",
+    "light": "#e8e4d9",
+    "dark": "#171717"
   },
-  "favicon": "/favicon.svg",
+  "appearance": {
+    "default": "system",
+    "strict": false
+  },
+  "background": {
+    "color": {
+      "light": "#ffffff",
+      "dark": "#000000"
+    }
+  },
+  "fonts": {
+    "family": "Geist",
+    "heading": {
+      "family": "Geist",
+      "weight": 500
+    },
+    "body": {
+      "family": "Geist",
+      "weight": 400
+    }
+  },
+  "styling": {
+    "eyebrows": "section",
+    "codeblocks": "dark"
+  },
+  "favicon": {
+    "light": "/favicons/signal/favicon.png",
+    "dark": "/favicons/signal/favicon-dark.png"
+  },
+  "logo": {
+    "light": "/logo/light.svg",
+    "dark": "/logo/dark.svg",
+    "href": "https://apollodeploy.com"
+  },
+  "navbar": {
+    "primary": {
+      "type": "button",
+      "label": "Get started",
+      "href": "https://auth.apollodeploy.com/register"
+    }
+  },
   "navigation": {
-    "pages": [
+    "products": [
       {
-        "group": "Getting Started",
-        "pages": [
-          "index",
-          "quickstart"
+        "product": "Apollo Deploy",
+        "description": "Release intelligence control plane",
+        "icon": "rocket",
+        "groups": [
+          {
+            "group": "Getting started",
+            "pages": ["deploy/index", "deploy/quickstart"]
+          }
+        ]
+      },
+      {
+        "product": "Packages",
+        "description": "Reusable utilities and components",
+        "icon": "box",
+        "groups": [
+          {
+            "group": "Utilities",
+            "pages": ["packages/time", "packages/user-agent"]
+          }
+        ]
+      },
+      {
+        "product": "Apollo Signal",
+        "description": "Transactional email for developers",
+        "icon": "/logo/signal/icon.svg",
+        "tabs": [
+          {
+            "tab": "Documentation",
+            "groups": [
+              {
+                "group": "Getting started",
+                "pages": [
+                  "signal/index",
+                  "signal/getting-started/dashboard-quickstart",
+                  "signal/create-an-api-key",
+                  "signal/add-a-domain",
+                  {
+                    "group": "Send with",
+                    "expanded": false,
+                    "icon": "code",
+                    "pages": [
+                      "signal/send-with/send-with-nodejs",
+                      "signal/send-with/send-with-nextjs",
+                      "signal/send-with/send-with-express",
+                      "signal/send-with/send-with-python",
+                      "signal/send-with/send-with-go",
+                      "signal/send-with/send-with-ruby",
+                      "signal/send-with/send-with-rails",
+                      "signal/send-with/send-with-php",
+                      "signal/send-with/send-with-laravel",
+                      "signal/send-with/send-with-java",
+                      "signal/send-with/send-with-dotnet",
+                      "signal/send-with/send-with-rust",
+                      "signal/send-with/send-with-elixir",
+                      "signal/send-with/send-with-smtp",
+                      "signal/send-with/send-with-rest"
+                    ]
+                  }
+                ]
+              },
+              {
+                "group": "Dashboard",
+                "pages": [
+                  "signal/dashboard/overview/introduction",
+                  "signal/dashboard/projects/introduction"
+                ]
+              },
+              {
+                "group": "Emails",
+                "pages": [
+                  "signal/dashboard/emails/introduction",
+                  "signal/dashboard/emails/send-from-dashboard",
+                  "signal/dashboard/emails/batch-sending",
+                  "signal/dashboard/emails/schedule-email",
+                  "signal/dashboard/emails/send-test-emails",
+                  "signal/dashboard/emails/attachments",
+                  "signal/dashboard/emails/idempotency-keys"
+                ]
+              },
+              {
+                "group": "Contacts and consent",
+                "pages": [
+                  "signal/dashboard/audiences/introduction",
+                  "signal/dashboard/properties/introduction",
+                  "signal/dashboard/segments/introduction",
+                  "signal/dashboard/topics/introduction",
+                  "signal/dashboard/suppressions/introduction"
+                ]
+              },
+              {
+                "group": "Insights",
+                "pages": [
+                  "signal/dashboard/metrics/introduction",
+                  "signal/dashboard/dmarc/introduction",
+                  "signal/dashboard/logs/introduction"
+                ]
+              },
+              {
+                "group": "Domains",
+                "pages": [
+                  "signal/dashboard/domains/introduction",
+                  "signal/dashboard/domains/dmarc",
+                  "signal/dashboard/domains/bimi",
+                  "signal/dashboard/domains/tracking",
+                  "signal/dashboard/domains/regions",
+                  "signal/dashboard/domains/domain-connect"
+                ]
+              },
+              {
+                "group": "Webhooks",
+                "pages": [
+                  "signal/webhooks/introduction",
+                  "signal/dashboard/webhooks/introduction",
+                  "signal/webhooks/event-types",
+                  "signal/webhooks/verify-webhooks-requests",
+                  "signal/webhooks/retries-and-replays"
+                ]
+              },
+              {
+                "group": "Settings",
+                "pages": [
+                  "signal/dashboard/api-keys/introduction",
+                  "signal/dashboard/settings/project",
+                  "signal/dashboard/settings/usage",
+                  "signal/dashboard/settings/smtp"
+                ]
+              },
+              {
+                "group": "Migration",
+                "pages": [
+                  "signal/migration/introduction",
+                  "signal/migration/providers"
+                ]
+              }
+            ]
+          },
+          {
+            "tab": "API Reference",
+            "openapi": "signal/api-reference/openapi.json",
+            "groups": [
+              {
+                "group": "Overview",
+                "pages": [
+                  "signal/api-reference/introduction",
+                  "signal/api-reference/authentication",
+                  "signal/api-reference/errors",
+                  "signal/api-reference/pagination",
+                  "signal/api-reference/idempotency",
+                  "signal/api-reference/event-streams",
+                  "signal/api-reference/rate-limit"
+                ]
+              },
+              {
+                "group": "Emails",
+                "pages": [
+                  "POST /v1/emails",
+                  "GET /v1/emails/{emailId}",
+                  "POST /v1/emails/batch",
+                  "DELETE /v1/emails/{emailId}",
+                  "DELETE /v1/emails",
+                  "POST /v1/emails/{projectId}/stream/token",
+                  "GET /v1/emails/stream",
+                  "POST /v1/emails/validate"
+                ]
+              },
+              {
+                "group": "Metrics",
+                "pages": [
+                  "GET /v1/metrics/topics/{id}",
+                  "GET /v1/metrics/emails/{id}",
+                  "GET /v1/metrics/emails/{id}/engagement",
+                  "GET /v1/metrics/summary",
+                  "GET /v1/metrics/timeline",
+                  "GET /v1/metrics/advisor"
+                ]
+              },
+              {
+                "group": "Projects and email logs",
+                "pages": [
+                  "GET /v1/projects",
+                  "GET /v1/projects/{projectId}",
+                  "PATCH /v1/projects/{projectId}",
+                  "GET /v1/projects/{projectId}/emails",
+                  "GET /v1/projects/{projectId}/emails/{emailId}",
+                  "GET /v1/projects/{projectId}/emails/{emailId}/events"
+                ]
+              },
+              {
+                "group": "Sending domains",
+                "pages": [
+                  "GET /v1/projects/{projectId}/domains",
+                  "GET /v1/projects/{projectId}/domains/{domainId}",
+                  "POST /v1/projects/{projectId}/domains",
+                  "POST /v1/projects/{projectId}/domains/{domainId}/verify",
+                  "DELETE /v1/projects/{projectId}/domains/{domainId}",
+                  "POST /v1/projects/{projectId}/domains/{domainId}/bimi/verify",
+                  "PATCH /v1/projects/{projectId}/domains/{domainId}/bimi"
+                ]
+              },
+              {
+                "group": "Contacts",
+                "pages": [
+                  "GET /v1/projects/{projectId}/contacts",
+                  "GET /v1/projects/{projectId}/contacts/{contactId}",
+                  "GET /v1/projects/{projectId}/contacts/{contactId}/segments",
+                  "GET /v1/projects/{projectId}/contacts/{contactId}/topics",
+                  "POST /v1/projects/{projectId}/contacts",
+                  "PATCH /v1/projects/{projectId}/contacts/{contactId}",
+                  "DELETE /v1/projects/{projectId}/contacts/{contactId}",
+                  "POST /v1/projects/{projectId}/contacts/{contactId}/image",
+                  "PUT /v1/projects/{projectId}/contacts/{contactId}/image",
+                  "DELETE /v1/projects/{projectId}/contacts/{contactId}/image",
+                  "POST /v1/projects/{projectId}/contacts/{contactId}/segments",
+                  "DELETE /v1/projects/{projectId}/contacts/{contactId}/segments/{segmentId}",
+                  "PATCH /v1/projects/{projectId}/contacts/{contactId}/topics",
+                  "GET /v1/projects/{projectId}/contacts/{contactId}/activity",
+                  "GET /v1/projects/{projectId}/contacts/{contactId}/engagement",
+                  "GET /v1/projects/{projectId}/contacts/{contactId}/email-validation",
+                  "POST /v1/projects/{projectId}/contacts/{contactId}/engagement/refresh",
+                  "POST /v1/projects/{projectId}/contacts/{contactId}/email-validation"
+                ]
+              },
+              {
+                "group": "Contact properties",
+                "pages": [
+                  "GET /v1/projects/{projectId}/contact-properties",
+                  "GET /v1/projects/{projectId}/contact-properties/{propertyId}",
+                  "POST /v1/projects/{projectId}/contact-properties",
+                  "PATCH /v1/projects/{projectId}/contact-properties/{propertyId}",
+                  "DELETE /v1/projects/{projectId}/contact-properties/{propertyId}"
+                ]
+              },
+              {
+                "group": "Segments",
+                "pages": [
+                  "GET /v1/projects/{projectId}/segments",
+                  "GET /v1/projects/{projectId}/segments/{segmentId}",
+                  "GET /v1/projects/{projectId}/segments/{segmentId}/contacts",
+                  "POST /v1/projects/{projectId}/segments",
+                  "DELETE /v1/projects/{projectId}/segments/{segmentId}"
+                ]
+              },
+              {
+                "group": "Topics",
+                "pages": [
+                  "GET /v1/projects/{projectId}/topics",
+                  "GET /v1/projects/{projectId}/topics/{topicId}",
+                  "GET /v1/projects/{projectId}/topics/{topicId}/contacts",
+                  "POST /v1/projects/{projectId}/topics",
+                  "PATCH /v1/projects/{projectId}/topics/{topicId}",
+                  "DELETE /v1/projects/{projectId}/topics/{topicId}"
+                ]
+              },
+              {
+                "group": "Suppressions",
+                "pages": [
+                  "GET /v1/projects/{projectId}/suppressions",
+                  "GET /v1/projects/{projectId}/suppressions/export",
+                  "POST /v1/projects/{projectId}/suppressions",
+                  "DELETE /v1/projects/{projectId}/suppressions/{email}",
+                  "POST /v1/projects/{projectId}/suppressions/import"
+                ]
+              },
+              {
+                "group": "Webhooks",
+                "pages": [
+                  "GET /v1/projects/{projectId}/webhooks",
+                  "GET /v1/projects/{projectId}/webhooks/{endpointId}",
+                  "GET /v1/projects/{projectId}/webhooks/{endpointId}/deliveries",
+                  "GET /v1/projects/{projectId}/webhooks/{endpointId}/deliveries/{deliveryId}",
+                  "POST /v1/projects/{projectId}/webhooks",
+                  "PATCH /v1/projects/{projectId}/webhooks/{endpointId}",
+                  "DELETE /v1/projects/{projectId}/webhooks/{endpointId}",
+                  "POST /v1/projects/{projectId}/webhooks/{endpointId}/test",
+                  "POST /v1/projects/{projectId}/webhooks/{endpointId}/replay/{deliveryId}"
+                ]
+              },
+              {
+                "group": "API key usage",
+                "pages": [
+                  "GET /v1/projects/{projectId}/api-keys",
+                  "GET /v1/projects/{projectId}/api-keys/{keyId}",
+                  "GET /v1/projects/{projectId}/api-keys/{keyId}/usage",
+                  "GET /v1/projects/{projectId}/api-keys/{keyId}/usage/export"
+                ]
+              }
+            ]
+          },
+          {
+            "tab": "Knowledge base",
+            "groups": [
+              {
+                "group": "Start here",
+                "pages": [
+                  "signal/knowledge-base/introduction",
+                  "signal/knowledge-base/projects-regions-and-data-boundaries",
+                  "signal/knowledge-base/account-quotas-and-limits"
+                ]
+              },
+              {
+                "group": "Sending and delivery",
+                "pages": [
+                  "signal/knowledge-base/accepted-vs-delivered",
+                  "signal/knowledge-base/email-statuses",
+                  "signal/knowledge-base/recipients-audiences-and-batches",
+                  "signal/knowledge-base/scheduling-and-cancellation",
+                  "signal/knowledge-base/idempotency-and-safe-retries",
+                  "signal/knowledge-base/test-mode",
+                  "signal/knowledge-base/attachments",
+                  "signal/knowledge-base/troubleshoot-send-errors",
+                  "signal/knowledge-base/email-event-streams"
+                ]
+              },
+              {
+                "group": "Domains and DNS",
+                "pages": [
+                  "signal/knowledge-base/dns-record-reference",
+                  "signal/knowledge-base/what-if-domain-not-verifying",
+                  "signal/knowledge-base/automatic-dns-setup",
+                  "signal/knowledge-base/cloudflare",
+                  "signal/knowledge-base/subdomain-vs-root-domain",
+                  "signal/knowledge-base/domain-regions",
+                  "signal/knowledge-base/tracking-domain-and-link-tracking",
+                  "signal/knowledge-base/dmarc-and-reporting",
+                  "signal/knowledge-base/bimi",
+                  "signal/knowledge-base/avoid-spam-folder"
+                ]
+              },
+              {
+                "group": "Contacts and consent",
+                "pages": [
+                  "signal/knowledge-base/contacts-and-properties",
+                  "signal/knowledge-base/segments",
+                  "signal/knowledge-base/topics-and-subscriptions",
+                  "signal/knowledge-base/suppressions"
+                ]
+              },
+              {
+                "group": "Webhooks and observability",
+                "pages": [
+                  "signal/knowledge-base/webhook-events",
+                  "signal/knowledge-base/webhook-signatures",
+                  "signal/knowledge-base/webhook-retries-and-replays",
+                  "signal/knowledge-base/metrics-and-engagement",
+                  "signal/knowledge-base/audit-logs-and-api-key-usage"
+                ]
+              },
+              {
+                "group": "Security and integrations",
+                "pages": [
+                  "signal/knowledge-base/how-to-handle-api-keys",
+                  "signal/knowledge-base/smtp-relay",
+                  "signal/knowledge-base/provider-migration",
+                  "signal/knowledge-base/api-errors-and-rate-limits"
+                ]
+              }
+            ]
+          }
         ]
       }
     ],
     "global": {
       "anchors": [
         {
-          "anchor": "Documentation",
-          "href": "https://mintlify.com/docs",
-          "icon": "book-open-cover"
+          "anchor": "Marketing site",
+          "href": "https://apollodeploy.com",
+          "icon": "house"
         },
         {
-          "anchor": "Blog",
-          "href": "https://mintlify.com/blog",
-          "icon": "newspaper"
+          "anchor": "Support",
+          "href": "mailto:support@apollodeploy.com",
+          "icon": "life-ring"
         }
       ]
     }
   },
-  "logo": {
-    "light": "/logo/light.svg",
-    "dark": "/logo/dark.svg"
-  },
-  "navbar": {
-    "links": [
-      {
-        "label": "Support",
-        "href": "mailto:hi@mintlify.com"
-      }
-    ],
-    "primary": {
-      "type": "button",
-      "label": "Dashboard",
-      "href": "https://app.mintlify.com"
+  "redirects": [
+    {
+      "source": "/",
+      "destination": "/signal",
+      "permanent": false
+    },
+    {
+      "source": "/quickstart",
+      "destination": "/deploy/quickstart",
+      "permanent": false
+    },
+    {
+      "source": "/signal/quickstart",
+      "destination": "/signal/getting-started/dashboard-quickstart",
+      "permanent": false
+    },
+    {
+      "source": "/signal/webhooks",
+      "destination": "/signal/webhooks/introduction",
+      "permanent": false
+    },
+    {
+      "source": "/signal/sandbox",
+      "destination": "/signal/dashboard/emails/send-test-emails",
+      "permanent": false
     }
-  },
+  ],
   "contextual": {
-    "options": [
-      "copy",
-      "view",
-      "chatgpt",
-      "claude",
-      "perplexity",
-      "mcp",
-      "cursor",
-      "vscode"
-    ]
+    "options": ["copy", "view", "chatgpt", "claude", "cursor", "vscode"]
   },
-  "footer": {
-    "socials": {
-      "x": "https://x.com/mintlify",
-      "github": "https://github.com/mintlify",
-      "linkedin": "https://linkedin.com/company/mintlify"
-    }
+  "interaction": {
+    "drilldown": false
   }
 }

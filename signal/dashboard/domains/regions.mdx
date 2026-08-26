@@ -1,0 +1,44 @@
+---
+title: "Domain sending regions"
+description: "Choose a domain's sending region and understand multi-region availability"
+---
+
+Every sending domain has a region.
+The region controls where Signal handles that domain's sending path.
+
+## Available regions
+
+| Code | Location |
+| --- | --- |
+| `us-east-1` | US East, N. Virginia |
+| `af-south-1` | Africa, Cape Town |
+| `eu-west-1` | Europe, Ireland |
+| `ap-southeast-1` | Asia Pacific, Singapore |
+
+## Default behavior
+
+For projects without multi-region domain capability, new domains use the project's region.
+The dashboard shows that region as locked and offers an upgrade path where multi-region is available.
+
+When the capability is enabled, choose a supported region while adding the domain.
+Choose the region closest to the main recipient population while accounting for your data-location requirements.
+
+<Warning>
+You cannot change the domain region after adding the domain.
+A different region requires a new domain registration and a controlled sender migration.
+</Warning>
+
+## Migration approach
+
+1. Add the replacement sending domain in the target region.
+2. Publish and verify all authentication records.
+3. Configure tracking and BIMI where required.
+4. Update one controlled caller or traffic slice.
+5. Compare delivery and webhook behavior.
+6. Move remaining From addresses.
+7. Delete the old domain only after no callers use it.
+
+## Region is not inbox placement
+
+A closer sending region can reduce service latency.
+It does not replace domain reputation, recipient consent, content quality, authentication, or mailbox-provider policy.

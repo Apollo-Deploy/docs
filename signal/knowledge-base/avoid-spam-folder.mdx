@@ -1,0 +1,53 @@
+---
+title: "Inbox placement: what Signal can verify"
+description: "Use authenticated, delivery, feedback, and consent evidence without claiming a guaranteed inbox result"
+---
+
+Signal cannot guarantee that a recipient mailbox places a message in the inbox.
+It can provide specific evidence before, during, and after delivery.
+
+## Evidence Signal can provide
+
+| Evidence | What it proves |
+| --- | --- |
+| Domain verification | Signal observed the required DNS configuration for the sending domain |
+| `sent` | Signal recorded successful provider handoff |
+| `delivered` | The recipient mail server accepted the message |
+| `bounced` | A bounce event was recorded |
+| `complained` | A complaint event was recorded |
+| `suppressed` | Signal blocked a recipient before provider delivery |
+| DMARC aggregate data | Reporting providers summarized authentication and alignment observations |
+| Open/click events | A tracking resource or rewritten link was requested |
+
+None of those signals proves inbox placement or human reading.
+A recipient server can accept mail and place it outside the inbox.
+
+## Product controls you can verify
+
+- The From domain remains verified.
+- DKIM, MAIL FROM, SPF, and relevant DMARC state are healthy.
+- The recipient is not globally unsubscribed or suppressed.
+- Topic sends resolve opt-in subscribers.
+- Bounce, complaint, unsubscribe, suppression, rejection, and failure trends are visible in metrics and events.
+- Tracking uses the intended project domain and settings.
+
+## When delivery health changes
+
+1. Choose a fixed comparison window.
+2. Separate `sent` from `delivered`.
+3. Compare bounce, complaint, rejection, failure, and suppression counts.
+4. Check the sending domain's component statuses.
+5. Review recent DNS, From-address, audience, content, and volume changes in your own change history.
+6. Inspect DMARC sources for authentication changes.
+7. Pause automated retries to recipients with terminal feedback.
+
+## Engagement caution
+
+Open and click events are directional.
+Image blocking can hide opens, privacy systems can load images, and security scanners can follow links.
+Use application conversion or customer action as separate evidence when that distinction matters.
+
+<Warning>
+Do not report `delivered` as “in the inbox.”
+The verified statement is that the recipient mail server accepted the message.
+</Warning>

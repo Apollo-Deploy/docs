@@ -1,55 +1,107 @@
-# Mintlify Starter Kit
+# Apollo Deploy Documentation
 
-Use the starter kit to get your docs deployed and ready to customize.
+Documentation site for [Apollo Deploy](https://apollodeploy.com) and [Apollo Signal](https://apollodeploy.com/signal), built with [Mintlify](https://mintlify.com).
 
-Click the green **Use this template** button at the top of this repo to copy the Mintlify starter kit. The starter kit contains examples with
-
-- Guide pages
-- Navigation
-- Customizations
-- API reference pages
-- Use of popular components
-
-**[Follow the full quickstart guide](https://starter.mintlify.com/quickstart)**
-
-## AI-assisted writing
-
-Set up your AI coding tool to work with Mintlify:
-
-```bash
-npx skills add https://mintlify.com/docs
-```
-
-This command installs Mintlify's documentation skill for your configured AI tools like Claude Code, Cursor, Windsurf, and others. The skill includes component reference, writing standards, and workflow guidance.
-
-See the [AI tools guides](/ai-tools) for tool-specific setup.
+The site uses Mintlify's Luma theme with Apollo branding, Geist typography, and a system-aware appearance.
 
 ## Development
 
-Install the [Mintlify CLI](https://www.npmjs.com/package/mint) to preview your documentation changes locally. To install, use the following command:
+Mintlify requires **Node.js 20–24** (LTS). It does not support Node 25+.
 
+### Quick start
+
+From this directory (`apps/docs`):
+
+```bash
+npm install
+npm run dev
 ```
+
+The `dev` script automatically uses Homebrew `node@24` when your default Node is 25+.
+
+Preview at `http://localhost:3000`.
+
+### Node version
+
+This repo pins Node 24 in `.nvmrc` / `.node-version`. If you use a version manager:
+
+```bash
+# fnm
+fnm use
+
+# nvm
+nvm use
+
+# Homebrew (macOS) — if Node 25 is your default
+brew install node@24
+export PATH="/opt/homebrew/opt/node@24/bin:$PATH"
+npm run dev
+```
+
+### Global CLI (optional)
+
+```bash
 npm i -g mint
-```
-
-Run the following command at the root of your documentation, where your `docs.json` is located:
-
-```
 mint dev
 ```
 
-View your local preview at `http://localhost:3000`.
+Use Node 24 when running `mint` globally as well.
 
-## Publishing changes
+## Customization
 
-Install our GitHub app from your [dashboard](https://dashboard.mintlify.com/settings/organization/github-app) to propagate changes from your repo to your deployment. Changes are deployed to production automatically after pushing to the default branch.
+| File | Purpose |
+|------|---------|
+| `docs.json` | Site name, theme, colors, product tabs, and navbar |
+| `logo/` | Apollo mark for light and dark mode |
+| `deploy/`, `signal/` | Directly authored documentation and Knowledge Base pages (MDX) |
+| `scripts/generate-signal-api-reference.mjs` | Builds the public API reference from Signal OpenAPI and Tesseract metadata |
 
-## Need help?
+### Editing Apollo Signal documentation
 
-### Troubleshooting
+Documentation and Knowledge Base articles are ordinary MDX files under `signal/`. Edit those files directly and update `docs.json` when adding, moving, or removing a page. There is no content-generation step for these pages.
 
-- If your dev environment isn't running: Run `mint update` to ensure you have the most recent version of the CLI.
-- If a page loads as a 404: Make sure you are running in a folder with a valid `docs.json`.
+### Regenerating the Apollo Signal API reference
 
-### Resources
+The checked reference contains only routes that are public in Signal's Tesseract manifest. Internal health, billing, event-ingestion, tracking, migration, project-deletion, dedicated-IP, DMARC, and session-only management routes are deliberately excluded.
+
+First export fresh OpenAPI and Tesseract artifacts from the Signal API checkout:
+
+```bash
+cd ../../../APIs/apollo-signal-api
+
+APP_ENV=test \
+PLATFORM_URL=http://localhost:3000 \
+PLATFORM_CLIENT_ID=build \
+PLATFORM_CLIENT_SECRET=build \
+OAUTH_SERVICE_CLIENT_IDS=build \
+SESSION_SECRET=build \
+INTERNAL_SERVICE_SECRET=build \
+APOLLO_SIGNAL_AWS_REGION=us-east-1 \
+OPENAPI_ARTIFACT_PATH=build/docs-openapi.json \
+TESSERACT_GENERATE=1 \
+TESSERACT_MANIFEST_PATH=build/docs-manifest.json \
+./gradlew run -q
+```
+
+Then generate and verify the checked public artifact:
+
+```bash
+cd ../../Website/apps/docs
+PATH="/opt/homebrew/opt/node@24/bin:$PATH" npm run generate:signal-api -- \
+  --openapi ../../../APIs/apollo-signal-api/build/docs-openapi.json
+PATH="/opt/homebrew/opt/node@24/bin:$PATH" npm run check:signal-api -- \
+  --openapi ../../../APIs/apollo-signal-api/build/docs-openapi.json
+```
+
+The generator verifies that every public manifest route exists in OpenAPI and in `docs.json`, that every endpoint documents permissions and applicable limits, and that no internal route enters the published artifact.
+
+Finally, run `npm run dev` and switch to the **Apollo Signal** product's **API Reference** tab.
+
+## Publishing
+
+Changes deploy automatically when pushed to the default branch, via the Mintlify GitHub app.
+
+## Resources
+
 - [Mintlify documentation](https://mintlify.com/docs)
+- [Apollo marketing site](https://apollodeploy.com)

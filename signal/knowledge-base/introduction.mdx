@@ -1,0 +1,54 @@
+---
+title: "Apollo Signal knowledge base"
+description: "Verified operational facts and troubleshooting guidance for Apollo Signal"
+---
+
+The Apollo Signal Knowledge Base is a standalone support library for people who operate email in production.
+It explains observable product behavior, exact API boundaries, and diagnostic steps you can verify.
+
+<Note>
+Every product fact in this library comes from the current Signal customer dashboard, public API contract, or active service behavior.
+When a value depends on your plan or deployment, the article points you to the live dashboard or endpoint instead of publishing a guessed number.
+</Note>
+
+## Start with the symptom
+
+<CardGroup cols={2}>
+  <Card title="A send returned 201" icon="inbox" href="/signal/knowledge-base/accepted-vs-delivered">
+    Understand what Signal accepted and which delivery evidence still has to arrive.
+  </Card>
+  <Card title="A message has an unfamiliar status" icon="list-check" href="/signal/knowledge-base/email-statuses">
+    Read every public email state, including sending and indeterminate.
+  </Card>
+  <Card title="A domain will not verify" icon="circle-exclamation" href="/signal/knowledge-base/what-if-domain-not-verifying">
+    Work through authoritative DNS, host formatting, values, and proxying.
+  </Card>
+  <Card title="A recipient was blocked" icon="shield" href="/signal/knowledge-base/suppressions">
+    Identify manual, bounce, complaint, and unsubscribe suppression state.
+  </Card>
+  <Card title="A webhook failed" icon="rotate" href="/signal/knowledge-base/webhook-retries-and-replays">
+    Inspect attempts, automatic retries, and controlled replay behavior.
+  </Card>
+  <Card title="An API call failed" icon="triangle-exclamation" href="/signal/knowledge-base/api-errors-and-rate-limits">
+    Separate validation, authentication, permission, conflict, and rate-limit failures.
+  </Card>
+</CardGroup>
+
+## Browse by system boundary
+
+- **Sending and delivery** covers request admission, recipient expansion, scheduling, idempotency, test mode, attachments, statuses, and event streams.
+- **Domains and DNS** covers records, verification, automatic setup, Cloudflare, regions, tracking, DMARC, BIMI, and deliverability evidence.
+- **Contacts and consent** covers contacts, custom properties, segments, topics, global unsubscribe state, and suppressions.
+- **Webhooks and observability** covers event types, signatures, retries, replays, metrics, logs, and API-key usage.
+- **Security and integrations** covers API keys, SMTP, and provider migration.
+
+## Facts, diagnostics, and decisions
+
+A **fact** describes a current Signal contract, such as the 50-recipient audience ceiling or the name of a signature header.
+A **diagnostic step** tells you how to observe state, such as checking the message timeline or public DNS.
+A **decision** remains yours, such as whether to use a root domain or a subdomain.
+Decision articles identify the product consequences without presenting a preference as a platform guarantee.
+
+<Card title="Read the API reference" icon="brackets-curly" href="/signal/api-reference/introduction">
+Use the API Reference for exact request fields, response schemas, permissions, and status codes.
+</Card>

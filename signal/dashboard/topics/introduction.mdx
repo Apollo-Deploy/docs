@@ -1,0 +1,55 @@
+---
+title: "Topics"
+description: "Model communication preferences and inspect topic-level performance"
+---
+
+Topics describe why you contact a recipient and give contacts a preference boundary for that communication.
+Examples include product updates, security notices, invoices, or weekly reports.
+
+## Topic fields
+
+| Field | Meaning |
+| --- | --- |
+| Name | Customer-visible or operator-visible communication category |
+| Description | Optional explanation of what recipients should expect |
+| Default | `opt_in` or `opt_out` behavior when no explicit preference exists |
+| Visibility | Public or private |
+
+## Defaults
+
+**Opt in** means the contact needs explicit subscription before receiving the topic.
+**Opt out** means the contact is treated as subscribed until they unsubscribe.
+Choose the default based on your consent requirements and message purpose, not convenience.
+
+<Warning>
+Apollo Signal cannot decide the legal basis for your message.
+Configure topics to match the consent records and rules that apply to your organization.
+</Warning>
+
+## Visibility
+
+Public topics can appear in recipient preference experiences.
+Private topics are managed internally.
+Private does not mean exempt from consent, suppression, or legal requirements.
+
+## Contact preferences
+
+Open a contact and select **Topics** to inspect or update that contact's explicit state.
+Keep the reason and source of consent in your system of record when your policy requires it.
+
+## Send to a topic
+
+The Email API accepts one topic ID in `to`.
+It must be the only recipient value and cannot be combined with CC or BCC.
+Signal resolves eligible recipients up to the audience limit of 50 and creates independent message records.
+
+## Performance
+
+Topic metrics are available for 24 hours, 7 days, 30 days, and 90 days.
+Use sent, delivered, opened, clicked, bounced, complained, failed, and unsubscribe outcomes together.
+A high open rate does not cancel out complaint or unsubscribe risk.
+
+## Delete a topic
+
+Deleting a topic removes the communication boundary and unsubscribes its contacts from that topic.
+Remove application references to the topic ID and preserve any consent evidence you are required to retain before deletion.

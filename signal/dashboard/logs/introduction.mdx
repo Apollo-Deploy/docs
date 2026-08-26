@@ -1,0 +1,64 @@
+---
+title: "Audit logs"
+description: "Review customer actions, security context, resource changes, and related activity"
+---
+
+The **Logs** page is an organization-wide customer audit trail.
+It records meaningful actions and resource changes; it is not a raw list of every Email API request.
+
+<Note>
+Audit logs are available to owner and administrator roles in the dashboard.
+</Note>
+
+## Find an event
+
+Filter by free-text search, date, module, action, resource, or status.
+Start with the smallest time window that contains the incident or change.
+
+## Modules and actions
+
+Customer-visible modules include email, webhook, API key, settings, notification, and export activity.
+Actions include create, update, delete, deliver, trigger, retry, fail, and export.
+
+## Event detail
+
+Open a log entry to inspect:
+
+- Actor identity and role context.
+- Resource type and identifier.
+- Timestamp and action status.
+- Security and request context that Signal makes customer-visible.
+- Change summary for updated resources.
+- Related activity.
+- Technical identifiers and raw customer-visible JSON when needed.
+
+## Incident workflow
+
+<Steps>
+  <Step title="Anchor the time">
+Start from the deployment, support report, message event, or security alert timestamp.
+  </Step>
+  <Step title="Filter the resource">
+Use the key, endpoint, project, email, or settings resource identifier.
+  </Step>
+  <Step title="Identify the actor">
+Confirm whether the change came from a user, service, or automated system represented in the event.
+  </Step>
+  <Step title="Review related activity">
+Look for creation, update, retry, failure, and deletion events around the same resource.
+  </Step>
+  <Step title="Preserve evidence">
+Record the relevant IDs and export only what your incident or compliance process requires.
+  </Step>
+</Steps>
+
+## Security handling
+
+Audit output can contain customer and infrastructure context.
+Restrict access, avoid copying raw JSON into public tickets, and redact addresses, identifiers, and request metadata when sharing an incident summary.
+
+<Tip>
+For per-message delivery debugging, use **Emails** and its event timeline.
+For aggregate performance, use **Metrics**.
+Use **Logs** to answer who changed or triggered what.
+</Tip>

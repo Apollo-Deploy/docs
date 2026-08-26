@@ -1,0 +1,81 @@
+---
+title: "Create an API key"
+description: "Create, restrict, store, rotate, and revoke project API keys"
+---
+
+API keys authenticate server-side requests and bind each request to one Signal project.
+Use a separate restricted key for each application, environment, or job that calls Signal.
+
+## Create the key
+
+<Steps>
+  <Step title="Open API keys">
+Select the project, then open **API keys** in the main navigation.
+  </Step>
+  <Step title="Name the caller">
+Use a name that identifies the service and environment, such as **checkout production** or **billing worker staging**.
+Names can contain up to 100 characters.
+  </Step>
+  <Step title="Choose an expiry">
+Choose no expiry, 7 days, 30 days, 90 days, or 1 year.
+Short-lived keys reduce exposure but require a rotation process.
+  </Step>
+  <Step title="Grant permissions">
+Select at least one permission.
+Grant only the actions the caller performs.
+  </Step>
+  <Step title="Copy the secret">
+Create the key and copy the raw `ap_signal_...` value immediately.
+Signal stores and later displays only a masked form.
+  </Step>
+</Steps>
+
+## Customer permissions
+
+| Resource | Actions | Typical use |
+| --- | --- | --- |
+| Emails | Send, Read | Submit messages or inspect message state |
+| Domains | Read, Write | Check, add, verify, or remove sending domains |
+| Webhooks | Read, Write | Inspect or manage endpoints and deliveries |
+| Suppressions | Read, Write | Inspect, add, import, export, or remove suppressed addresses |
+| Usage | Read | Display project consumption and quotas |
+| Projects | Read, Write | Read or update project settings |
+| Contacts | Read, Write | Manage contacts, properties, segments, topics, and preferences |
+| Metrics | Read | Retrieve summaries, timelines, engagement, and advisor data |
+
+<Tip>
+A service that only sends mail normally needs **Emails: Send** and nothing else.
+Give read access to a separate operational tool if the sender never reads message state.
+</Tip>
+
+## Store and use the key
+
+Store the key in a deployment secret manager or protected environment variable.
+REST requests send it as a bearer token:
+
+```http
+Authorization: Bearer ap_signal_...
+```
+
+SMTP uses `apikey` as the username and the Signal key as the password.
+
+## Understand the key list
+
+The dashboard shows the masked key, permission set, status, creation time, last-used time, and total request count.
+Use these signals to find unused credentials and confirm that a rotated caller moved to the new key.
+
+## Rotate a key without downtime
+
+1. Create a replacement with the same or narrower permissions.
+2. Store it as a new secret version.
+3. Deploy callers with the replacement.
+4. Confirm the new key's last-used value changes.
+5. Delete the old key.
+
+Deleting a key takes effect immediately.
+Requests that still carry it will fail authentication.
+
+<Warning>
+If a key appears in a repository, browser bundle, log, screenshot, or support message, treat it as compromised.
+Create a replacement and delete the exposed key instead of trying to hide the existing value.
+</Warning>

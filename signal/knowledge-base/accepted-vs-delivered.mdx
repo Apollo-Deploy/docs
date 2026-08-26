@@ -1,0 +1,52 @@
+---
+title: "Accepted does not mean delivered"
+description: "Interpret a successful send response without overstating recipient delivery"
+---
+
+`POST /v1/emails` returns `201 Created` after Signal validates and accepts the request.
+That response is an admission result, not proof that the recipient server accepted the message.
+
+## The delivery checkpoints
+
+| Checkpoint | What it proves | What it does not prove |
+| --- | --- | --- |
+| HTTP `201` | Signal accepted and recorded the request | Provider handoff or recipient acceptance |
+| `queued` | An immediate message is waiting for processing | Provider handoff |
+| `scheduled` | Signal is holding the message until its requested time | The future send will necessarily succeed |
+| `sent` | Signal recorded a successful provider handoff | Recipient-server acceptance |
+| `delivered` | The recipient mail server accepted the message | Inbox placement, display, or human reading |
+| `opened` or `clicked` | A configured tracking event was observed | A guaranteed human action |
+
+A provider or receiving server can reject a message after the API request was accepted.
+That later outcome appears in the email status, timeline, metrics, event stream, or webhook flow.
+
+## Immediate sends
+
+An accepted immediate send normally begins as `queued`.
+Signal processes it asynchronously and records later provider and recipient events.
+Use the returned email ID to retrieve the message and follow its timeline.
+
+When multiple direct `to` addresses are sent without `cc` or `bcc`, Signal fans out one message per recipient.
+The response contains a message result for each recipient, and each result can reach a different terminal state.
+
+## Scheduled sends
+
+An accepted scheduled send begins as `scheduled`.
+The domain, project, quota, and suppression state can change before dispatch, so admission cannot guarantee the future provider outcome.
+Signal rechecks recipient suppression before a queued or scheduled message crosses the provider boundary.
+
+## Test mode
+
+A test-mode request exercises Signal's admission flow without delivering to real recipients.
+Its `test` outcome must not be used as delivery evidence.
+
+## The evidence to use
+
+For one message, open **Emails**, select the message, and read its status, error, and timeline.
+For system integration, retrieve the email by ID or consume signed webhook events.
+Use the short-lived email event stream for live dashboard-style updates, not as a replacement for durable webhook handling.
+
+<Warning>
+Do not tell a customer that a message was delivered based only on `201`, `queued`, or `sent`.
+Use `delivered` for recipient-server acceptance and describe that boundary precisely.
+</Warning>

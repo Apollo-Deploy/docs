@@ -1,0 +1,56 @@
+---
+title: "Tracking domains and engagement signals"
+description: "Configure project-wide tracking and interpret opens, clicks, reads, and scroll events correctly"
+---
+
+Signal supports project defaults for open tracking, click tracking, unsubscribe tracking, read engagement, and scroll depth.
+A send request can override open, click, unsubscribe, and read-engagement behavior for one message.
+
+## Tracking behavior
+
+| Setting | Current behavior |
+| --- | --- |
+| Open tracking | Adds a tracking image to compatible HTML content |
+| Click tracking | Rewrites eligible links through Signal tracking |
+| Unsubscribe tracking | Enables Signal's unsubscribe-link handling |
+| Read engagement | Records supported read-engagement events when entitled |
+| Scroll depth | Project setting that depends on read engagement |
+
+Text-only messages can support eligible click and unsubscribe rewriting.
+Pixel-based open behavior requires HTML.
+Test mode does not perform real recipient tracking.
+
+## One project-wide tracking domain
+
+A project currently supports one tracking domain.
+You may open its configuration from a domain page, but saving it changes tracking for all project sends.
+It is not scoped only to the sending domain page you opened.
+
+## DNS setup
+
+1. Choose a dedicated host such as `track.company.com`.
+2. Copy the tracking CNAME name and target returned by Signal.
+3. Publish the CNAME in direct DNS mode.
+4. Save the host and run verification.
+5. Send one controlled real message.
+6. Test an eligible link and unsubscribe path that your configuration enables.
+
+A proxy or flattening behavior that hides the expected CNAME target can prevent verification.
+
+## Interpreting signals
+
+`opened` means the tracking image loaded.
+`clicked` means a rewritten link was followed.
+Those are technical observations, not guaranteed human actions.
+Image blocking can prevent an open event; privacy proxies can load images; security scanners can follow links.
+
+Use engagement events alongside delivery, application conversion, topic consent, and customer-support evidence.
+
+<Warning>
+Changing the project tracking host affects every send that inherits project tracking settings.
+Treat it as a project-level change.
+</Warning>
+
+<Card title="Tracking settings" icon="route" href="/signal/dashboard/domains/tracking">
+Review dashboard configuration and verification steps.
+</Card>

@@ -1,0 +1,49 @@
+---
+title: "Webhook event types"
+description: "Subscribe only to the event contracts your receiver can process"
+---
+
+A webhook endpoint subscribes to explicit Signal event types.
+Deploy compatible receiver handling before adding a new event to the endpoint.
+
+## Current event values
+
+| Event | Observed condition |
+| --- | --- |
+| `email.sent` | Successful provider handoff recorded |
+| `email.delivered` | Recipient server acceptance recorded |
+| `email.bounced` | Bounce recorded |
+| `email.complained` | Complaint recorded |
+| `email.opened` | Open-compatible tracking event observed |
+| `email.clicked` | Tracked-link request observed |
+| `email.failed` | Signal or provider failure recorded |
+| `email.rejected` | Deterministic policy or provider rejection recorded |
+| `email.delivery_delayed` | Provider reported a temporary delay |
+| `email.suppressed` | Signal blocked provider delivery |
+| `email.unsubscribed` | Unsubscribe event recorded |
+| `email.read_engaged` | Supported read-engagement event recorded |
+| `webhook.test` | Synthetic endpoint test event |
+
+The dashboard event selector currently exposes the primary delivery and `webhook.test` values.
+The public API schema also accepts `email.unsubscribed` and `email.read_engaged`.
+
+## Event ordering
+
+Events describe observations, not a guaranteed complete linear funnel.
+A tracking event can be affected by mail-client or security infrastructure, and an external provider event can arrive after your interface already displayed an earlier state.
+Fetch the current email record when a workflow must reconcile state.
+
+## Consumer rules
+
+- Verify the signature before trusting the JSON.
+- Deduplicate before applying side effects.
+- Store the event and identifiers before returning success.
+- Ignore unknown future event types safely after recording them.
+- Do not fail an entire receiver because an optional field is absent.
+- Keep `webhook.test` out of production delivery metrics.
+- Treat bounce, complaint, unsubscribe, and suppression events as recipient-safety signals.
+
+<Warning>
+Do not trigger irreversible customer actions from `email.opened` or `email.clicked` alone.
+Those events do not guarantee a human action.
+</Warning>

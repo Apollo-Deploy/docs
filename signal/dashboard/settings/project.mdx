@@ -1,0 +1,50 @@
+---
+title: "Project settings"
+description: "Update project identity and understand the full deletion and recovery workflow"
+---
+
+Open **Settings → Project** to manage the active Signal project's identity and lifecycle.
+
+## Editable fields
+
+| Field | Behavior |
+| --- | --- |
+| Project name | Human-readable dashboard label |
+| Project slug | URL-safe dashboard identifier |
+
+The region and project status are read-only.
+Region is fixed at project creation.
+
+## Rename safely
+
+Changing the name does not move customer data or credentials.
+Changing the slug can invalidate saved dashboard URLs and operational runbook links.
+Update those references after saving.
+
+## Delete project
+
+Deletion immediately stops project activity and cancels pending emails, webhook deliveries, and imports.
+Signal then creates a verified archive before permanently removing the project's API keys, domains, files, cloud resources, and Signal data.
+
+For 90 days, you can request restoration from that archive into a new project in the organization.
+After 90 days the archive expires and recovery is no longer available.
+
+<Warning>
+Project deletion is intentionally broad.
+Use a narrower action when you only need to revoke a key, stop a sender, disable an endpoint, or remove one domain.
+</Warning>
+
+## Pre-deletion checklist
+
+1. Stop API and SMTP callers.
+2. Cancel or account for scheduled emails.
+3. Review active webhook deliveries and import jobs.
+4. Export suppression and customer data required by policy.
+5. Record API key, domain, and integration replacements.
+6. Confirm the correct project is selected.
+7. Record the deletion timestamp and 90-day recovery deadline.
+
+## Recovery request
+
+A restore creates a new project from the archived export; do not assume deleted credentials or endpoints become active automatically.
+Plan to issue new secrets and revalidate infrastructure during recovery.

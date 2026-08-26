@@ -1,0 +1,51 @@
+---
+title: "Rate limits and sending quotas"
+description: "Handle endpoint buckets and plan-level email quotas"
+---
+
+Apollo Signal applies named HTTP buckets to high-volume public endpoint groups. Limits are evaluated per API key for normal developer requests.
+
+| Endpoint group | Limit | Window |
+| --- | ---: | ---: |
+| `POST /v1/emails` | 300 requests | 60 seconds |
+| `POST /v1/emails/batch` | 30 requests | 60 seconds |
+| Contact endpoints | 200 requests | 60 seconds |
+| Contact property endpoints | 60 requests | 60 seconds |
+| Project list, get, and update | 60 requests | 60 seconds |
+| Segment endpoints | 60 requests | 60 seconds |
+| Sending domain endpoints | 30 requests | 300 seconds |
+| Suppression endpoints | 120 requests | 60 seconds |
+| Topic endpoints | 120 requests | 60 seconds |
+| Webhook endpoints | 60 requests | 60 seconds |
+| Metrics and deliverability advisor endpoints | 120 requests | 60 seconds |
+
+Each generated endpoint page repeats its applicable bucket under **Requirements**. An endpoint without a displayed named bucket is still subject to its documented domain rules, sending quota, and protective platform controls.
+
+## Rate-limit response
+
+When a named HTTP bucket is exhausted, Apollo Signal returns `429` as an `application/problem+json` document and includes:
+
+```http
+Retry-After: 12
+```
+
+`Retry-After` is a whole number of seconds. Wait at least that long, then retry with jitter so concurrent workers do not all resume at once.
+
+```javascript
+const retryAfter = Number(response.headers.get("retry-after") ?? "1");
+const jitter = Math.floor(Math.random() * 250);
+await new Promise((resolve) => setTimeout(resolve, retryAfter * 1000 + jitter));
+```
+
+Do not assume `X-RateLimit-Remaining` or reset headers are present.
+
+## Sending quotas
+
+Email delivery also has plan-backed quotas independent of the HTTP request bucket:
+
+- A project has a per-second send allowance.
+- An organization has a daily send allowance.
+- A batch or audience fan-out consumes quota per resulting message, not merely per HTTP request.
+- Scheduled and test-mode behavior follows the send endpoint's response and plan rules.
+
+A request can therefore pass the endpoint bucket and still receive a send-related `429`. Inspect the problem `code`, honor `Retry-After`, and do not bypass the quota by rotating API keys.

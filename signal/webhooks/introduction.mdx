@@ -1,0 +1,45 @@
+---
+title: "Webhooks"
+description: "Receive signed asynchronous email events in your application"
+---
+
+Webhooks tell your application what happened after an email request was accepted.
+Use them for delivery state, bounce handling, complaint handling, suppression workflows, engagement signals, and operational reconciliation.
+
+## Delivery model
+
+Signal sends an HTTPS POST to each enabled endpoint subscribed to the event.
+The request includes a JSON payload and HMAC signature headers.
+A 2xx response marks the attempt successful.
+Network failures and non-2xx responses enter the retry process.
+
+## Recommended receiver
+
+```text
+Signal POST
+  -> capture raw body
+  -> verify timestamp and HMAC
+  -> persist or enqueue event
+  -> return 2xx
+  -> process business side effects
+```
+
+Keep signature verification and durable acceptance in the synchronous request.
+Move database fan-out, customer notifications, and external calls behind a queue.
+
+## Security boundary
+
+A parseable JSON body is not proof that Signal sent it.
+Verify `X-Signal-Webhook-Signature` over the exact raw bytes using the endpoint secret and use `X-Signal-Webhook-Timestamp` in the signed content.
+
+## Reliability boundary
+
+Webhook delivery is at least once from the consumer's perspective because retries and manual replays can repeat an event.
+Persist a stable event or delivery identifier and make each side effect idempotent.
+
+<CardGroup cols={2}>
+  <Card title="Event types" href="/signal/webhooks/event-types" />
+  <Card title="Verify requests" href="/signal/webhooks/verify-webhooks-requests" />
+  <Card title="Retries and replays" href="/signal/webhooks/retries-and-replays" />
+  <Card title="Manage endpoints" href="/signal/dashboard/webhooks/introduction" />
+</CardGroup>

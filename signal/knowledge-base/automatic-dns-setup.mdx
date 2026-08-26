@@ -1,0 +1,72 @@
+---
+title: "Automatic DNS setup"
+description: "Know which providers Signal can configure automatically and what you must still verify"
+---
+
+Signal detects common DNS providers from the domain's authoritative nameservers.
+When the detected provider supports the current automatic setup flow, **Setup** opens a provider approval process for the required records.
+
+## Current automatic-setup providers
+
+- Cloudflare
+- GoDaddy
+- Vercel
+- IONOS
+- Glauca Digital
+- NameSilo
+- Plesk
+
+## Detected providers that currently use manual setup
+
+- Amazon Route 53
+- Google Domains
+- Namecheap
+- DigitalOcean
+- DNSimple
+- Hover
+- Squarespace
+- Azure DNS
+
+An unrecognized provider also remains fully usable through manual DNS entry.
+
+## Approval flow
+
+<Steps>
+  <Step title="Register the domain">
+Signal reads authoritative nameservers and displays the detected provider.
+  </Step>
+  <Step title="Open Records">
+Select **Setup** only when the dashboard says automatic setup is available.
+  </Step>
+  <Step title="Review at the provider">
+Sign in to the correct provider account and zone. Review every proposed record before approval.
+  </Step>
+  <Step title="Return to Signal">
+Wait for public DNS propagation and inspect each record's verification state.
+  </Step>
+</Steps>
+
+## What automatic setup proves
+
+A completed provider handoff proves that the provider accepted the requested change.
+It does not prove that the provider published every record, that authoritative DNS is serving the new values, or that cached resolvers have expired.
+Signal verification remains the final product check.
+
+## If setup is not offered
+
+Confirm the displayed provider matches the current authoritative nameservers.
+Automatic availability can also depend on environment configuration.
+Copy the type, name, value, priority, and TTL manually when **Setup** is unavailable.
+
+## If provider approval fails
+
+- Confirm you selected the correct zone.
+- Check whether a record already exists at the requested name.
+- Check whether the provider rejects a CNAME because another record type shares that host.
+- Allow the provider sign-in or approval window through browser blockers.
+- Fall back to manual setup if the proposed change is unclear.
+
+<Warning>
+Never approve changes for a similar-looking but different zone.
+The Signal domain and the provider's selected zone must describe the same authoritative DNS tree.
+</Warning>

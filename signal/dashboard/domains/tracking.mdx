@@ -1,0 +1,54 @@
+---
+title: "Open, click, and engagement tracking"
+description: "Configure project tracking behavior and a branded tracking domain"
+---
+
+Signal can record opens, clicks, unsubscribes, read engagement, and scroll depth when the project and message settings enable the relevant behavior.
+Tracking signals are useful but are not perfect measurements of human attention.
+
+## Project settings
+
+| Setting | Behavior |
+| --- | --- |
+| Open tracking | Adds a tracking image to compatible HTML email |
+| Click tracking | Rewrites eligible links through Signal tracking |
+| Unsubscribe tracking | Supports project unsubscribe handling |
+| Read engagement | Captures supported read-engagement events when the plan enables it |
+| Scroll depth | Depends on read engagement and records supported depth signals |
+
+Read engagement can be plan-gated.
+Scroll depth requires read engagement.
+
+## Branded tracking domain
+
+Use a subdomain such as `track.company.com`.
+Signal shows the CNAME target that the host must resolve to.
+Keep the CNAME in DNS-only mode.
+
+<Warning>
+A project currently supports one tracking domain.
+Saving it from a domain page updates tracking for all project sends, not only that sending domain.
+</Warning>
+
+<Steps>
+  <Step title="Choose the host">
+Use a dedicated tracking subdomain that does not serve your main website.
+  </Step>
+  <Step title="Publish the CNAME">
+Copy the exact host and target shown by Signal.
+Disable proxying or flattening that prevents the expected DNS response.
+  </Step>
+  <Step title="Save and verify">
+Save the tracking host, wait for DNS propagation, then run verification.
+  </Step>
+  <Step title="Test a controlled message">
+Check links, redirects, unsubscribe behavior, and the email timeline with an inbox you control.
+  </Step>
+</Steps>
+
+## Interpret engagement carefully
+
+Image blocking can hide opens.
+Privacy proxies can create opens that do not represent a human.
+Security scanners can follow links before a recipient does.
+Use open and click data as directional product evidence alongside delivery, conversion, and customer behavior.

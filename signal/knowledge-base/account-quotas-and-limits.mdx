@@ -1,0 +1,60 @@
+---
+title: "Quotas, rate limits, and request ceilings"
+description: "Separate live plan quotas from endpoint rate limits and fixed request-shape limits"
+---
+
+Signal applies three different kinds of limits: billing-plan quotas, endpoint rate limits, and request-shape ceilings.
+A useful incident report names the specific boundary instead of calling every `429` or validation failure a quota problem.
+
+## Live plan quotas
+
+Open **Settings → Usage** for the active project's current billing period, entitlements, usage, and remaining capacity.
+That page is authoritative for plan-controlled values such as sends, projects, domains, webhooks, API keys, retention, and enabled add-ons.
+
+<Warning>
+Do not copy deployment defaults or an old pricing-table number into an operational runbook.
+Plans and entitlements can change; read the live Usage page for the current contract.
+</Warning>
+
+## Endpoint rate limits
+
+Each API operation documents its own request policy.
+For the current email operations:
+
+| Operation | Current request rate |
+| --- | --- |
+| `POST /v1/emails` | 300 requests per 60 seconds per API key |
+| `POST /v1/emails/batch` | 30 requests per 60 seconds per API key |
+
+A rate-limited call returns `429 Too Many Requests` and can include `Retry-After`.
+Wait for that interval when present, use bounded backoff with jitter, and preserve the original idempotency key when retrying an email admission request.
+
+## Request-shape ceilings
+
+- One direct fan-out or audience send can produce at most 50 recipient messages.
+- One batch request can contain at most 100 independent email items.
+- An audience larger than 50 is rejected; Signal does not silently truncate it.
+- Attachments must fit the configured decoded-size limit.
+- A message can contain at most 500 MIME parts, including body parts and attachments.
+- An explicit schedule must be at least 30 seconds and no more than 30 days in the future.
+
+These boundaries are not interchangeable.
+For example, a valid 100-item batch can still be rejected by a plan quota, and a project with remaining send capacity can still receive a per-key `429`.
+
+## Scheduled traffic
+
+Signal admits a scheduled message first and consumes send quota when delivery is due.
+Capacity planning therefore has to include already scheduled traffic as well as new requests.
+
+## What to capture during an incident
+
+- The operation and HTTP status.
+- The problem `type`, `title`, `detail`, and any structured fields.
+- `Retry-After` when returned.
+- The request count or recipient count involved.
+- The Usage page's current period and remaining entitlement.
+- The Signal email ID or batch item index, without logging credentials or message content.
+
+<Card title="Usage dashboard" icon="gauge-high" href="/signal/dashboard/settings/usage">
+See how Signal presents current entitlements and usage.
+</Card>

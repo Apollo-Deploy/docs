@@ -1,0 +1,59 @@
+---
+title: "Recipients, audience IDs, and batches"
+description: "Choose the correct send shape and understand how Signal creates message records"
+---
+
+Signal supports direct addresses, one topic audience ID, one segment audience ID, and a batch of independent email requests.
+These shapes have different record and response behavior.
+
+## Direct recipients
+
+`to` accepts one address or an array of addresses.
+`cc` and `bcc` also accept address arrays and count toward the per-message recipient limit.
+
+When `to` contains multiple direct addresses and both `cc` and `bcc` are empty, Signal fans the request out.
+It creates one message per direct recipient and returns a `messages` entry for each recipient.
+Each message has its own ID, status, tracking path, and unsubscribe path.
+
+When multiple `to` recipients are combined with `cc` or `bcc`, Signal sends one shared provider message.
+That record has an aggregate status and the audience must not be used in this shape.
+
+## Topic audiences
+
+A topic ID begins with `top_`.
+It resolves the topic's opt-in subscribers.
+The ID must be the only value in `to`, and the request cannot include `cc` or `bcc`.
+
+## Segment audiences
+
+A segment ID begins with `seg_`.
+It resolves members of that project segment.
+The ID must be the only value in `to`, and the request cannot include `cc` or `bcc`.
+
+Audience sends fan out one message per resolved address.
+Signal rejects an empty audience and rejects an audience whose resolved size exceeds 50; it does not silently send only the first 50.
+The suppression fence still applies to resolved recipients.
+
+## Batch requests
+
+`POST /v1/emails/batch` accepts up to 100 independent email items.
+Each item carries its own sender, recipients, content, schedule, tracking settings, metadata, and idempotency key.
+
+Signal admits the batch atomically: every item is queued or none is queued.
+After admission, the items are independent and can reach different delivery outcomes.
+Use each response item's index, email ID, and error to correlate results.
+
+## Selection guide
+
+| Requirement | Shape |
+| --- | --- |
+| One private message per address | Multiple direct `to` addresses without `cc` or `bcc` |
+| One message with shared To/CC/BCC headers | Direct recipients with `cc` or `bcc` |
+| Every opted-in member of one topic | One `top_…` value in `to` |
+| Every member of one static segment | One `seg_…` value in `to` |
+| Many unrelated messages in one API call | Batch endpoint |
+
+<Warning>
+Do not place an audience ID beside an email address or send it as a literal address.
+Signal requires the audience ID to be the only recipient.
+</Warning>

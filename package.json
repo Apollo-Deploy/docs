@@ -1,0 +1,18 @@
+{
+  "name": "apollo-docs",
+  "private": true,
+  "engines": {
+    "node": ">=20 <25"
+  },
+  "dependencies": {
+    "@apollo-deploy/core": "workspace:*"
+  },
+  "scripts": {
+    "predev": "bun run build:favicon-runtime",
+    "dev": "./scripts/dev.sh",
+    "build:favicon-runtime": "bun build scripts/favicon-runtime.ts --target=browser --format=iife --minify --outfile=favicon-runtime.js",
+    "test:favicon-runtime": "bun test scripts/favicon-runtime.test.ts",
+    "generate:signal-api": "node scripts/generate-signal-api-reference.mjs",
+    "check:signal-api": "node scripts/generate-signal-api-reference.mjs --check"
+  }
+}

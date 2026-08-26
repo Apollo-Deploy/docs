@@ -1,0 +1,47 @@
+---
+title: "Automatic DNS setup"
+description: "Use provider detection and supported Domain Connect setup, or fall back to manual DNS"
+---
+
+Signal can open a provider approval flow that applies the required DNS records for supported authoritative DNS providers.
+You still own the final verification and should review every proposed change.
+
+## Providers with automatic setup
+
+The current dashboard recognizes automatic setup for Cloudflare, GoDaddy, Vercel, IONOS, Glauca Digital, NameSilo, and Plesk.
+
+It can detect Amazon Route 53, Google Domains, Namecheap, DigitalOcean, DNSimple, Hover, Squarespace, and Azure DNS, but those providers use manual setup in the current flow.
+
+<Steps>
+  <Step title="Add the domain">
+Signal inspects authoritative nameservers and displays the detected provider.
+  </Step>
+  <Step title="Open Records">
+Select **Setup** when automatic setup is available.
+  </Step>
+  <Step title="Approve at the provider">
+Sign in to the DNS provider, review the proposed records, and approve only the expected domain.
+  </Step>
+  <Step title="Return to Signal">
+Signal starts verification after the provider flow completes.
+Wait for public DNS propagation and review each record status.
+  </Step>
+</Steps>
+
+## If automatic setup is unavailable
+
+Copy the record type, host, value, priority, and TTL into the authoritative provider manually.
+Automatic setup availability can also depend on the current environment configuration.
+
+## If setup fails
+
+- Confirm the detected provider still hosts authoritative DNS.
+- Confirm you approved the correct provider account and zone.
+- Disable browser blockers that prevent the provider handoff.
+- Check whether the provider rejected one record because a conflicting record exists.
+- Fall back to manual setup instead of repeatedly approving an unclear change.
+
+<Warning>
+Provider approval does not prove that DNS is live.
+Return to Signal and wait for every required record to verify.
+</Warning>

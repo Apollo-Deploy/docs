@@ -1,0 +1,69 @@
+---
+title: "Idempotency keys"
+description: "Make retryable send jobs create one logical email"
+---
+
+Network failures can hide a successful send response.
+Use `idempotencyKey` so retrying the same logical operation returns the persisted result instead of creating another message.
+
+<Warning>
+Apollo Signal reads the key from the JSON body.
+It does not use an `Idempotency-Key` HTTP header.
+</Warning>
+
+## Scope
+
+Keys are scoped to a Signal project.
+The same string in another project represents a different operation.
+Within one project, use one stable key for one logical message.
+
+```json
+{
+  "from": "billing@mail.company.com",
+  "to": "alex@example.com",
+  "subject": "Invoice 1042",
+  "text": "Your invoice is ready.",
+  "idempotencyKey": "invoice-1042-alex-v1"
+}
+```
+
+## Design a key
+
+Build the value from your durable business identifier, recipient context, and message version.
+Good examples include `password-reset-req_8921` or `invoice-1042-alex-v1`.
+Do not use a new random UUID on every HTTP attempt because every attempt would then look unique.
+
+## Retry algorithm
+
+<Steps>
+  <Step title="Persist the business operation">
+Create the job and its idempotency key before calling Signal.
+  </Step>
+  <Step title="Submit the send">
+Put the persisted key in the request body.
+  </Step>
+  <Step title="Persist the Signal result">
+Store the returned Signal message ID next to the job.
+  </Step>
+  <Step title="Retry uncertainty, not validation">
+Retry network timeouts, selected server failures, and rate limits with backoff.
+Correct authentication and validation failures instead.
+  </Step>
+</Steps>
+
+## Concurrent claims
+
+If two workers race to claim the same key, one can receive a conflict while the original operation is still being established.
+Back off and retry with the same key.
+Do not switch to a new key during the race.
+
+## Batch sends
+
+Give each batch item its own idempotency key.
+This preserves one logical identity per message even though the HTTP request contains many items.
+
+## Payload changes
+
+Treat the idempotency key as part of the immutable send intent.
+If the recipient, content, or schedule changes intentionally, create a new versioned key.
+Reusing an old key is a request for the original persisted result, not an update.

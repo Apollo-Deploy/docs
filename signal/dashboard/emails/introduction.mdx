@@ -1,0 +1,84 @@
+---
+title: "Manage emails"
+description: "Inspect every accepted message, status, content view, and delivery event"
+---
+
+The **Emails** page is the operational record of messages accepted by the active project.
+Use it to confirm what Signal received, follow asynchronous delivery, and diagnose recipient-specific failures.
+
+## Email list
+
+Each row shows the subject, recipient, current status, creation time, and topic when one applies.
+Open a row instead of assuming the list status explains the whole outcome.
+
+## Statuses
+
+| Status | Meaning |
+| --- | --- |
+| `queued` | Signal accepted the message and is preparing provider delivery |
+| `scheduled` | Signal is holding the message until its requested time |
+| `sent` | Signal handed the message to the sending provider |
+| `delivered` | The recipient server accepted the message |
+| `opened` | The tracking pixel loaded, when open tracking is enabled |
+| `clicked` | A tracked link was followed |
+| `bounced` | The recipient server rejected the message permanently or returned it |
+| `complained` | A complaint signal was received |
+| `failed` | Signal or the provider could not complete the send |
+| `rejected` | A policy or provider rejected the message before delivery |
+| `suppressed` | Signal blocked the recipient because of suppression state |
+| `cancelled` | A scheduled message was cancelled before dispatch |
+| `test` | The request exercised test mode without real provider delivery |
+
+<Note>
+`delivered` means the recipient mail server accepted the message.
+It does not guarantee inbox placement, reading, or a human recipient.
+</Note>
+
+## Message detail
+
+The detail header shows the status and any error, then identifies the sender, recipient, created and sent times, Signal ID, provider message ID, reply-to, CC, BCC, tags, and test-mode state when present.
+
+Use the content tabs for different questions:
+
+| Tab | Use it to |
+| --- | --- |
+| Preview | Inspect rendered HTML in an isolated preview |
+| Plain text | Confirm the text alternative that non-HTML clients receive |
+| HTML | Inspect the submitted HTML source |
+| Timeline | Follow state changes and engagement events in order |
+| Raw | Inspect the complete customer-visible message record |
+
+Timeline events can include queued, sent, delivered, opened, clicked, bounced, complained, failed, rejected, delayed, suppressed, unsubscribed, read-engaged, and scroll-depth activity.
+Only events enabled and observed for the project will appear.
+
+## Cancel a scheduled message
+
+Open the message and cancel it while it remains `scheduled`.
+Once dispatch begins, treat the send as irreversible.
+Cancellation changes the message to `cancelled` and prevents provider delivery.
+
+## Diagnose a failure
+
+<Steps>
+  <Step title="Read the terminal status">
+Distinguish bounce, complaint, suppression, rejection, and internal failure.
+They require different fixes.
+  </Step>
+  <Step title="Read the timeline">
+Find the last successful transition and the first failure event.
+  </Step>
+  <Step title="Check recipient state">
+Open the suppression list and contact topic preferences before retrying the same address.
+  </Step>
+  <Step title="Check sender state">
+Confirm the From domain remains verified and its authentication records still resolve.
+  </Step>
+  <Step title="Correlate your request">
+Use the Signal email ID, your idempotency key strategy, tags, metadata, and webhook event ID to connect application logs without recording secrets or message bodies.
+  </Step>
+</Steps>
+
+<Warning>
+Do not remove a bounced, complained, or unsubscribed address from suppression and immediately resend.
+First establish a legitimate reason and the recipient's current consent.
+</Warning>

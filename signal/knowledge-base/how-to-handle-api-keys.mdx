@@ -1,0 +1,70 @@
+---
+title: "API-key storage, scope, and rotation"
+description: "Protect project-bound bearer credentials and prove a rotation completed"
+---
+
+A Signal API key is a project-bound Bearer credential that begins with `ap_signal_`.
+It can perform only the actions in its permission set while it remains active and unexpired.
+
+## Visibility
+
+Signal shows the complete secret only at creation.
+List and get operations return metadata and a masked value, never the raw credential.
+If the secret was not stored safely at creation, create a replacement; there is no reveal operation.
+
+## Storage boundary
+
+Store keys in a server-side secret manager or protected deployment environment.
+Do not place them in:
+
+- Browser or mobile bundles.
+- Source control.
+- Client-visible environment variables.
+- Analytics or error-tracking properties.
+- Reverse-proxy access logs.
+- Support tickets or screenshots.
+
+Redact the complete `Authorization` header at every logging boundary.
+
+## Least privilege
+
+Create one key per service and environment.
+A sender normally needs `emails:send`.
+A metrics reader normally needs `metrics:read`.
+Webhook management uses separate read and write permissions.
+Every API endpoint page names its exact requirement.
+
+The authenticated key determines the project.
+When a path also contains `{projectId}`, it must match the key's project even if another project belongs to the same organization.
+
+## Expiration and revocation
+
+The current creation choices are no expiry, 7 days, 30 days, 90 days, and 1 year.
+Deleting a key revokes it immediately.
+
+## Rotation
+
+<Steps>
+  <Step title="Create a replacement">
+Use the same or narrower permissions and a distinct credential name.
+  </Step>
+  <Step title="Deploy it">
+Add a new secret version and update every caller.
+  </Step>
+  <Step title="Prove cutover">
+Confirm the replacement's last-used value and request records advance while the old key becomes quiet.
+  </Step>
+  <Step title="Revoke the old key">
+Delete it after the cutover evidence is complete.
+  </Step>
+</Steps>
+
+## Exposure response
+
+Delete the exposed credential, deploy a narrowly scoped replacement, inspect key usage and audit events, remove the value from affected systems, and fix the leak path.
+Removing a key from a later source-control commit does not revoke it.
+
+<Warning>
+Never weaken project or permission checks to keep an exposed or expired key working.
+Replace the credential and correct the caller.
+</Warning>

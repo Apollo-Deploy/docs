@@ -1,0 +1,53 @@
+---
+title: "Send from the dashboard"
+description: "Compose a customer-visible email in Signal and verify its result"
+---
+
+Use the dashboard composer for a controlled manual send, an integration smoke check, or a delivery investigation.
+Use the API or SMTP for application-driven traffic.
+
+## Requirements
+
+- The active project must contain a verified sending domain.
+- Your account must be allowed to send from the project.
+- You need at least one valid recipient.
+- Use content you are permitted to send to that recipient.
+
+<Steps>
+  <Step title="Open the composer">
+Open **Emails** and select the send action.
+  </Step>
+  <Step title="Add recipients">
+Enter one or more comma-separated addresses.
+Without CC or BCC, Signal treats multiple direct recipients as independent messages so each recipient gets its own status, tracking, and unsubscribe context.
+Keep a fan-out request at or below 50 recipients.
+  </Step>
+  <Step title="Choose the sender">
+Enter a From address whose domain is verified in this project.
+Use a mailbox name that matches the message purpose, such as `security@auth.company.com`.
+  </Step>
+  <Step title="Write the message">
+Add a non-empty subject and HTML body.
+Review every link and visible value before sending.
+  </Step>
+  <Step title="Send and inspect">
+Submit the message, open its detail page, and follow the timeline.
+Do not use the initial accepted state as proof of delivery.
+  </Step>
+</Steps>
+
+## Dashboard scope
+
+The composer intentionally exposes a focused set of fields.
+Use the Email API when you need plain-text content, reply-to, CC, BCC, attachments, tags, metadata, per-message tracking overrides, scheduling, test mode, or idempotency.
+
+## Multiple-recipient behavior
+
+Direct To recipients without CC or BCC fan out into separate Signal messages.
+Each message has its own ID and lifecycle.
+A request that includes CC or BCC remains one shared message.
+A topic or segment audience ID must be the only recipient and cannot be combined with CC or BCC.
+
+<Tip>
+For the first production smoke check, send to an inbox your team controls and inspect both the Signal timeline and the received headers.
+</Tip>

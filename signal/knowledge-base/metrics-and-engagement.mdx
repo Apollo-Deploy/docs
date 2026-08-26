@@ -1,0 +1,55 @@
+---
+title: "Metrics and engagement evidence"
+description: "Read counts, rates, time windows, advisor output, and tracking caveats correctly"
+---
+
+Signal metrics summarize project outcomes over a selected window.
+Use them to find where behavior changed, then inspect the affected messages, domains, contacts, topics, and suppressions.
+
+## Project windows
+
+The dashboard offers 24 hours, 7 days, 30 days, and 90 days.
+The 24-hour view uses hourly buckets; longer views can use daily buckets.
+Compare equal windows and granularity before calling a difference a trend.
+
+## Counts and rates
+
+Project metrics include sent, delivered, opened, clicked, bounced, complained, failed, and unsubscribed outcomes.
+Provider and tracking events arrive asynchronously, so a recent bucket can continue changing.
+
+| Rate | Contract boundary |
+| --- | --- |
+| Delivery rate | Delivered relative to the relevant sent volume |
+| Open rate | Tracked opens relative to delivered volume |
+| Click rate | Tracked clicks relative to delivered volume |
+| Click-to-open rate | Tracked clicks relative to tracked opens |
+| Bounce rate | Bounces relative to sent volume |
+| Complaint rate | Complaints relative to the denominator defined by the metric response |
+
+The API also exposes topic performance, individual-email performance, read engagement, a project summary, a timeline, and the deliverability advisor.
+
+## Tracking caveats
+
+An open is a tracking-image load.
+A click is a tracked-link request.
+Image blocking, privacy proxies, security gateways, and link scanners can change those counts without a matching human action.
+Use application conversion as a separate measurement when human intent matters.
+
+## Deliverability advisor
+
+The current dashboard bands are **Healthy** at 90 or above, **Good** at 75 or above, **Needs attention** at 50 or above, and **Critical** below 50.
+The score summarizes underlying delivery evidence; it is not an independent guarantee of inbox placement.
+
+## Investigation sequence
+
+1. Confirm whether total volume changed.
+2. Separate delivery, bounce, complaint, rejection, failure, unsubscribe, and suppression behavior.
+3. Narrow the time window to the first changed bucket.
+4. Open representative message timelines.
+5. Check domain and tracking configuration.
+6. Check the audience source and recipient-safety state.
+7. Compare the next equivalent window after a correction.
+
+<Warning>
+A percentage without its count, denominator, and time window is incomplete evidence.
+</Warning>

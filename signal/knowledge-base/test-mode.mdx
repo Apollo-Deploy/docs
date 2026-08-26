@@ -1,0 +1,44 @@
+---
+title: "What test mode proves"
+description: "Use Signal test mode without confusing validation success with real delivery"
+---
+
+Set `testMode` to `true` on a send request to exercise Signal's send flow without delivering to real recipients.
+The resulting email record uses the `test` status unless an explicit supported test outcome is requested through Signal's test-address behavior.
+
+## Test mode can verify
+
+- Your API key authenticates to the intended project.
+- The key has `emails:send`.
+- Required fields and address shapes pass validation.
+- The From address belongs to a domain Signal accepts for the project.
+- The content, metadata, tags, tracking overrides, and attachment structure are accepted.
+- Your integration receives and stores the Signal response shape.
+- The request appears in Signal's email record and customer-visible diagnostics.
+
+## Test mode cannot verify
+
+- A provider accepted a real message.
+- A recipient mail server accepted it.
+- DNS changes have propagated to every resolver.
+- A message reached the inbox instead of spam.
+- Tracking links and pixels behaved in a real mailbox.
+- Your production recipient consent and suppression inputs are correct.
+
+## Recommended progression
+
+1. Use test mode while implementing the request and response contract.
+2. Confirm the record reaches `test` and inspect its content and metadata.
+3. Send one controlled real message to an inbox you own.
+4. Follow `sent` and `delivered` separately.
+5. Test only the tracking features actually enabled for the project.
+6. Verify webhook signature handling with a webhook test event before relying on production events.
+
+<Warning>
+A `test` message is deliberately not a delivery test.
+Do not use it as evidence of provider handoff, recipient-server acceptance, inbox placement, opens, or clicks.
+</Warning>
+
+<Card title="Send test emails" icon="flask" href="/signal/dashboard/emails/send-test-emails">
+Review the dashboard and API test workflows.
+</Card>

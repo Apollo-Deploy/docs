@@ -1,0 +1,56 @@
+---
+title: "Static segments"
+description: "Know how membership changes and what a segment audience does during sending"
+---
+
+A Signal segment is a named, static group of contacts in one project.
+Membership changes only when a dashboard operator or API caller adds or removes a contact.
+
+## What a segment contains
+
+The segment record exposes its `seg_…` ID, name, project ID, contact count, unsubscribed count, and creation time.
+The contacts endpoint lists current members with cursor pagination.
+
+A segment does not store a property rule and does not continuously recalculate membership.
+If your application needs rule-driven grouping, calculate that rule in your own system and synchronize explicit membership changes.
+
+## Membership operations
+
+- Create the segment with a name.
+- Add an existing contact through the contact-segment membership endpoint.
+- Remove a membership without deleting the contact.
+- List current contacts before using the group operationally.
+- Delete the segment only after callers stop referencing its ID.
+
+Deleting a segment removes the grouping.
+It does not delete its contacts, properties, or topic preferences.
+
+## Sending to a segment
+
+Put one `seg_…` ID in `to`.
+It must be the only recipient and cannot be combined with `cc` or `bcc`.
+Signal resolves the current members and creates one independent message per resolved address.
+
+One audience request supports at most 50 resolved recipients.
+An audience larger than 50 is rejected rather than truncated.
+Suppression checks still apply before provider delivery.
+
+## What membership does not prove
+
+Segment membership is not a consent state.
+A member can have an explicit topic opt-out, global unsubscribe state, or suppression entry.
+Your sending workflow must select the correct audience boundary and honor the separate delivery fence.
+
+## Pre-send checklist
+
+1. Retrieve or inspect the current membership.
+2. Confirm the group still matches the intended business population.
+3. Confirm the communication's topic and consent requirements.
+4. Review unsubscribed and suppression state.
+5. Confirm the audience is within the 50-recipient request ceiling.
+6. Use a stable idempotency key for the logical send.
+
+<Warning>
+Do not assume a segment changed because a contact property changed.
+Only an explicit membership operation changes the segment.
+</Warning>

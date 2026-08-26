@@ -1,0 +1,61 @@
+---
+title: "Webhook retries, failures, and replays"
+description: "Build an idempotent receiver and recover from downstream outages safely"
+---
+
+Signal marks any `2xx` webhook response as successful.
+A timeout, network error, or non-`2xx` response is a failed attempt and can be retried with exponential backoff until the service retry budget is exhausted.
+
+## Delivery evidence
+
+The endpoint delivery list shows event type, delivery status, attempt count, last HTTP status, last error, and next-attempt time when one is scheduled.
+Signal stores at most 4 KiB of the receiver response body as a diagnostic snippet.
+
+Webhook delivery statuses are `pending`, `processing`, `success`, `failed`, and `cancelled`.
+
+## Receiver response contract
+
+| Receiver result | Signal outcome |
+| --- | --- |
+| Any `2xx` | Mark the delivery successful |
+| `4xx` | Record a failed attempt; retries can still occur |
+| `5xx` | Record a failed attempt and schedule retry while budget remains |
+| Timeout or network error | Record a failed attempt and schedule retry while budget remains |
+
+Return `2xx` only after the verified event is durably accepted.
+Do not keep the HTTP request open while slow business processing completes.
+
+## Deduplication
+
+Automatic retries and manual replays can deliver the same logical event more than once.
+Use the stable event or delivery identifier as a durable uniqueness key.
+
+```text
+begin transaction
+  insert received_event(unique_event_id)
+  if duplicate: commit and return success
+  apply the idempotent state transition
+commit
+```
+
+Downstream side effects need their own stable keys.
+A unique database row does not prevent a duplicated ticket, notification, or payment if that external call is made before the duplicate boundary.
+
+## Manual replay
+
+`POST /v1/projects/{projectId}/webhooks/{endpointId}/replay/{deliveryId}` resends the original payload to that endpoint.
+Use it after correcting a transient outage, parser defect, or downstream dependency.
+
+Before replay:
+
+1. Deploy support for the event type.
+2. Confirm the endpoint secret matches the receiver.
+3. Confirm duplicate handling is durable.
+4. Replay one delivery.
+5. Inspect the new attempt and downstream state.
+6. Expand only after the single replay is safe.
+
+<Warning>
+Do not replay into a receiver with non-idempotent side effects.
+Fix the duplicate boundary first.
+</Warning>

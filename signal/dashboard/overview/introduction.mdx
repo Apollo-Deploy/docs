@@ -1,0 +1,48 @@
+---
+title: "Project overview"
+description: "Read project setup, delivery health, activity, and operational alerts"
+---
+
+The overview turns the active project's setup and recent sending state into one operational screen.
+Use it as a starting point, then open the underlying page when a card needs investigation.
+
+## Setup checklist
+
+New projects show four milestones: add a domain, verify DNS, create an API key, and send the first email.
+The checklist links directly to the relevant domain, key, and email screens.
+It disappears as the project becomes operational.
+
+## Recent summary
+
+The overview summarizes the last seven days of activity.
+Read the counts together: a high sent count is not healthy if delivery falls or complaints rise.
+
+| Signal | How to use it |
+| --- | --- |
+| Sent | Establishes the volume denominator |
+| Delivered | Confirms recipient servers accepted messages |
+| Opened and clicked | Shows tracked engagement when tracking is enabled |
+| Bounced | Identifies addresses or reputation problems |
+| Complained | Indicates recipients marked messages as spam |
+| Failed, rejected, or suppressed | Points to configuration, provider, policy, or recipient-state failures |
+
+## Deliverability advisor
+
+When your plan includes it, the advisor combines recent signals into a health view and recommended actions.
+Treat a recommendation as an investigation path.
+Open the related domain, message, suppression, or metrics page before changing production behavior.
+
+## Real-time stream
+
+When available for the project, the stream shows new email events as Signal receives them.
+Use it during an integration test or incident, but use the email detail and metrics pages for durable analysis.
+
+## Alerts
+
+Overview alerts can call out domain authentication, tracking configuration, bounce or complaint risk, and usage pressure.
+Resolve the underlying condition instead of dismissing an alert as a monitoring task.
+
+<Note>
+Some cards depend on plan capabilities and recent data.
+A missing card does not mean the underlying API or project is unhealthy.
+</Note>

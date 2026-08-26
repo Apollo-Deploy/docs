@@ -1,0 +1,50 @@
+---
+title: "Sending-domain regions"
+description: "Understand default region behavior, multi-region capability, and immutable domain placement"
+---
+
+Every Signal sending domain has a region.
+That region controls the Signal sending path used for the domain.
+
+## Supported region codes
+
+| Code | Location |
+| --- | --- |
+| `us-east-1` | US East, N. Virginia |
+| `af-south-1` | Africa, Cape Town |
+| `eu-west-1` | Europe, Ireland |
+| `ap-southeast-1` | Asia Pacific, Singapore |
+
+## Default behavior
+
+When a project does not have multi-region domain capability, a new domain uses the project's region.
+The add-domain interface shows that value as locked.
+
+When multi-region domain capability is enabled, the add-domain interface exposes the supported region choices.
+Use the options shown in the dashboard as the current entitlement; do not infer availability from this list alone.
+
+## Immutability
+
+A registered domain's region cannot be changed.
+The domain response exposes the selected region, and the dashboard treats it as a fixed property.
+
+To change region, register a replacement domain and migrate senders:
+
+1. Add the replacement in the target region.
+2. Publish the returned DNS records.
+3. Wait for required checks to verify.
+4. Configure the project's tracking behavior as required.
+5. Move one controlled caller.
+6. Compare send, delivery, and webhook evidence.
+7. Move remaining callers.
+8. Delete the old registration only after it is unused.
+
+## What region does not prove
+
+Region selection does not prove provider handoff, recipient-server acceptance, inbox placement, or engagement.
+Use message status and event evidence for those questions.
+
+<Warning>
+Do not delete the original domain as the first migration step.
+Deletion stops new sending from it immediately.
+</Warning>

@@ -1,0 +1,44 @@
+---
+title: "Root domain or subdomain?"
+description: "Compare the verified Signal consequences without treating a design preference as a guarantee"
+---
+
+Signal can register a sending domain that matches your intended From-address domain.
+Whether that identity is an organizational root such as `company.com` or a subdomain such as `mail.company.com` is an operational choice.
+
+## Product facts that do not change
+
+- Signal generates verification records for the exact domain you register.
+- A From address must use a domain verified in the authenticated project.
+- The domain has its own region and verification status.
+- A different sending domain requires a separate registration and DNS verification.
+- Tracking uses a separate project-wide tracking host when configured.
+
+## Observable differences
+
+| Choice | DNS consequence | Integration consequence |
+| --- | --- | --- |
+| Root domain | Signal records share the root zone with other organizational mail systems | Existing employee, support, and provider senders must be considered when changing authentication policy |
+| Subdomain | Signal records live under a distinct DNS namespace | From addresses must use that subdomain and callers must be updated accordingly |
+
+A subdomain creates a separate DNS namespace.
+That is useful for ownership and change control, but Signal does not guarantee inbox placement or reputation isolation merely because a subdomain exists.
+
+## Questions to answer before registration
+
+1. Which From addresses will the application actually use?
+2. Who controls authoritative DNS for that exact name?
+3. Which existing senders already use the root or proposed subdomain?
+4. Which project and region should own the domain?
+5. Which tracking host will the project use?
+6. Can every caller be migrated if the From domain changes later?
+
+## Changing the choice later
+
+Signal does not rename an existing domain registration.
+Register the replacement, publish and verify its records, update controlled callers, observe delivery and webhooks, then retire the old sender only after usage stops.
+
+<Note>
+This article describes platform consequences, not a universal deliverability rule.
+Mailbox placement depends on systems outside Signal's domain-registration choice.
+</Note>

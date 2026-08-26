@@ -1,0 +1,54 @@
+---
+title: "DMARC policy and aggregate reports"
+description: "Separate DNS policy configuration from delayed aggregate authentication evidence"
+---
+
+Signal exposes a recommended DMARC record for a sending domain and can import aggregate DMARC reports for analysis.
+Those are two different workflows: publishing policy in DNS and analyzing reports received later.
+
+## DNS policy
+
+Publish the exact `dmarcRecommended` record returned for the domain at the required `_dmarc` host.
+A DMARC record contains a version and policy and can specify an aggregate-report destination.
+
+| Policy | Requested receiver treatment |
+| --- | --- |
+| `none` | Monitor and report without requesting enforcement |
+| `quarantine` | Treat aligned-policy failures as suspicious |
+| `reject` | Reject aligned-policy failures |
+
+DMARC evaluates alignment between the visible From domain and an authenticated DKIM or SPF identifier.
+A raw SPF or DKIM pass alone is not the same as DMARC alignment.
+
+Publish only one DMARC TXT record at a policy host.
+Use the domain-specific value shown by Signal instead of copying an example from another domain.
+
+## Signal report imports
+
+The **DMARC** page imports one report file at a time.
+Current accepted file types are `.xml`, `.gz`, `.gzip`, `.zip`, and `.eml`.
+The import result distinguishes newly imported reports from duplicates.
+
+Available time ranges are 30 minutes, 1 hour, 6 hours, 12 hours, 24 hours, 7 days, 30 days, 90 days, and a custom range up to 90 days.
+
+Signal summarizes observed messages, DMARC alignment, DKIM alignment, SPF alignment, report count, and source count.
+Use source IP and disposition evidence to identify legitimate senders and recurring failures.
+
+## Evidence boundary
+
+Aggregate reports are delayed and summarized by reporting providers.
+They do not identify real-time per-recipient delivery and do not replace the Signal email timeline.
+
+## Safe policy workflow
+
+1. Publish the correct reporting destination.
+2. Import unmodified reports.
+3. Inventory legitimate sources.
+4. Correct alignment failures.
+5. Investigate unknown sources before authorizing them.
+6. Change enforcement only after reviewing sufficient evidence for your own traffic.
+
+<Warning>
+Do not add every reported source to SPF automatically.
+A report is evidence to investigate, not permission to authorize a sender.
+</Warning>

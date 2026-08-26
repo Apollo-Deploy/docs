@@ -1,0 +1,60 @@
+---
+title: "Contacts and custom properties"
+description: "Separate recipient identity, profile data, grouping, preferences, and delivery blocks"
+---
+
+A contact is a recipient identity inside one Signal project.
+Its record combines an email address with profile fields, custom values, segment membership, topic preferences, global unsubscribe state, and customer-visible activity.
+
+## Contact identity
+
+`email` is required and unique within the project.
+The public update contract changes first name, last name, phone, global `unsubscribed` state, and property values; it does not replace the contact's email identity.
+Create a deliberate replacement contact when the address itself changes.
+
+A create request can also include initial segment references and explicit topic subscriptions.
+The response includes the project ID, contact ID, current properties, segment IDs, topic subscription records, and timestamps.
+
+## Keep the state types separate
+
+| State | What it represents |
+| --- | --- |
+| Contact profile | Identity and customer attributes |
+| Custom property | Project-defined data attached to the contact |
+| Segment membership | Explicit static grouping |
+| Topic subscription | An explicit `opt_in` or `opt_out` communication preference |
+| Global `unsubscribed` | Contact-wide subscription state |
+| Suppression | A project delivery fence for the email address |
+
+A contact can continue to exist while its address is suppressed.
+Deleting the contact is not equivalent to retaining a delivery block.
+
+## Current custom-property contract
+
+The public API supports property definitions of type `string` and `number`.
+A definition uses:
+
+- A project-unique `key` containing letters, numbers, or underscores.
+- A maximum key length of 50 characters.
+- An immutable type selected at creation.
+- An optional fallback value.
+
+Only the fallback value is mutable on the property definition.
+Choose a stable key because changing a business label does not create a key-renaming operation.
+
+Contact property values are submitted as string key/value pairs and validated against the project's definitions.
+A fallback is returned or used only where the product contract says the contact lacks an explicit value; it must not invent consent or eligibility.
+
+## Activity and derived evidence
+
+The contact activity endpoint combines recent email events, contact creation, segment changes, topic subscription changes, and suppression changes, ordered newest first.
+Engagement and recorded email-validation results are separate derived signals.
+Neither overrides consent or suppression.
+
+<Warning>
+Do not use a profile field, segment, or engagement score as a substitute for an explicit topic preference or delivery suppression.
+</Warning>
+
+<Card title="Contacts" icon="address-card" href="/signal/dashboard/audiences/introduction">
+Review contact profile, activity, engagement, validation, and deletion behavior.
+</Card>

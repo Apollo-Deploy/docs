@@ -1,0 +1,42 @@
+---
+title: "BIMI configuration and evidence"
+description: "Know what Signal stores, verifies, and cannot guarantee about mailbox logo display"
+---
+
+Signal lets you associate a hosted BIMI logo URL with a sending domain and returns the BIMI DNS record for that configuration.
+BIMI remains optional and does not replace the domain's DKIM, MAIL FROM, SPF, or DMARC checks.
+
+## What Signal stores
+
+Open the domain **Configuration** tab and provide a public HTTPS URL for the SVG logo.
+Signal stores the URL; it does not upload the image file from your computer.
+The domain response exposes `bimiLogoUrl`, `bimiStatus`, and the optional `bimi` DNS record.
+
+## Configuration sequence
+
+1. Confirm the domain's required sending records pass.
+2. Confirm your DMARC policy meets the requirements you intend to use.
+3. Host the SVG at a stable public HTTPS URL.
+4. Save that exact URL in Signal.
+5. Publish the BIMI record returned by Signal.
+6. Run verification after DNS and the asset are publicly reachable.
+
+## Asset checks
+
+- The URL returns the SVG asset, not an authenticated page.
+- HTTPS succeeds without a customer session.
+- The response content type describes SVG content.
+- The asset does not depend on scripts or external page resources.
+- Redirects do not end on HTML or a blocked origin.
+
+## What verification proves
+
+A verified BIMI state proves that Signal observed the expected configuration conditions it checks.
+It does not guarantee that every mailbox provider will display the logo.
+Mailbox providers apply their own support, policy, certificate, reputation, and caching decisions.
+
+If Signal verifies but a mailbox does not display the logo, preserve the verified Signal evidence and investigate that mailbox provider's current BIMI requirements separately.
+
+<Card title="BIMI dashboard guide" icon="badge-check" href="/signal/dashboard/domains/bimi">
+Review the Signal configuration and DNS workflow.
+</Card>

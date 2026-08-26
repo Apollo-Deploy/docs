@@ -1,0 +1,70 @@
+---
+title: "Webhook signature verification"
+description: "Verify the exact raw body, timestamp, and HMAC-SHA256 signature before parsing"
+---
+
+Signal signs every webhook delivery with the endpoint secret.
+Verify the signature before treating any payload field as trusted.
+
+## Headers and signed input
+
+| Header | Value |
+| --- | --- |
+| `X-Signal-Webhook-Timestamp` | Unix epoch seconds used for signing |
+| `X-Signal-Webhook-Signature` | `v1=<hex HMAC-SHA256>` |
+
+The signed input is the timestamp, one literal period, and the exact raw request body:
+
+```text
+<timestamp>.<raw request body>
+```
+
+Signal calculates HMAC-SHA256 with the endpoint secret.
+
+## Verification sequence
+
+<Steps>
+  <Step title="Preserve the raw body">
+Read the bytes or exact string before a framework parses and serializes JSON.
+  </Step>
+  <Step title="Require both headers">
+Reject a request with a missing or malformed timestamp or signature.
+  </Step>
+  <Step title="Check freshness">
+Parse epoch seconds and apply your receiver's replay window with a small clock-skew allowance.
+  </Step>
+  <Step title="Calculate HMAC">
+Sign `timestamp + "." + rawBody` with HMAC-SHA256 and format the hex result with the `v1=` prefix.
+  </Step>
+  <Step title="Compare safely">
+Compare equal-length byte sequences with a constant-time comparison.
+  </Step>
+  <Step title="Parse and accept">
+Only after verification, parse JSON, deduplicate, and durably store or enqueue the event.
+  </Step>
+</Steps>
+
+## Secret lifecycle
+
+The create-webhook response returns the signing secret once.
+List and get responses never return it.
+Store one endpoint secret in a server-side secret manager and redact it from logs and exceptions.
+When rotating a secret through an endpoint update, coordinate receiver deployment so the accepted-secret window is explicit.
+
+## Common verification failures
+
+- JSON was parsed and serialized before HMAC calculation.
+- A newline or character encoding changed.
+- The wrong endpoint secret was selected.
+- The `v1=` prefix was omitted during comparison.
+- Seconds were interpreted as milliseconds.
+- A reverse proxy consumed or modified the request body.
+
+<Warning>
+Equivalent JSON objects do not have equivalent signatures if their raw bytes differ.
+Use the body exactly as received.
+</Warning>
+
+<Card title="Implementation example" icon="shield-check" href="/signal/webhooks/verify-webhooks-requests">
+See a Node.js constant-time verification example.
+</Card>

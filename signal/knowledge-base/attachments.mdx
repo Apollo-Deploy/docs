@@ -1,0 +1,51 @@
+---
+title: "Attachment requirements and limits"
+description: "Build valid attachment payloads and diagnose size, encoding, and MIME-part failures"
+---
+
+The send API accepts attachments as base64-encoded JSON objects.
+Signal decodes them before enforcing the configured total attachment limit.
+
+## Attachment fields
+
+| Field | Requirement |
+| --- | --- |
+| `filename` | A file name without path separators or control characters |
+| `content` | Valid base64 for the complete file bytes |
+| `contentType` | A non-empty MIME media type |
+| `disposition` | `attachment` by default, or `inline` |
+| `contentId` | Optional identifier for an inline body reference |
+
+For an inline image, set `disposition` to `inline`, provide a `contentId`, and reference the same value from HTML with a `cid:` URL.
+A content ID alone does not make a regular attachment render inline.
+
+## Size accounting
+
+Signal applies its attachment ceiling to decoded bytes, not the larger base64 text length.
+The exact configured ceiling can vary by deployment or entitlement; use the validation response and current product contract instead of assuming a copied number.
+
+The complete MIME message can contain at most 500 parts, including HTML and plain-text body parts as well as attachments.
+A request with many small files can therefore fail the part count even when decoded bytes remain below the size ceiling.
+
+## Common validation failures
+
+- The base64 string is truncated or contains a data-URL prefix.
+- The filename includes `/`, `\`, or control characters.
+- `contentType` is blank.
+- The decoded total exceeds the configured limit.
+- Body parts plus attachments exceed 500.
+- HTML references a `cid` that does not match any attachment `contentId`.
+
+## Diagnostic sequence
+
+1. Decode each value locally and compare byte counts with the source files.
+2. Send the smallest failing attachment by itself.
+3. Remove any `data:...;base64,` prefix; send only the base64 payload.
+4. Confirm filename, media type, disposition, and content ID.
+5. Inspect the `400` problem response for the failing field or configured boundary.
+6. Use test mode to confirm API admission, then use one controlled real message to verify mailbox rendering.
+
+<Warning>
+Base64 increases the JSON request size but does not change the decoded-file limit.
+Do not compare only the HTTP body length when diagnosing an attachment rejection.
+</Warning>

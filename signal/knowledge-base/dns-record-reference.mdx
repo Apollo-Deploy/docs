@@ -1,0 +1,64 @@
+---
+title: "Signal DNS record reference"
+description: "Understand the required and optional records returned for a sending domain"
+---
+
+Signal returns the DNS records for each registered sending domain.
+The domain response is the source of truth for record type, name, value, priority, optional state, and verification state.
+
+## Records in the domain contract
+
+| Response field | Purpose | Requirement |
+| --- | --- | --- |
+| `dkim` | DKIM signing records | Required; returned as a list |
+| `mailFromMx` | Custom MAIL FROM routing | Required |
+| `mailFromSpf` | SPF authorization for the MAIL FROM domain | Required |
+| `dmarcRecommended` | Recommended DMARC policy record | Returned when applicable |
+| `trackingCname` | Branded tracking host | Returned when tracking-domain setup applies |
+| `bimi` | BIMI brand-indicator record | Returned when BIMI is configured |
+
+A `DnsRecordResponse` contains `type`, `name`, and `value`.
+It can also contain `priority`, `status`, and `optional`.
+Copy those fields as returned instead of reconstructing a provider-specific record from an example.
+
+## Required sending checks
+
+The domain record exposes overall `status` plus separate `dkimStatus`, `mailFromStatus`, `spfStatus`, `dmarcStatus`, and `bimiStatus`.
+A green overall badge is not a substitute for inspecting a failing component when a domain becomes degraded.
+
+## Provider field mapping
+
+| Signal field | Common provider label |
+| --- | --- |
+| `type` | Type |
+| `name` | Name, Host, or Record name |
+| `value` | Value, Content, Target, or Points to |
+| `priority` | Priority, usually on MX |
+
+DNS providers differ in how they display the zone name.
+Some expect a relative host and append the zone; others accept a fully qualified name.
+After saving, inspect the final fully qualified record to ensure the zone was not appended twice.
+
+## Records that must remain direct DNS
+
+Mail records and third-party verification records must return the values Signal expects from authoritative DNS.
+Do not place a DKIM or tracking CNAME behind an HTTP proxy that replaces the public DNS answer.
+MX and TXT records are DNS records and are not web origins.
+
+## Verification workflow
+
+1. Open **Domains** and select the domain.
+2. Copy every required record from **Records**.
+3. Publish it at the authoritative DNS provider.
+4. Wait for resolver caches to expire after a change.
+5. Select **Verify DNS**.
+6. Inspect the individual record status if overall verification does not pass.
+
+<Warning>
+Examples explain record shape only.
+Your domain's generated names and values are the only values Signal verifies.
+</Warning>
+
+<Card title="Manage domains" icon="globe" href="/signal/dashboard/domains/introduction">
+Review domain statuses, records, provider detection, and deletion behavior.
+</Card>

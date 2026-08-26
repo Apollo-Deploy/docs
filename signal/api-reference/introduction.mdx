@@ -1,0 +1,68 @@
+---
+title: "API reference"
+description: "Build against the public Apollo Signal REST API"
+---
+
+Apollo Signal exposes a versioned REST API for transactional email, contacts, audiences, webhooks, metrics, projects, and sending domains.
+
+## Base URL
+
+```text
+https://api.signal.apollodeploy.com/v1
+```
+
+Always use HTTPS. Paths in this reference already include `/v1`, so append them to `https://api.signal.apollodeploy.com` exactly as shown.
+
+## Make a request
+
+Authenticate with a project-bound API key and send JSON when an endpoint accepts a body:
+
+```bash
+curl --request POST \
+  --url https://api.signal.apollodeploy.com/v1/emails \
+  --header "Authorization: Bearer $APOLLO_SIGNAL_API_KEY" \
+  --header "Content-Type: application/json" \
+  --data '{
+    "from": "notifications@example.com",
+    "to": ["developer@example.net"],
+    "subject": "Deployment complete",
+    "text": "Version 42 is live.",
+    "idempotencyKey": "deployment-42-notification"
+  }'
+```
+
+The send endpoint returns its resource directly:
+
+```json
+{
+  "id": "email_01...",
+  "messageId": "010001...",
+  "status": "sent",
+  "createdAt": "2026-08-25T10:00:00Z"
+}
+```
+
+There is no universal `data` envelope. Collection endpoints that paginate use their documented `data` and `page` or `cursor` fields; single-resource and mutation endpoints return their response model directly. Exports and event streams use the media type shown on their endpoint page.
+
+## Common requirements
+
+- Send `Authorization: Bearer <key>` unless an endpoint explicitly documents stream-token authentication.
+- Use an API key with the permission listed under **Requirements** on the endpoint page.
+- A key is bound to one project. A `{projectId}` path must refer to that project.
+- Send `Content-Type: application/json` for JSON request bodies. File-import and image-upload endpoints document their multipart requirements separately.
+- Treat IDs such as `email_…`, `con_…`, `seg_…`, and `top_…` as opaque strings.
+- Supply and parse timestamps as ISO 8601 values. Do not depend on a server-local timezone.
+
+## Responses
+
+Successful writes commonly return `201 Created`, successful reads and updates return `200 OK`, and deletes may return `204 No Content`. The endpoint page is authoritative for each response.
+
+Errors use RFC 9457-style problem details with `Content-Type: application/problem+json`. See [Errors](/signal/api-reference/errors) before implementing retries.
+
+<Tip>
+  Use `idempotencyKey` in email-send JSON bodies before retrying network failures. It is a body field, not an HTTP header.
+</Tip>
+
+## API lifecycle
+
+The `/v1` prefix is the compatibility boundary. New optional response fields can be added without changing the version, so ignore fields your client does not recognize. A breaking contract change requires a new API version.
