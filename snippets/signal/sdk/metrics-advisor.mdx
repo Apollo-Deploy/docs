@@ -1,0 +1,76 @@
+<CodeGroup dropdown>
+
+```typescript TypeScript
+const advisor = await signal.metrics.getMetricsAdvisor(
+  { projectId },
+  { headers: { Authorization: `Bearer ${process.env.SIGNAL_API_KEY}` } },
+);
+```
+
+```python Python
+advisor = signal.metrics.get_metrics_advisor(project_id=project_id)
+```
+
+```go Go
+advisor, err := client.Metrics.GetMetricsAdvisor(ctx, &projectID)
+if err != nil {
+    panic(err)
+}
+```
+
+```ruby Ruby
+advisor = signal.metrics.get_metrics_advisor(
+  query: { project_id: project_id }
+)
+```
+
+```ruby Rails
+advisor = ApolloDeploySignalSdkRails.rails_client.metrics.get_metrics_advisor(
+  query: { project_id: project_id }
+)
+```
+
+```php PHP / Laravel
+$advisor = $signal->metrics()->getMetricsAdvisor($projectId);
+```
+
+```java Java
+var advisor = signal.metrics().getMetricsAdvisor(projectId);
+```
+
+```kotlin Kotlin
+val advisor = signal.metrics.getMetricsAdvisor(projectId = projectId)
+```
+
+```csharp .NET
+var advisor = await signal.Metrics.GetMetricsAdvisorAsync(
+    new Dictionary<string, object?> { ["projectId"] = projectId });
+```
+
+```rust Rust
+let advisor = signal.metrics
+    .get_metrics_advisor(Some(project_id.to_string()))
+    .await?;
+```
+
+```elixir Elixir
+query = %ApolloSignal.Types.GetMetricsAdvisorQuery{project_id: project_id}
+{:ok, advisor, _metadata} = ApolloSignal.Client.get_metrics_advisor(client, query)
+```
+
+```swift Swift
+let advisor = try await signal.metrics.getMetricsAdvisor(projectId: projectId)
+```
+
+```zig Zig
+var metrics = client.metrics();
+var result = try metrics.getMetricsAdvisor(.{ .projectId = project_id }, .{});
+defer result.deinit();
+
+switch (result) {
+    .success => |_| {},
+    .api_error => return error.SignalApiError,
+}
+```
+
+</CodeGroup>

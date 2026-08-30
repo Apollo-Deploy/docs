@@ -3,6 +3,8 @@ title: "Contact properties"
 description: "Define typed project fields and manage values consistently across contacts"
 ---
 
+import ContactPropertiesSdkExample from "/snippets/signal/sdk/list-contact-properties.mdx";
+
 Properties add project-specific data to contacts.
 Define the field once, then assign typed values from the dashboard or API.
 
@@ -50,3 +52,10 @@ Before deleting:
 2. Remove the field from current application payloads.
 3. Export values if they have business or compliance value.
 4. Delete the property only after dependent code is deployed.
+
+## SDK example
+
+After creating an authenticated client with the matching [SDK setup guide](/signal/send-with/sdk-overview),
+use the operation for your language or framework.
+
+<ContactPropertiesSdkExample />

@@ -3,6 +3,8 @@ title: "Segments"
 description: "Create static contact groups and use them as explicit audiences"
 ---
 
+import SegmentsSdkExample from "/snippets/signal/sdk/list-segments.mdx";
+
 A segment is a named static group of contacts.
 Membership changes only when an operator or API caller adds or removes a contact.
 
@@ -47,3 +49,10 @@ Remove or replace application references to the segment ID before deletion.
 Do not treat segment membership as consent.
 A member can still be unsubscribed, topic-ineligible, or suppressed.
 </Warning>
+
+## SDK example
+
+After creating an authenticated client with the matching [SDK setup guide](/signal/send-with/sdk-overview),
+use the operation for your language or framework.
+
+<SegmentsSdkExample />

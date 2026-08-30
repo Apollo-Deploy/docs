@@ -1,0 +1,80 @@
+<CodeGroup dropdown>
+
+```typescript TypeScript
+const timeline = await signal.projects.getEmailTimeline(projectId, emailId, {
+  headers: { Authorization: `Bearer ${process.env.SIGNAL_API_KEY}` },
+});
+```
+
+```python Python
+timeline = signal.projects.get_email_timeline(project_id, email_id)
+```
+
+```go Go
+timeline, err := client.Projects.GetEmailTimeline(ctx, projectID, emailID)
+if err != nil {
+    panic(err)
+}
+```
+
+```ruby Ruby
+timeline = signal.projects.get_email_timeline(
+  project_id: project_id,
+  email_id: email_id
+)
+```
+
+```ruby Rails
+timeline = ApolloDeploySignalSdkRails.rails_client.projects.get_email_timeline(
+  project_id: project_id,
+  email_id: email_id
+)
+```
+
+```php PHP / Laravel
+$timeline = $signal->projects()->getEmailTimeline($projectId, $emailId);
+```
+
+```java Java
+var timeline = signal.projects().getEmailTimeline(projectId, emailId);
+```
+
+```kotlin Kotlin
+val timeline = signal.projects.getEmailTimeline(projectId, emailId)
+```
+
+```csharp .NET
+var timeline = await signal.Projects.GetEmailTimelineAsync(projectId, emailId);
+```
+
+```rust Rust
+let timeline = signal.projects.get_email_timeline(
+    project_id.to_string(),
+    email_id.to_string(),
+).await?;
+```
+
+```elixir Elixir
+{:ok, timeline, _metadata} =
+  ApolloSignal.Client.get_email_timeline(client, project_id, email_id)
+```
+
+```swift Swift
+let timeline = try await signal.projects.getEmailTimeline(
+    projectId: projectId,
+    emailId: emailId
+)
+```
+
+```zig Zig
+var projects = client.projects();
+var result = try projects.getEmailTimeline(project_id, email_id, .{});
+defer result.deinit();
+
+switch (result) {
+    .success => |_| {},
+    .api_error => return error.SignalApiError,
+}
+```
+
+</CodeGroup>

@@ -3,6 +3,8 @@ title: "Topics"
 description: "Model communication preferences and inspect topic-level performance"
 ---
 
+import TopicsSdkExample from "/snippets/signal/sdk/list-topics.mdx";
+
 Topics describe why you contact a recipient and give contacts a preference boundary for that communication.
 Examples include product updates, security notices, invoices, or weekly reports.
 
@@ -53,3 +55,10 @@ A high open rate does not cancel out complaint or unsubscribe risk.
 
 Deleting a topic removes the communication boundary and unsubscribes its contacts from that topic.
 Remove application references to the topic ID and preserve any consent evidence you are required to retain before deletion.
+
+## SDK example
+
+After creating an authenticated client with the matching [SDK setup guide](/signal/send-with/sdk-overview),
+use the operation for your language or framework.
+
+<TopicsSdkExample />

@@ -1,0 +1,69 @@
+<CodeGroup dropdown>
+
+```typescript TypeScript
+const segments = await signal.segments.listSegments(projectId, {
+  headers: { Authorization: `Bearer ${process.env.SIGNAL_API_KEY}` },
+});
+```
+
+```python Python
+segments = signal.segments.list_segments(project_id)
+```
+
+```go Go
+segments, err := client.Segments.ListSegments(ctx, projectID)
+if err != nil {
+    panic(err)
+}
+```
+
+```ruby Ruby
+segments = signal.segments.list_segments(project_id: project_id)
+```
+
+```ruby Rails
+segments = ApolloDeploySignalSdkRails.rails_client.segments.list_segments(
+  project_id: project_id
+)
+```
+
+```php PHP / Laravel
+$segments = $signal->segments()->listSegments($projectId);
+```
+
+```java Java
+var segments = signal.segments().listSegments(projectId);
+```
+
+```kotlin Kotlin
+val segments = signal.segments.listSegments(projectId)
+```
+
+```csharp .NET
+var segments = await signal.Segments.ListSegmentsAsync(projectId);
+```
+
+```rust Rust
+let segments = signal.segments.list_segments(project_id.to_string()).await?;
+```
+
+```elixir Elixir
+{:ok, segments, _metadata} = ApolloSignal.Client.list_segments(client, project_id)
+```
+
+```swift Swift
+let segments = try await signal.segments.listSegments(projectId: projectId)
+```
+
+```zig Zig
+var api = client.segments();
+var result = try api.listSegments(project_id, .{});
+defer result.deinit();
+
+switch (result) {
+    .success => |_| {},
+    .api_error => return error.SignalApiError,
+}
+```
+
+</CodeGroup>

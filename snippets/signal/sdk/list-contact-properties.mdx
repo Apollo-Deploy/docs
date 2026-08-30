@@ -1,0 +1,69 @@
+<CodeGroup dropdown>
+
+```typescript TypeScript
+const properties = await signal.contactProperties.listContactProperties(projectId, {
+  headers: { Authorization: `Bearer ${process.env.SIGNAL_API_KEY}` },
+});
+```
+
+```python Python
+properties = signal.contact_properties.list_contact_properties(project_id)
+```
+
+```go Go
+properties, err := client.ContactProperties.ListContactProperties(ctx, projectID)
+if err != nil {
+    panic(err)
+}
+```
+
+```ruby Ruby
+properties = signal.contact_properties.list_contact_properties(project_id: project_id)
+```
+
+```ruby Rails
+properties = ApolloDeploySignalSdkRails.rails_client.contact_properties.list_contact_properties(
+  project_id: project_id
+)
+```
+
+```php PHP / Laravel
+$properties = $signal->contactProperties()->listContactProperties($projectId);
+```
+
+```java Java
+var properties = signal.contactProperties().listContactProperties(projectId);
+```
+
+```kotlin Kotlin
+val properties = signal.contactProperties.listContactProperties(projectId)
+```
+
+```csharp .NET
+var properties = await signal.ContactProperties.ListContactPropertiesAsync(projectId);
+```
+
+```rust Rust
+let properties = signal.contact_properties.list_contact_properties(project_id.to_string()).await?;
+```
+
+```elixir Elixir
+{:ok, properties, _metadata} = ApolloSignal.Client.list_contact_properties(client, project_id)
+```
+
+```swift Swift
+let properties = try await signal.contactProperties.listContactProperties(projectId: projectId)
+```
+
+```zig Zig
+var api = client.contactProperties();
+var result = try api.listContactProperties(project_id, .{});
+defer result.deinit();
+
+switch (result) {
+    .success => |_| {},
+    .api_error => return error.SignalApiError,
+}
+```
+
+</CodeGroup>

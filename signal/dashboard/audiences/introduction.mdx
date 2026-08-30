@@ -3,6 +3,8 @@ title: "Contacts"
 description: "Manage recipient identity, properties, consent, membership, and engagement history"
 ---
 
+import ContactsSdkExample from "/snippets/signal/sdk/list-contacts.mdx";
+
 A contact is a recipient identity inside one Signal project.
 Contacts combine an email address with profile fields, custom properties, segment membership, topic preferences, validation state, and recent engagement.
 
@@ -62,3 +64,10 @@ Deleting a contact is not a substitute for suppressing an address that must not 
 <Tip>
 Use a property for stable customer facts, a segment for explicit grouping, a topic for communication preference, and suppression for delivery prohibition.
 </Tip>
+
+## SDK example
+
+After creating an authenticated client with the matching [SDK setup guide](/signal/send-with/sdk-overview),
+use the operation for your language or framework.
+
+<ContactsSdkExample />

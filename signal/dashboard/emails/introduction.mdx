@@ -3,6 +3,8 @@ title: "Manage emails"
 description: "Inspect every accepted message, status, content view, and delivery event"
 ---
 
+import EmailListSdkExample from "/snippets/signal/sdk/list-emails.mdx";
+
 The **Emails** page is the operational record of messages accepted by the active project.
 Use it to confirm what Signal received, follow asynchronous delivery, and diagnose recipient-specific failures.
 
@@ -82,3 +84,10 @@ Use the Signal email ID, your idempotency key strategy, tags, metadata, and webh
 Do not remove a bounced, complained, or unsubscribed address from suppression and immediately resend.
 First establish a legitimate reason and the recipient's current consent.
 </Warning>
+
+## SDK example
+
+After creating an authenticated client with the matching [SDK setup guide](/signal/send-with/sdk-overview),
+use the operation for your language or framework.
+
+<EmailListSdkExample />

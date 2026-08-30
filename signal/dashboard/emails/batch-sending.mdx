@@ -3,6 +3,8 @@ title: "Batch sending"
 description: "Queue up to 100 independent emails in one atomic API request"
 ---
 
+import BatchSendSdkExample from "/snippets/signal/sdk/batch-send.mdx";
+
 Use `POST /v1/emails/batch` when one job already contains several independent email requests.
 A batch reduces HTTP overhead; it does not turn the items into one shared email.
 
@@ -61,3 +63,10 @@ Do not generate a new key for each retry because that creates new sends.
 
 Use individual sends when each message is produced by a separate job, when failures need independent HTTP retry timing, or when your queue already controls concurrency.
 Use a topic or segment audience send when the intent is one audience operation rather than a collection of unrelated transactional messages.
+
+## SDK example
+
+After creating an authenticated client with the matching [SDK setup guide](/signal/send-with/sdk-overview),
+use the operation for your language or framework.
+
+<BatchSendSdkExample />

@@ -1,0 +1,58 @@
+Add the scheduling value to the normal `SendEmailRequest`. `scheduledAt` must be a future RFC 3339
+timestamp produced by your application.
+
+<CodeGroup dropdown>
+
+```typescript TypeScript
+scheduledAt: scheduledAt,
+```
+
+```python Python
+scheduled_at=scheduled_at,
+```
+
+```go Go
+ScheduledAt: signal.String(scheduledAt),
+```
+
+```ruby Ruby
+scheduled_at: scheduled_at
+```
+
+```ruby Rails
+scheduled_at: scheduled_at
+```
+
+```php PHP / Laravel
+$request->scheduledAt = $scheduledAt;
+```
+
+```java Java
+request.scheduledAt = scheduledAt;
+```
+
+```kotlin Kotlin
+scheduledAt = scheduledAt,
+```
+
+```csharp .NET
+ScheduledAt = scheduledAt,
+```
+
+```rust Rust
+scheduled_at: Some(scheduled_at.to_string()),
+```
+
+```elixir Elixir
+scheduled_at: scheduled_at
+```
+
+```swift Swift
+scheduledAt: scheduledAt
+```
+
+```zig Zig
+.scheduledAt = scheduled_at,
+```
+
+</CodeGroup>

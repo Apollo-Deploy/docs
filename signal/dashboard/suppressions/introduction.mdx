@@ -3,6 +3,8 @@ title: "Suppression list"
 description: "Block unsafe delivery, import or export entries, and remove blocks deliberately"
 ---
 
+import SuppressionsSdkExample from "/snippets/signal/sdk/list-suppressions.mdx";
+
 The suppression list prevents Signal from delivering to addresses that should not receive mail.
 A suppressed address can still have a contact profile, but send attempts resolve to a suppressed outcome instead of provider delivery.
 
@@ -61,3 +63,10 @@ Before removal, establish:
 Never bulk-remove complaint, bounce, or unsubscribe entries merely to increase sendable audience size.
 That damages recipient trust and sending reputation.
 </Warning>
+
+## SDK example
+
+After creating an authenticated client with the matching [SDK setup guide](/signal/send-with/sdk-overview),
+use the operation for your language or framework.
+
+<SuppressionsSdkExample />

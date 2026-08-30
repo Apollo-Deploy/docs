@@ -3,6 +3,8 @@ title: "Attachments"
 description: "Encode safe attachment and inline file payloads for the Email API"
 ---
 
+import AttachmentsSdkExample from "/snippets/signal/sdk/attachments-field.mdx";
+
 The Email API accepts attachments as base64-encoded content.
 Decode and validate the source file before building the request so an oversized or unsafe file does not consume retry capacity.
 
@@ -63,3 +65,10 @@ Also provide useful alt text because clients can block images.
 
 Invalid base64, a missing content type, an unsafe filename, too many MIME parts, or an oversized decoded total causes validation failure before delivery.
 Correct the payload; do not retry unchanged.
+
+## SDK example
+
+Start with the [basic send example](/signal/send-with/sdk-examples), then attach the encoded file
+using your SDK's request model.
+
+<AttachmentsSdkExample />

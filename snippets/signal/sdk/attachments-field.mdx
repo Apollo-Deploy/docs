@@ -1,0 +1,133 @@
+Encode the file as base64 first, then add the attachment to the normal `SendEmailRequest`.
+
+<CodeGroup dropdown>
+
+```typescript TypeScript
+attachments: [
+  {
+    filename: "invoice-1042.pdf",
+    content: base64Content,
+    contentType: "application/pdf",
+  },
+],
+```
+
+```python Python
+attachments=[
+    AttachmentRequest(
+        filename="invoice-1042.pdf",
+        content=base64_content,
+        content_type="application/pdf",
+    )
+],
+```
+
+```go Go
+attachments := []signal.AttachmentRequest{{
+    Filename: "invoice-1042.pdf",
+    Content: base64Content,
+    ContentType: "application/pdf",
+}}
+
+request.Attachments = &attachments
+```
+
+```ruby Ruby
+attachments: [
+  ApolloDeploySignalSdk::AttachmentRequest.new(
+    filename: "invoice-1042.pdf",
+    content: base64_content,
+    content_type: "application/pdf"
+  )
+]
+```
+
+```ruby Rails
+attachments: [
+  ApolloDeploySignalSdkRails::AttachmentRequest.new(
+    filename: "invoice-1042.pdf",
+    content: base64_content,
+    content_type: "application/pdf"
+  )
+]
+```
+
+```php PHP / Laravel
+$attachment = new AttachmentRequest();
+$attachment->filename = 'invoice-1042.pdf';
+$attachment->content = $base64Content;
+$attachment->contentType = 'application/pdf';
+$request->attachments = [$attachment];
+```
+
+```java Java
+var attachment = new AttachmentRequest();
+attachment.filename = "invoice-1042.pdf";
+attachment.content = base64Content;
+attachment.contentType = "application/pdf";
+request.attachments = List.of(attachment);
+```
+
+```kotlin Kotlin
+attachments = listOf(
+    AttachmentRequest(
+        filename = "invoice-1042.pdf",
+        content = base64Content,
+        contentType = "application/pdf",
+    ),
+),
+```
+
+```csharp .NET
+Attachments = new List<AttachmentRequest>
+{
+    new()
+    {
+        Filename = "invoice-1042.pdf",
+        Content = base64Content,
+        ContentType = "application/pdf",
+    },
+},
+```
+
+```rust Rust
+attachments: Some(vec![AttachmentRequest {
+    filename: "invoice-1042.pdf".into(),
+    content: base64_content,
+    content_type: "application/pdf".into(),
+    disposition: None,
+    content_id: None,
+}]),
+```
+
+```elixir Elixir
+attachments: [
+  %ApolloSignal.Types.AttachmentRequest{
+    filename: "invoice-1042.pdf",
+    content: base64_content,
+    content_type: "application/pdf"
+  }
+]
+```
+
+```swift Swift
+attachments: [
+    AttachmentRequest(
+        filename: "invoice-1042.pdf",
+        content: base64Content,
+        contentType: "application/pdf"
+    )
+]
+```
+
+```zig Zig
+var attachments = [_]signal.AttachmentRequest{.{
+    .filename = "invoice-1042.pdf",
+    .content = base64_content,
+    .contentType = "application/pdf",
+}};
+
+.attachments = &attachments,
+```
+
+</CodeGroup>

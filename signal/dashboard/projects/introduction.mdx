@@ -3,6 +3,8 @@ title: "Projects"
 description: "Use projects as isolated Signal environments and manage their lifecycle safely"
 ---
 
+import ProjectsSdkExample from "/snippets/signal/sdk/list-projects.mdx";
+
 A project isolates Signal configuration and customer data.
 Domains, API keys, contacts, preferences, suppressions, messages, webhooks, usage, and metrics belong to a project.
 
@@ -56,3 +58,10 @@ Before deleting a production project:
 Do not delete a project as a way to rotate credentials or pause sending.
 Revoke keys, disable endpoints, or stop callers for those narrower operations.
 </Warning>
+
+## SDK example
+
+After creating an authenticated client with the matching [SDK setup guide](/signal/send-with/sdk-overview),
+use the operation for your language or framework.
+
+<ProjectsSdkExample />

@@ -1,0 +1,67 @@
+<CodeGroup dropdown>
+
+```typescript TypeScript
+const projects = await signal.projects.listProjects({
+  headers: { Authorization: `Bearer ${process.env.SIGNAL_API_KEY}` },
+});
+```
+
+```python Python
+projects = signal.projects.list_projects()
+```
+
+```go Go
+projects, err := client.Projects.ListProjects(ctx)
+if err != nil {
+    panic(err)
+}
+```
+
+```ruby Ruby
+projects = signal.projects.list_projects
+```
+
+```ruby Rails
+projects = ApolloDeploySignalSdkRails.rails_client.projects.list_projects
+```
+
+```php PHP / Laravel
+$projects = $signal->projects()->listProjects();
+```
+
+```java Java
+var projects = signal.projects().listProjects();
+```
+
+```kotlin Kotlin
+val projects = signal.projects.listProjects()
+```
+
+```csharp .NET
+var projects = await signal.Projects.ListProjectsAsync();
+```
+
+```rust Rust
+let projects = signal.projects.list_projects().await?;
+```
+
+```elixir Elixir
+{:ok, projects, _metadata} = ApolloSignal.Client.list_projects(client)
+```
+
+```swift Swift
+let projects = try await signal.projects.listProjects()
+```
+
+```zig Zig
+var projects = client.projects();
+var result = try projects.listProjects(.{});
+defer result.deinit();
+
+switch (result) {
+    .success => |_| {},
+    .api_error => return error.SignalApiError,
+}
+```
+
+</CodeGroup>
