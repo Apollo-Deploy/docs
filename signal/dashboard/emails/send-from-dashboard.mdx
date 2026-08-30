@@ -3,6 +3,8 @@ title: "Send from the dashboard"
 description: "Compose a customer-visible email in Signal and verify its result"
 ---
 
+import SendEmailSdkExample from "/snippets/signal/sdk/send-email.mdx";
+
 Use the dashboard composer for a controlled manual send, an integration smoke check, or a delivery investigation.
 Use the API or SMTP for application-driven traffic.
 
@@ -51,3 +53,10 @@ A topic or segment audience ID must be the only recipient and cannot be combined
 <Tip>
 For the first production smoke check, send to an inbox your team controls and inspect both the Signal timeline and the received headers.
 </Tip>
+
+## SDK example
+
+After creating an authenticated client with the matching [SDK setup guide](/signal/send-with/sdk-overview),
+use the operation for your language or framework.
+
+<SendEmailSdkExample />

@@ -3,6 +3,8 @@ title: "Idempotency keys"
 description: "Make retryable send jobs create one logical email"
 ---
 
+import IdempotencySdkExample from "/snippets/signal/sdk/idempotency-field.mdx";
+
 Network failures can hide a successful send response.
 Use `idempotencyKey` so retrying the same logical operation returns the persisted result instead of creating another message.
 
@@ -67,3 +69,10 @@ This preserves one logical identity per message even though the HTTP request con
 Treat the idempotency key as part of the immutable send intent.
 If the recipient, content, or schedule changes intentionally, create a new versioned key.
 Reusing an old key is a request for the original persisted result, not an update.
+
+## SDK example
+
+Start with the [basic send example](/signal/send-with/sdk-examples), then set the key field used by
+your SDK.
+
+<IdempotencySdkExample />

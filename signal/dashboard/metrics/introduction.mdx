@@ -3,6 +3,8 @@ title: "Metrics"
 description: "Analyze delivery volume, engagement rates, trends, and advisor signals"
 ---
 
+import MetricsSdkExample from "/snippets/signal/sdk/metrics-summary.mdx";
+
 The **Metrics** page summarizes project email outcomes over a selected time window.
 Use it to find changes, then open individual messages, domains, contacts, or suppressions for root-cause work.
 
@@ -54,3 +56,10 @@ Treat the score as a summary of underlying evidence, not an independent delivery
 5. Check domain authentication and tracking state.
 6. Check the audience source and suppression behavior.
 7. Record the change and watch the next equivalent window.
+
+## SDK example
+
+After creating an authenticated client with the matching [SDK setup guide](/signal/send-with/sdk-overview),
+use the operation for your language or framework.
+
+<MetricsSdkExample />

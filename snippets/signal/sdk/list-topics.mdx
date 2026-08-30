@@ -1,0 +1,69 @@
+<CodeGroup dropdown>
+
+```typescript TypeScript
+const topics = await signal.topics.listTopics(projectId, {
+  headers: { Authorization: `Bearer ${process.env.SIGNAL_API_KEY}` },
+});
+```
+
+```python Python
+topics = signal.topics.list_topics(project_id)
+```
+
+```go Go
+topics, err := client.Topics.ListTopics(ctx, projectID)
+if err != nil {
+    panic(err)
+}
+```
+
+```ruby Ruby
+topics = signal.topics.list_topics(project_id: project_id)
+```
+
+```ruby Rails
+topics = ApolloDeploySignalSdkRails.rails_client.topics.list_topics(
+  project_id: project_id
+)
+```
+
+```php PHP / Laravel
+$topics = $signal->topics()->listTopics($projectId);
+```
+
+```java Java
+var topics = signal.topics().listTopics(projectId);
+```
+
+```kotlin Kotlin
+val topics = signal.topics.listTopics(projectId)
+```
+
+```csharp .NET
+var topics = await signal.Topics.ListTopicsAsync(projectId);
+```
+
+```rust Rust
+let topics = signal.topics.list_topics(project_id.to_string()).await?;
+```
+
+```elixir Elixir
+{:ok, topics, _metadata} = ApolloSignal.Client.list_topics(client, project_id)
+```
+
+```swift Swift
+let topics = try await signal.topics.listTopics(projectId: projectId)
+```
+
+```zig Zig
+var api = client.topics();
+var result = try api.listTopics(project_id, .{});
+defer result.deinit();
+
+switch (result) {
+    .success => |_| {},
+    .api_error => return error.SignalApiError,
+}
+```
+
+</CodeGroup>

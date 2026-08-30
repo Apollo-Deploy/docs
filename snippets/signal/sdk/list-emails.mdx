@@ -1,0 +1,69 @@
+<CodeGroup dropdown>
+
+```typescript TypeScript
+const emails = await signal.projects.listEmails(projectId, {
+  headers: { Authorization: `Bearer ${process.env.SIGNAL_API_KEY}` },
+});
+```
+
+```python Python
+emails = signal.projects.list_emails(project_id)
+```
+
+```go Go
+emails, err := client.Projects.ListEmails(ctx, projectID)
+if err != nil {
+    panic(err)
+}
+```
+
+```ruby Ruby
+emails = signal.projects.list_emails(project_id: project_id)
+```
+
+```ruby Rails
+emails = ApolloDeploySignalSdkRails.rails_client.projects.list_emails(
+  project_id: project_id
+)
+```
+
+```php PHP / Laravel
+$emails = $signal->projects()->listEmails($projectId);
+```
+
+```java Java
+var emails = signal.projects().listEmails(projectId);
+```
+
+```kotlin Kotlin
+val emails = signal.projects.listEmails(projectId)
+```
+
+```csharp .NET
+var emails = await signal.Projects.ListEmailsAsync(projectId);
+```
+
+```rust Rust
+let emails = signal.projects.list_emails(project_id.to_string()).await?;
+```
+
+```elixir Elixir
+{:ok, emails, _metadata} = ApolloSignal.Client.list_emails(client, project_id)
+```
+
+```swift Swift
+let emails = try await signal.projects.listEmails(projectId: projectId)
+```
+
+```zig Zig
+var projects = client.projects();
+var result = try projects.listEmails(project_id, .{});
+defer result.deinit();
+
+switch (result) {
+    .success => |_| {},
+    .api_error => return error.SignalApiError,
+}
+```
+
+</CodeGroup>

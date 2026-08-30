@@ -3,6 +3,8 @@ title: "DMARC reports"
 description: "Import aggregate reports and analyze SPF, DKIM, alignment, and disposition"
 ---
 
+import DmarcAdvisorSdkExample from "/snippets/signal/sdk/metrics-advisor.mdx";
+
 The **DMARC** page turns aggregate mailbox-provider reports into project-level authentication evidence.
 Use it to see which sources send for your domains and whether SPF and DKIM align with the visible From domain.
 
@@ -54,3 +56,11 @@ Adding every observed sender to SPF can legitimize abuse and exceed SPF lookup l
 DMARC aggregate data is delayed and summarized.
 Use it for authentication analysis, not real-time per-recipient delivery tracking.
 </Warning>
+
+## SDK example: DMARC advisor signals
+
+The public SDK does not expose DMARC report import or report-list operations. Keep file import and
+report inspection in the dashboard. The public metrics advisor does expose the project's DMARC
+alignment, policy, domain, observed-message, and recommendation signals:
+
+<DmarcAdvisorSdkExample />

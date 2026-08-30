@@ -1,0 +1,58 @@
+Add the stable key to the normal `SendEmailRequest`. Reuse the same key only when retrying the
+same logical message and payload.
+
+<CodeGroup dropdown>
+
+```typescript TypeScript
+idempotencyKey: "invoice-1042-alex-v1",
+```
+
+```python Python
+idempotency_key="invoice-1042-alex-v1",
+```
+
+```go Go
+IdempotencyKey: signal.String("invoice-1042-alex-v1"),
+```
+
+```ruby Ruby
+idempotency_key: "invoice-1042-alex-v1"
+```
+
+```ruby Rails
+idempotency_key: "invoice-1042-alex-v1"
+```
+
+```php PHP / Laravel
+$request->idempotencyKey = 'invoice-1042-alex-v1';
+```
+
+```java Java
+request.idempotencyKey = "invoice-1042-alex-v1";
+```
+
+```kotlin Kotlin
+idempotencyKey = "invoice-1042-alex-v1",
+```
+
+```csharp .NET
+IdempotencyKey = "invoice-1042-alex-v1",
+```
+
+```rust Rust
+idempotency_key: Some("invoice-1042-alex-v1".into()),
+```
+
+```elixir Elixir
+idempotency_key: "invoice-1042-alex-v1"
+```
+
+```swift Swift
+idempotencyKey: "invoice-1042-alex-v1"
+```
+
+```zig Zig
+.idempotencyKey = "invoice-1042-alex-v1",
+```
+
+</CodeGroup>

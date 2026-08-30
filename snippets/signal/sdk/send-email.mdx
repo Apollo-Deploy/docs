@@ -1,0 +1,162 @@
+<CodeGroup dropdown>
+
+```typescript TypeScript
+const email = await signal.emails.sendEmail(
+  {
+    from: "hello@mail.company.com",
+    to: ["alex@example.com"],
+    subject: "Welcome",
+    text: "Thanks for joining us.",
+  },
+  { headers: { Authorization: `Bearer ${process.env.SIGNAL_API_KEY}` } },
+);
+```
+
+```python Python
+email = signal.emails.send_email(
+    SendEmailRequest(
+        from_="hello@mail.company.com",
+        to=["alex@example.com"],
+        subject="Welcome",
+        text="Thanks for joining us.",
+    )
+)
+```
+
+```go Go
+email, err := client.Emails.SendEmail(ctx, signal.SendEmailRequest{
+    From: "hello@mail.company.com",
+    To: []string{"alex@example.com"},
+    Subject: signal.String("Welcome"),
+    Text: signal.String("Thanks for joining us."),
+})
+if err != nil {
+    panic(err)
+}
+```
+
+```ruby Ruby
+request = ApolloDeploySignalSdk::SendEmailRequest.new(
+  from: "hello@mail.company.com",
+  to: ["alex@example.com"],
+  subject: "Welcome",
+  text: "Thanks for joining us."
+)
+
+email = signal.emails.send_email(body: request)
+```
+
+```ruby Rails
+request = ApolloDeploySignalSdkRails::SendEmailRequest.new(
+  from: "hello@mail.company.com",
+  to: ["alex@example.com"],
+  subject: "Welcome",
+  text: "Thanks for joining us."
+)
+
+email = ApolloDeploySignalSdkRails.rails_client.emails.send_email(body: request)
+```
+
+```php PHP / Laravel
+$request = new SendEmailRequest();
+$request->from = 'hello@mail.company.com';
+$request->to = ['alex@example.com'];
+$request->subject = 'Welcome';
+$request->text = 'Thanks for joining us.';
+
+$email = $signal->emails()->sendEmail($request);
+```
+
+```java Java
+var request = new SendEmailRequest();
+request.from = "hello@mail.company.com";
+request.to = List.of("alex@example.com");
+request.subject = "Welcome";
+request.text = "Thanks for joining us.";
+
+var email = signal.emails().sendEmail(request);
+```
+
+```kotlin Kotlin
+val email = signal.emails.sendEmail(
+    SendEmailRequest(
+        from = "hello@mail.company.com",
+        to = listOf("alex@example.com"),
+        subject = "Welcome",
+        text = "Thanks for joining us.",
+    ),
+)
+```
+
+```csharp .NET
+var email = await signal.Emails.SendEmailAsync(new SendEmailRequest
+{
+    From = "hello@mail.company.com",
+    To = new List<string> { "alex@example.com" },
+    Subject = "Welcome",
+    Text = "Thanks for joining us.",
+});
+```
+
+```rust Rust
+let email = signal.emails.send_email(&SendEmailRequest {
+    from: "hello@mail.company.com".into(),
+    to: vec!["alex@example.com".into()],
+    subject: Some("Welcome".into()),
+    text: Some("Thanks for joining us.".into()),
+    cc: None,
+    bcc: None,
+    reply_to: None,
+    html: None,
+    tags: None,
+    metadata: None,
+    idempotency_key: None,
+    test_mode: None,
+    attachments: None,
+    scheduled_at: None,
+    delivery_window: None,
+    send_time_category: None,
+    tracking_settings: None,
+}).await?;
+```
+
+```elixir Elixir
+request = %ApolloSignal.Types.SendEmailRequest{
+  from: "hello@mail.company.com",
+  to: ["alex@example.com"],
+  subject: "Welcome",
+  text: "Thanks for joining us."
+}
+
+{:ok, email, _metadata} = ApolloSignal.Client.send_email(client, request)
+```
+
+```swift Swift
+let email = try await signal.emails.sendEmail(
+    body: SendEmailRequest(
+        from: "hello@mail.company.com",
+        to: ["alex@example.com"],
+        subject: "Welcome",
+        text: "Thanks for joining us."
+    )
+)
+```
+
+```zig Zig
+var recipients = [_][]const u8{"alex@example.com"};
+var emails = client.emails();
+var result = try emails.sendEmail(.{
+    .from = "hello@mail.company.com",
+    .to = &recipients,
+    .subject = "Welcome",
+    .text = "Thanks for joining us.",
+}, .{});
+defer result.deinit();
+
+switch (result) {
+    .success => |_| {},
+    .api_error => return error.SignalApiError,
+}
+```
+
+</CodeGroup>

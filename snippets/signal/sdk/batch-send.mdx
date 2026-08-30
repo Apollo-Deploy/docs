@@ -1,0 +1,87 @@
+Build `items` from normal send requests, then submit the collection in one call.
+
+<CodeGroup dropdown>
+
+```typescript TypeScript
+const batch = await signal.emails.batchSendEmails(
+  { items },
+  { headers: { Authorization: `Bearer ${process.env.SIGNAL_API_KEY}` } },
+);
+```
+
+```python Python
+batch = signal.emails.batch_send_emails(BatchSendRequest(items=items))
+```
+
+```go Go
+batch, err := client.Emails.BatchSendEmails(
+    ctx,
+    signal.BatchSendRequest{Items: items},
+)
+if err != nil {
+    panic(err)
+}
+```
+
+```ruby Ruby
+request = ApolloDeploySignalSdk::BatchSendRequest.new(items: items)
+batch = signal.emails.batch_send_emails(body: request)
+```
+
+```ruby Rails
+request = ApolloDeploySignalSdkRails::BatchSendRequest.new(items: items)
+batch = ApolloDeploySignalSdkRails.rails_client.emails.batch_send_emails(
+  body: request
+)
+```
+
+```php PHP / Laravel
+$request = new BatchSendRequest();
+$request->items = $items;
+$batch = $signal->emails()->batchSendEmails($request);
+```
+
+```java Java
+var request = new BatchSendRequest();
+request.items = items;
+var batch = signal.emails().batchSendEmails(request);
+```
+
+```kotlin Kotlin
+val batch = signal.emails.batchSendEmails(BatchSendRequest(items = items))
+```
+
+```csharp .NET
+var batch = await signal.Emails.BatchSendEmailsAsync(
+    new BatchSendRequest { Items = items });
+```
+
+```rust Rust
+let batch = signal.emails
+    .batch_send_emails(&BatchSendRequest { items })
+    .await?;
+```
+
+```elixir Elixir
+request = %ApolloSignal.Types.BatchSendRequest{items: items}
+{:ok, batch, _metadata} = ApolloSignal.Client.batch_send_emails(client, request)
+```
+
+```swift Swift
+let batch = try await signal.emails.batchSendEmails(
+    body: BatchSendRequest(items: items)
+)
+```
+
+```zig Zig
+var emails = client.emails();
+var result = try emails.batchSendEmails(.{ .items = items }, .{});
+defer result.deinit();
+
+switch (result) {
+    .success => |_| {},
+    .api_error => return error.SignalApiError,
+}
+```
+
+</CodeGroup>

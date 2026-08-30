@@ -1,0 +1,69 @@
+<CodeGroup dropdown>
+
+```typescript TypeScript
+const contacts = await signal.contacts.listContacts(projectId, {
+  headers: { Authorization: `Bearer ${process.env.SIGNAL_API_KEY}` },
+});
+```
+
+```python Python
+contacts = signal.contacts.list_contacts(project_id)
+```
+
+```go Go
+contacts, err := client.Contacts.ListContacts(ctx, projectID)
+if err != nil {
+    panic(err)
+}
+```
+
+```ruby Ruby
+contacts = signal.contacts.list_contacts(project_id: project_id)
+```
+
+```ruby Rails
+contacts = ApolloDeploySignalSdkRails.rails_client.contacts.list_contacts(
+  project_id: project_id
+)
+```
+
+```php PHP / Laravel
+$contacts = $signal->contacts()->listContacts($projectId);
+```
+
+```java Java
+var contacts = signal.contacts().listContacts(projectId);
+```
+
+```kotlin Kotlin
+val contacts = signal.contacts.listContacts(projectId)
+```
+
+```csharp .NET
+var contacts = await signal.Contacts.ListContactsAsync(projectId);
+```
+
+```rust Rust
+let contacts = signal.contacts.list_contacts(project_id.to_string()).await?;
+```
+
+```elixir Elixir
+{:ok, contacts, _metadata} = ApolloSignal.Client.list_contacts(client, project_id)
+```
+
+```swift Swift
+let contacts = try await signal.contacts.listContacts(projectId: projectId)
+```
+
+```zig Zig
+var api = client.contacts();
+var result = try api.listContacts(project_id, .{});
+defer result.deinit();
+
+switch (result) {
+    .success => |_| {},
+    .api_error => return error.SignalApiError,
+}
+```
+
+</CodeGroup>

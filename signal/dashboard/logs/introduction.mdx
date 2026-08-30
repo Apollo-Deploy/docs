@@ -3,6 +3,8 @@ title: "Audit logs"
 description: "Review customer actions, security context, resource changes, and related activity"
 ---
 
+import EmailTimelineSdkExample from "/snippets/signal/sdk/email-timeline.mdx";
+
 The **Logs** page is an organization-wide customer audit trail.
 It records meaningful actions and resource changes; it is not a raw list of every Email API request.
 
@@ -62,3 +64,11 @@ For per-message delivery debugging, use **Emails** and its event timeline.
 For aggregate performance, use **Metrics**.
 Use **Logs** to answer who changed or triggered what.
 </Tip>
+
+## SDK example: message diagnostics
+
+The public SDK does not expose the organization audit trail. Keep actor and resource-change review
+in the dashboard. For a specific message, fetch its public event timeline with the SDK; this
+timeline is delivery evidence, not an audit-log replacement.
+
+<EmailTimelineSdkExample />

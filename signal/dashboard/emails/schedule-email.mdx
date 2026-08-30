@@ -3,6 +3,8 @@ title: "Schedule an email"
 description: "Request future delivery, inspect scheduled state, and cancel before dispatch"
 ---
 
+import ScheduledEmailSdkExample from "/snippets/signal/sdk/scheduled-email-field.mdx";
+
 Set `scheduledAt` on a send request when the message must not enter provider delivery immediately.
 The dashboard lists the accepted message as `scheduled` until dispatch.
 
@@ -60,3 +62,10 @@ Treat rescheduling as cancel-then-create:
 The API also documents optimal-time scheduling fields for eligible non-transactional categories.
 Use the API reference for that contract; the dashboard workflow described here uses an explicit time.
 </Note>
+
+## SDK example
+
+Start with the [basic send example](/signal/send-with/sdk-examples), then add the scheduling field
+for your SDK.
+
+<ScheduledEmailSdkExample />

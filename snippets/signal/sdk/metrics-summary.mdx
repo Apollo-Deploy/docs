@@ -1,0 +1,99 @@
+<CodeGroup dropdown>
+
+```typescript TypeScript
+const summary = await signal.metrics.getProjectMetricsSummary(
+  { window: "7d", projectId },
+  { headers: { Authorization: `Bearer ${process.env.SIGNAL_API_KEY}` } },
+);
+```
+
+```python Python
+summary = signal.metrics.get_project_metrics_summary(
+    window="7d",
+    project_id=project_id,
+)
+```
+
+```go Go
+window := "7d"
+summary, err := client.Metrics.GetProjectMetricsSummary(ctx, &window, &projectID)
+if err != nil {
+    panic(err)
+}
+```
+
+```ruby Ruby
+summary = signal.metrics.get_project_metrics_summary(
+  query: { window: "7d", project_id: project_id }
+)
+```
+
+```ruby Rails
+summary = ApolloDeploySignalSdkRails.rails_client.metrics.get_project_metrics_summary(
+  query: { window: "7d", project_id: project_id }
+)
+```
+
+```php PHP / Laravel
+$summary = $signal->metrics()->getProjectMetricsSummary('7d', $projectId);
+```
+
+```java Java
+var summary = signal.metrics().getProjectMetricsSummary("7d", projectId);
+```
+
+```kotlin Kotlin
+val summary = signal.metrics.getProjectMetricsSummary(
+    window = "7d",
+    projectId = projectId,
+)
+```
+
+```csharp .NET
+var summary = await signal.Metrics.GetProjectMetricsSummaryAsync(
+    new Dictionary<string, object?>
+    {
+        ["window"] = "7d",
+        ["projectId"] = projectId,
+    });
+```
+
+```rust Rust
+let summary = signal.metrics.get_project_metrics_summary(
+    Some("7d".to_string()),
+    Some(project_id.to_string()),
+).await?;
+```
+
+```elixir Elixir
+query = %ApolloSignal.Types.GetProjectMetricsSummaryQuery{
+  window: "7d",
+  project_id: project_id
+}
+
+{:ok, summary, _metadata} =
+  ApolloSignal.Client.get_project_metrics_summary(client, query)
+```
+
+```swift Swift
+let summary = try await signal.metrics.getProjectMetricsSummary(
+    window: "7d",
+    projectId: projectId
+)
+```
+
+```zig Zig
+var metrics = client.metrics();
+var result = try metrics.getProjectMetricsSummary(.{
+    .window = "7d",
+    .projectId = project_id,
+}, .{});
+defer result.deinit();
+
+switch (result) {
+    .success => |_| {},
+    .api_error => return error.SignalApiError,
+}
+```
+
+</CodeGroup>

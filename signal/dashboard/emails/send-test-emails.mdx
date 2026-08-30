@@ -3,6 +3,8 @@ title: "Test mode"
 description: "Exercise the send path without delivering to a real recipient provider"
 ---
 
+import TestModeSdkExample from "/snippets/signal/sdk/test-mode-field.mdx";
+
 Set `testMode: true` when you need Signal to validate and record a send without handing it to the delivery provider.
 Test mode is an API field; it is not a project-wide dashboard switch.
 
@@ -50,3 +52,10 @@ Use a distinctive tag, metadata value, subject, and idempotency key so smoke tes
 Do not build a production delivery guarantee around test mode.
 It intentionally stops before provider delivery.
 </Warning>
+
+## SDK example
+
+Start with the [basic send example](/signal/send-with/sdk-examples), then enable test mode in the
+request model for your SDK.
+
+<TestModeSdkExample />
