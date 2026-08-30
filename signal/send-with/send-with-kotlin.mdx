@@ -1,0 +1,69 @@
+---
+title: "Send emails with Kotlin"
+description: "Send a transactional email with the official Apollo Signal Kotlin SDK"
+---
+
+The Kotlin JVM 21 SDK provides a coroutine-based class client and uses
+`https://api.signal.apollodeploy.com` by default.
+
+Before you start, [create an API key](/signal/create-an-api-key) with **Emails: Send** permission
+and [verify the From domain](/signal/add-a-domain).
+
+<Steps>
+  <Step title="Install the SDK">
+```kotlin
+dependencies {
+    implementation("com.apollodeploy.signal:signal-sdk-kotlin:4.0.1")
+}
+```
+  </Step>
+  <Step title="Store your API key">
+Set `SIGNAL_API_KEY` in the server environment or secret manager.
+  </Step>
+  <Step title="Send an email">
+```kotlin
+import com.apollodeploy.signal.sdk.ApolloSignalApiClient
+import com.apollodeploy.signal.sdk.ClientConfig
+import com.apollodeploy.signal.sdk.models.SendEmailRequest
+
+suspend fun main() {
+    val signal = ApolloSignalApiClient(
+        ClientConfig(
+            defaultHeaders = mapOf(
+                "Authorization" to "Bearer ${System.getenv("SIGNAL_API_KEY")}",
+            ),
+        ),
+    )
+
+    try {
+        val email = signal.emails.sendEmail(
+            SendEmailRequest(
+                from = "auth@mail.company.com",
+                to = listOf("alex@example.com"),
+                subject = "Reset your password",
+                text = "Use the secure link in your account to choose a new password.",
+            ),
+        )
+
+        println(email.id)
+    } finally {
+        signal.close()
+    }
+}
+```
+  </Step>
+</Steps>
+
+<Note>
+The SDK operations are suspending functions. Reuse one client for the lifetime of your service and
+close it during application shutdown.
+</Note>
+
+<CardGroup cols={2}>
+  <Card title="Java" icon="code" href="/signal/send-with/send-with-java">
+    Use the Java 17 SDK.
+  </Card>
+  <Card title="All SDKs" icon="code" href="/signal/send-with/sdk-overview">
+    Compare every supported language and framework.
+  </Card>
+</CardGroup>

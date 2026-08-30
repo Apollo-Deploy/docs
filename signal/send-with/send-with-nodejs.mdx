@@ -1,94 +1,65 @@
 ---
 title: "Send emails with Node.js"
-description: "Send a transactional email from a Node.js server using the Apollo Signal REST API"
+description: "Send a transactional email from Node.js with the official Apollo Signal TypeScript SDK"
 ---
 
-Use this guide to send one server-side transactional email and confirm its lifecycle in Apollo Signal.
+The TypeScript SDK provides a class-based client for Node.js. It sends requests to
+`https://api.signal.apollodeploy.com` by default.
 
-<Note>
-Replace every `mail.company.com` example with a domain that is verified in your project.
-</Note>
+Before you start, [create an API key](/signal/create-an-api-key) with **Emails: Send** permission
+and [verify the From domain](/signal/add-a-domain).
 
 <Steps>
-  <Step title="Create a sending key">
-Open **API keys** in Apollo Signal. Create a key with **Emails: Send** permission, copy it once, and store it in a server-side secret.
+  <Step title="Install the SDK">
+```bash
+npm install @apollo-deploy/signal-sdk
+```
   </Step>
-  <Step title="Verify the From domain">
-Open **Domains**, add the sending domain, publish the required DNS records, and wait for the domain to show as verified.
+  <Step title="Store your API key">
+Set `SIGNAL_API_KEY` in your server environment. Never expose it to browser code.
   </Step>
-  <Step title="Configure your server">
-Node.js 18 and later include `fetch`, so you do not need an Apollo-specific package.
-Keep `SIGNAL_API_KEY` in the server environment and never expose it to browser code.
-  </Step>
-  <Step title="Send the message">
+  <Step title="Send an email">
 ```typescript
-const response = await fetch("https://api.signal.apollodeploy.com/v1/emails", {
-  method: "POST",
-  headers: {
-    Authorization: "Bearer " + process.env.SIGNAL_API_KEY,
-    "Content-Type": "application/json",
-  },
-  body: JSON.stringify({
+import { ApolloSignalApi } from "@apollo-deploy/signal-sdk";
+
+const signal = new ApolloSignalApi();
+
+const email = await signal.emails.sendEmail(
+  {
     from: "auth@mail.company.com",
-    to: "alex@example.com",
+    to: ["alex@example.com"],
     subject: "Reset your password",
     text: "Use the secure link in your account to choose a new password.",
-  }),
-});
+  },
+  {
+    headers: {
+      Authorization: `Bearer ${process.env.SIGNAL_API_KEY}`,
+    },
+  },
+);
 
-const result = await response.json();
-if (!response.ok) {
-  throw new Error(response.status + ": " + JSON.stringify(result));
-}
-
-console.log(result.id);
+console.log(email.id);
 ```
   </Step>
 </Steps>
 
-## Required values
+<Note>
+`to`, `cc`, and `bcc` are arrays. Your `from` address must use a domain verified in the same Signal
+project as the API key.
+</Note>
 
-| Value | Requirement |
-| --- | --- |
-| API key | Must belong to the active project and include `emails:send`. REST requests use `Authorization: Bearer <key>`. SMTP uses the key as the password. |
-| From | Must use a verified sending domain in the same project. A display name is optional. |
-| To | Must be a valid recipient address for this first send. Keep recipient input on the server and validate it before use. |
-| Content | Include a non-empty subject and at least one of `html` or `text`. |
+## Production use
 
-## Understand the response
-
-A successful request returns HTTP `201 Created`.
-The returned ID identifies the accepted message and lets you correlate dashboard activity, API reads, and webhook events.
-A normal immediate send starts in `queued`. A future send starts in `scheduled`. A request with `testMode: true` is recorded as a test instead of reaching a provider.
-
-## Check the message
-
-Open **Emails** and select the message. Check its current status, recipient, timestamps, provider response, content preview, and event timeline.
-Delivery events are asynchronous, so do not treat the initial API or SMTP acceptance as final delivery.
-
-## Common failures
-
-| Symptom | What to check |
-| --- | --- |
-| `401 Unauthorized` | The key is missing, malformed, expired, or no longer active. |
-| `403 Forbidden` | The key does not include `emails:send` or belongs to another project. |
-| Validation error | The From domain is unverified, the recipient is invalid, or both `html` and `text` are missing. |
-| `429 Too Many Requests` | Slow down, respect the response headers, and retry with backoff. |
-| Accepted but not delivered | Open the email timeline and check for bounce, complaint, suppression, rejection, or provider failure. |
-
-## Production checklist
-
-- Keep the API key in a secret manager.
-- Use a restricted key dedicated to this service.
-- Add an `idempotencyKey` when your job runner can retry the same logical send.
-- Configure signed webhooks for final delivery outcomes.
-- Monitor bounce, complaint, suppression, and quota signals in the dashboard.
+- Reuse the client across requests.
+- Add `idempotencyKey` when a job may retry the same logical send.
+- Keep the key in a server-side secret manager.
+- Use the returned ID or signed webhooks to follow delivery outcomes.
 
 <CardGroup cols={2}>
-  <Card title="Email API" icon="code" href="/api-reference/emails/send-email">
-    Review every send field and response.
+  <Card title="All SDKs" icon="code" href="/signal/send-with/sdk-overview">
+    Compare every supported language and framework.
   </Card>
   <Card title="Manage emails" icon="envelope" href="/signal/dashboard/emails/introduction">
-    Learn the statuses and troubleshooting workflow.
+    Understand message states and delivery timelines.
   </Card>
 </CardGroup>

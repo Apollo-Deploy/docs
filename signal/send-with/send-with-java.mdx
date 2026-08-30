@@ -1,98 +1,73 @@
 ---
 title: "Send emails with Java"
-description: "Send a transactional email from Java using HttpClient"
+description: "Send a transactional email with the official Apollo Signal Java SDK"
 ---
 
-Use this guide to send one server-side transactional email and confirm its lifecycle in Apollo Signal.
+The Java 17 SDK provides a class-based client and uses
+`https://api.signal.apollodeploy.com` by default.
 
-<Note>
-Replace every `mail.company.com` example with a domain that is verified in your project.
-</Note>
+Before you start, [create an API key](/signal/create-an-api-key) with **Emails: Send** permission
+and [verify the From domain](/signal/add-a-domain).
 
 <Steps>
-  <Step title="Create a sending key">
-Open **API keys** in Apollo Signal. Create a key with **Emails: Send** permission, copy it once, and store it in a server-side secret.
+  <Step title="Install the SDK">
+For Gradle:
+
+```groovy
+dependencies {
+    implementation 'com.apollodeploy.signal:signal-sdk-java:4.0.1'
+}
+```
+
+For Maven:
+
+```xml
+<dependency>
+  <groupId>com.apollodeploy.signal</groupId>
+  <artifactId>signal-sdk-java</artifactId>
+  <version>4.0.1</version>
+</dependency>
+```
   </Step>
-  <Step title="Verify the From domain">
-Open **Domains**, add the sending domain, publish the required DNS records, and wait for the domain to show as verified.
+  <Step title="Store your API key">
+Set `SIGNAL_API_KEY` in the server environment or secret manager.
   </Step>
-  <Step title="Configure the process">
-Set `SIGNAL_API_KEY` in the environment available to your Java service.
-  </Step>
-  <Step title="Send the message">
+  <Step title="Send an email">
 ```java
-HttpClient client = HttpClient.newHttpClient();
-String body = """
-    {
-      "from": "auth@mail.company.com",
-      "to": "alex@example.com",
-      "subject": "Reset your password",
-      "text": "Use the secure link in your account to choose a new password."
-    }
-    """;
+import com.apollodeploy.signal.sdk.ApolloSignalApiClient;
+import com.apollodeploy.signal.sdk.models.Types.SendEmailRequest;
+import java.util.List;
+import java.util.Map;
 
-HttpRequest request = HttpRequest.newBuilder()
-    .uri(URI.create("https://api.signal.apollodeploy.com/v1/emails"))
-    .header("Authorization", "Bearer " + System.getenv("SIGNAL_API_KEY"))
-    .header("Content-Type", "application/json")
-    .POST(HttpRequest.BodyPublishers.ofString(body))
-    .build();
+var config = new ApolloSignalApiClient.Config()
+        .defaultHeaders(Map.of(
+                "Authorization",
+                "Bearer " + System.getenv("SIGNAL_API_KEY")));
 
-HttpResponse<String> response = client.send(
-    request,
-    HttpResponse.BodyHandlers.ofString()
-);
+try (var signal = new ApolloSignalApiClient(config)) {
+    var request = new SendEmailRequest();
+    request.from = "auth@mail.company.com";
+    request.to = List.of("alex@example.com");
+    request.subject = "Reset your password";
+    request.text = "Use the secure link in your account to choose a new password.";
 
-if (response.statusCode() < 200 || response.statusCode() >= 300) {
-    throw new IllegalStateException(response.body());
+    var email = signal.emails().sendEmail(request);
+    System.out.println(email.id);
 }
 ```
   </Step>
 </Steps>
 
-## Required values
-
-| Value | Requirement |
-| --- | --- |
-| API key | Must belong to the active project and include `emails:send`. REST requests use `Authorization: Bearer <key>`. SMTP uses the key as the password. |
-| From | Must use a verified sending domain in the same project. A display name is optional. |
-| To | Must be a valid recipient address for this first send. Keep recipient input on the server and validate it before use. |
-| Content | Include a non-empty subject and at least one of `html` or `text`. |
-
-## Understand the response
-
-A successful request returns HTTP `201 Created`.
-The returned ID identifies the accepted message and lets you correlate dashboard activity, API reads, and webhook events.
-A normal immediate send starts in `queued`. A future send starts in `scheduled`. A request with `testMode: true` is recorded as a test instead of reaching a provider.
-
-## Check the message
-
-Open **Emails** and select the message. Check its current status, recipient, timestamps, provider response, content preview, and event timeline.
-Delivery events are asynchronous, so do not treat the initial API or SMTP acceptance as final delivery.
-
-## Common failures
-
-| Symptom | What to check |
-| --- | --- |
-| `401 Unauthorized` | The key is missing, malformed, expired, or no longer active. |
-| `403 Forbidden` | The key does not include `emails:send` or belongs to another project. |
-| Validation error | The From domain is unverified, the recipient is invalid, or both `html` and `text` are missing. |
-| `429 Too Many Requests` | Slow down, respect the response headers, and retry with backoff. |
-| Accepted but not delivered | Open the email timeline and check for bounce, complaint, suppression, rejection, or provider failure. |
-
-## Production checklist
-
-- Keep the API key in a secret manager.
-- Use a restricted key dedicated to this service.
-- Add an `idempotencyKey` when your job runner can retry the same logical send.
-- Configure signed webhooks for final delivery outcomes.
-- Monitor bounce, complaint, suppression, and quota signals in the dashboard.
+<Note>
+Close the client when its lifecycle ends. Reuse one client for the lifetime of a service instead
+of creating it for every request.
+</Note>
 
 <CardGroup cols={2}>
-  <Card title="Email API" icon="code" href="/api-reference/emails/send-email">
-    Review every send field and response.
+  <Card title="Kotlin" icon="code" href="/signal/send-with/send-with-kotlin">
+    Use the coroutine-based Kotlin SDK.
   </Card>
-  <Card title="Manage emails" icon="envelope" href="/signal/dashboard/emails/introduction">
-    Learn the statuses and troubleshooting workflow.
+  <Card title="All SDKs" icon="code" href="/signal/send-with/sdk-overview">
+    Compare every supported language and framework.
   </Card>
 </CardGroup>

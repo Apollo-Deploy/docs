@@ -1,93 +1,76 @@
 ---
 title: "Send emails with Rust"
-description: "Send a transactional email from Rust using reqwest"
+description: "Send a transactional email with the official Apollo Signal Rust SDK"
 ---
 
-Use this guide to send one server-side transactional email and confirm its lifecycle in Apollo Signal.
+The Rust SDK provides an async class-based client and uses
+`https://api.signal.apollodeploy.com` by default.
 
-<Note>
-Replace every `mail.company.com` example with a domain that is verified in your project.
-</Note>
+Before you start, [create an API key](/signal/create-an-api-key) with **Emails: Send** permission
+and [verify the From domain](/signal/add-a-domain).
 
 <Steps>
-  <Step title="Create a sending key">
-Open **API keys** in Apollo Signal. Create a key with **Emails: Send** permission, copy it once, and store it in a server-side secret.
-  </Step>
-  <Step title="Verify the From domain">
-Open **Domains**, add the sending domain, publish the required DNS records, and wait for the domain to show as verified.
-  </Step>
-  <Step title="Install the HTTP dependencies">
-Add an async HTTP client and JSON support:
-
+  <Step title="Install the SDK">
 ```bash
-cargo add reqwest --features json
-cargo add serde_json
+cargo add apollo-signal-sdk
 ```
-
-Set `SIGNAL_API_KEY` in the process environment.
   </Step>
-  <Step title="Send the message">
+  <Step title="Store your API key">
+Set `SIGNAL_API_KEY` in the server environment or secret manager.
+  </Step>
+  <Step title="Send an email">
 ```rust
-let client = reqwest::Client::new();
-let response = client
-    .post("https://api.signal.apollodeploy.com/v1/emails")
-    .bearer_auth(std::env::var("SIGNAL_API_KEY")?)
-    .json(&serde_json::json!({
-        "from": "auth@mail.company.com",
-        "to": "alex@example.com",
-        "subject": "Reset your password",
-        "text": "Use the secure link in your account to choose a new password."
-    }))
-    .send()
-    .await?
-    .error_for_status()?;
+use apollo_signal_sdk::{Client, ClientConfig};
+use apollo_signal_sdk::types::SendEmailRequest;
+
+#[tokio::main]
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let mut config = ClientConfig::default();
+    config.default_headers.insert(
+        "Authorization".into(),
+        format!("Bearer {}", std::env::var("SIGNAL_API_KEY")?),
+    );
+    let signal = Client::new(config);
+
+    let email = signal.emails.send_email(&SendEmailRequest {
+        from: "auth@mail.company.com".into(),
+        to: vec!["alex@example.com".into()],
+        subject: Some("Reset your password".into()),
+        text: Some(
+            "Use the secure link in your account to choose a new password.".into(),
+        ),
+        cc: None,
+        bcc: None,
+        reply_to: None,
+        html: None,
+        tags: None,
+        metadata: None,
+        idempotency_key: None,
+        test_mode: None,
+        attachments: None,
+        scheduled_at: None,
+        delivery_window: None,
+        send_time_category: None,
+        tracking_settings: None,
+    }).await?;
+
+    println!("{}", email.id);
+    Ok(())
+}
 ```
   </Step>
 </Steps>
 
-## Required values
-
-| Value | Requirement |
-| --- | --- |
-| API key | Must belong to the active project and include `emails:send`. REST requests use `Authorization: Bearer <key>`. SMTP uses the key as the password. |
-| From | Must use a verified sending domain in the same project. A display name is optional. |
-| To | Must be a valid recipient address for this first send. Keep recipient input on the server and validate it before use. |
-| Content | Include a non-empty subject and at least one of `html` or `text`. |
-
-## Understand the response
-
-A successful request returns HTTP `201 Created`.
-The returned ID identifies the accepted message and lets you correlate dashboard activity, API reads, and webhook events.
-A normal immediate send starts in `queued`. A future send starts in `scheduled`. A request with `testMode: true` is recorded as a test instead of reaching a provider.
-
-## Check the message
-
-Open **Emails** and select the message. Check its current status, recipient, timestamps, provider response, content preview, and event timeline.
-Delivery events are asynchronous, so do not treat the initial API or SMTP acceptance as final delivery.
-
-## Common failures
-
-| Symptom | What to check |
-| --- | --- |
-| `401 Unauthorized` | The key is missing, malformed, expired, or no longer active. |
-| `403 Forbidden` | The key does not include `emails:send` or belongs to another project. |
-| Validation error | The From domain is unverified, the recipient is invalid, or both `html` and `text` are missing. |
-| `429 Too Many Requests` | Slow down, respect the response headers, and retry with backoff. |
-| Accepted but not delivered | Open the email timeline and check for bounce, complaint, suppression, rejection, or provider failure. |
-
-## Production checklist
-
-- Keep the API key in a secret manager.
-- Use a restricted key dedicated to this service.
-- Add an `idempotencyKey` when your job runner can retry the same logical send.
-- Configure signed webhooks for final delivery outcomes.
-- Monitor bounce, complaint, suppression, and quota signals in the dashboard.
+<Note>
+The generated request type keeps optional fields explicit. Add an `idempotency_key` when a worker
+may retry the same logical send.
+</Note>
 
 <CardGroup cols={2}>
-  <Card title="Email API" icon="code" href="/api-reference/emails/send-email">
-    Review every send field and response.
+  <Card title="All SDKs" icon="code" href="/signal/send-with/sdk-overview">
+    Compare every supported language and framework.
   </Card>
   <Card title="Manage emails" icon="envelope" href="/signal/dashboard/emails/introduction">
-    Learn the statuses and troubleshooting workflow.
+    Follow message states and delivery timelines.
   </Card>
 </CardGroup>

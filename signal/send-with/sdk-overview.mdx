@@ -1,0 +1,75 @@
+---
+title: "Signal SDKs"
+description: "Install an official Apollo Signal SDK and send from your language or framework"
+---
+
+Apollo Signal publishes public SDKs from the same API contract. Each SDK defaults to
+`https://api.signal.apollodeploy.com` and exposes the same email, contact, domain, metrics,
+suppression, and webhook operations.
+
+<Note>
+Use SDKs only in trusted server, worker, or command-line environments. Never include a Signal API
+key in browser JavaScript, a mobile binary, or a public repository.
+</Note>
+
+## Before you install
+
+1. [Create an API key](/signal/create-an-api-key) with **Emails: Send** permission.
+2. [Add and verify a sending domain](/signal/add-a-domain).
+3. Store the key as `SIGNAL_API_KEY` in your server-side secret manager.
+
+## JavaScript and TypeScript
+
+| Runtime | Package | Install | Guide |
+| --- | --- | --- | --- |
+| Node.js | `@apollo-deploy/signal-sdk` | `npm install @apollo-deploy/signal-sdk` | [Node.js](/signal/send-with/send-with-nodejs) |
+| Next.js | `@apollo-deploy/signal-sdk` | `npm install @apollo-deploy/signal-sdk` | [Next.js](/signal/send-with/send-with-nextjs) |
+| Express | `@apollo-deploy/signal-sdk` | `npm install @apollo-deploy/signal-sdk` | [Express](/signal/send-with/send-with-express) |
+
+## Languages and frameworks
+
+| Language or framework | Package | Install | Guide |
+| --- | --- | --- | --- |
+| Python | `apollo-deploy-signal-sdk` | `pip install apollo-deploy-signal-sdk` | [Python](/signal/send-with/send-with-python) |
+| Go | `github.com/apollo-deploy/signal-sdks/sdks/go/signal/v4` | `go get github.com/apollo-deploy/signal-sdks/sdks/go/signal/v4` | [Go](/signal/send-with/send-with-go) |
+| Ruby | `apollo-deploy-signal-sdk` | `gem install apollo-deploy-signal-sdk` | [Ruby](/signal/send-with/send-with-ruby) |
+| Rails | `apollo-deploy-signal-sdk-rails` | `gem install apollo-deploy-signal-sdk-rails` | [Rails](/signal/send-with/send-with-rails) |
+| PHP | `apollo-deploy/signal-sdk` | `composer require apollo-deploy/signal-sdk` | [PHP](/signal/send-with/send-with-php) |
+| Laravel | `apollo-deploy/signal-sdk` | `composer require apollo-deploy/signal-sdk` | [Laravel](/signal/send-with/send-with-laravel) |
+| Java | `com.apollodeploy.signal:signal-sdk-java` | Version `4.0.1` from Maven Central | [Java](/signal/send-with/send-with-java) |
+| Kotlin | `com.apollodeploy.signal:signal-sdk-kotlin` | Version `4.0.1` from Maven Central | [Kotlin](/signal/send-with/send-with-kotlin) |
+| .NET | `ApolloDeploy.Signal` | `dotnet add package ApolloDeploy.Signal` | [.NET](/signal/send-with/send-with-dotnet) |
+| Rust | `apollo-signal-sdk` | `cargo add apollo-signal-sdk` | [Rust](/signal/send-with/send-with-rust) |
+| Elixir | `apollo_signal` | `{:apollo_signal, "~> 4.0"}` | [Elixir](/signal/send-with/send-with-elixir) |
+| Swift | `ApolloSignal` | Swift Package Manager from `Apollo-Deploy/signal-sdks` | [Swift](/signal/send-with/send-with-swift) |
+| Zig | `apollo_signal` | Public release archive for Zig 0.16.0 | [Zig](/signal/send-with/send-with-zig) |
+
+PHP and Laravel intentionally use one Composer package. Laravel discovers the bundled service
+provider automatically; plain PHP applications load only the core SDK.
+
+## Public source and downloads
+
+All SDK source, checksummed release archives, and generation provenance are public in
+[Apollo-Deploy/signal-sdks](https://github.com/Apollo-Deploy/signal-sdks). The Signal API
+implementation remains private.
+
+The command-line package is also available as `@apollo-deploy/signal-cli`:
+
+```bash
+npm install --global @apollo-deploy/signal-cli
+```
+
+## After the API accepts a message
+
+A successful send returns an ID for the accepted message. Acceptance is not final delivery. Open
+**Emails** to follow the timeline, or configure signed webhooks for asynchronous delivery, bounce,
+complaint, rejection, and suppression outcomes.
+
+<CardGroup cols={2}>
+  <Card title="REST API" icon="brackets-curly" href="/signal/send-with/send-with-rest">
+    Call the public HTTP API without an SDK.
+  </Card>
+  <Card title="SMTP" icon="envelope" href="/signal/send-with/send-with-smtp">
+    Send through a standard SMTP client.
+  </Card>
+</CardGroup>

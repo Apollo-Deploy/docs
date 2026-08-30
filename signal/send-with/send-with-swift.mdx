@@ -1,0 +1,58 @@
+---
+title: "Send emails with Swift"
+description: "Send a transactional email with the official Apollo Signal Swift SDK"
+---
+
+The Swift 6 SDK supports macOS, iOS, tvOS, watchOS, visionOS, and Linux. Its class-based client
+uses `https://api.signal.apollodeploy.com` by default.
+
+Before you start, [create an API key](/signal/create-an-api-key) with **Emails: Send** permission
+and [verify the From domain](/signal/add-a-domain).
+
+<Steps>
+  <Step title="Add the package">
+In Xcode, add `https://github.com/Apollo-Deploy/signal-sdks` as a package dependency and select the
+`ApolloSignal` product from version `4.0.1` or later.
+  </Step>
+  <Step title="Store your API key">
+Load the key from your server or command-line process environment. Never ship a Signal API key in
+an iOS or other client application binary.
+  </Step>
+  <Step title="Send an email from a trusted process">
+```swift
+import ApolloSignal
+
+let apiKey = ProcessInfo.processInfo.environment["SIGNAL_API_KEY"]!
+let signal = try ApolloSignalApi(
+    configuration: ClientConfig(
+        defaultHeaders: ["Authorization": "Bearer \(apiKey)"]
+    )
+)
+
+let email = try await signal.emails.sendEmail(
+    body: SendEmailRequest(
+        from: "auth@mail.company.com",
+        to: ["alex@example.com"],
+        subject: "Reset your password",
+        text: "Use the secure link in your account to choose a new password."
+    )
+)
+
+print(email.id)
+```
+  </Step>
+</Steps>
+
+<Warning>
+The package can compile for Apple platforms, but API keys must remain in a trusted backend or
+operator-controlled tool. Mobile applications should call your backend, not Signal directly.
+</Warning>
+
+<CardGroup cols={2}>
+  <Card title="All SDKs" icon="code" href="/signal/send-with/sdk-overview">
+    Compare every supported language and framework.
+  </Card>
+  <Card title="Manage emails" icon="envelope" href="/signal/dashboard/emails/introduction">
+    Follow message states and delivery timelines.
+  </Card>
+</CardGroup>
