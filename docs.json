@@ -93,6 +93,7 @@
                     "expanded": false,
                     "icon": "code",
                     "pages": [
+                      "signal/send-with/sdk-overview",
                       "signal/send-with/send-with-nodejs",
                       "signal/send-with/send-with-nextjs",
                       "signal/send-with/send-with-express",
@@ -103,9 +104,12 @@
                       "signal/send-with/send-with-php",
                       "signal/send-with/send-with-laravel",
                       "signal/send-with/send-with-java",
+                      "signal/send-with/send-with-kotlin",
                       "signal/send-with/send-with-dotnet",
                       "signal/send-with/send-with-rust",
                       "signal/send-with/send-with-elixir",
+                      "signal/send-with/send-with-swift",
+                      "signal/send-with/send-with-zig",
                       "signal/send-with/send-with-smtp",
                       "signal/send-with/send-with-rest"
                     ]

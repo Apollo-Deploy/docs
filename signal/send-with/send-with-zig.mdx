@@ -1,0 +1,82 @@
+---
+title: "Send emails with Zig"
+description: "Send a transactional email with the official Apollo Signal Zig SDK"
+---
+
+The Zig package targets Zig 0.16.0 exactly. Its class-based client uses
+`https://api.signal.apollodeploy.com` by default and keeps allocation and I/O ownership explicit.
+
+Before you start, [create an API key](/signal/create-an-api-key) with **Emails: Send** permission
+and [verify the From domain](/signal/add-a-domain).
+
+<Steps>
+  <Step title="Add the package">
+```bash
+zig fetch --save https://github.com/Apollo-Deploy/signal-sdks/releases/download/v4.0.1/apollo-signal-zig-4.0.1.tar.gz
+```
+
+Import the dependency as the `apollo_signal` module in your `build.zig`.
+  </Step>
+  <Step title="Store your API key">
+Load the key into a trusted server or command-line process. Pass it into the sending function
+instead of embedding it in the binary.
+  </Step>
+  <Step title="Send an email">
+```zig
+const std = @import("std");
+const signal = @import("apollo_signal");
+
+pub fn sendEmail(
+    allocator: std.mem.Allocator,
+    io: std.Io,
+    api_key: []const u8,
+) !void {
+    const authorization = try std.fmt.allocPrint(
+        allocator,
+        "Bearer {s}",
+        .{api_key},
+    );
+    defer allocator.free(authorization);
+
+    const headers = [_]signal.Header{
+        .{ .name = "Authorization", .value = authorization },
+    };
+    var client = signal.Client.init(.{
+        .allocator = allocator,
+        .io = io,
+        .default_headers = &headers,
+    });
+    defer client.deinit();
+
+    var recipients = [_][]const u8{"alex@example.com"};
+    var emails = client.emails();
+    var result = try emails.sendEmail(.{
+        .from = "auth@mail.company.com",
+        .to = &recipients,
+        .subject = "Reset your password",
+        .text = "Use the secure link in your account to choose a new password.",
+    }, .{});
+    defer result.deinit();
+
+    switch (result) {
+        .success => |email| std.debug.print("{s}\n", .{email.value.id}),
+        .api_error => return error.SignalApiError,
+    }
+}
+```
+  </Step>
+</Steps>
+
+<Note>
+The caller owns the allocator and `std.Io`. Generated results own response memory, so call
+`deinit` exactly once after handling either success or API error metadata.
+</Note>
+
+<CardGroup cols={2}>
+  <Card title="Release downloads" icon="download" href="https://github.com/Apollo-Deploy/signal-sdks/releases">
+    Download versioned SDK archives and checksums.
+  </Card>
+  <Card title="All SDKs" icon="code" href="/signal/send-with/sdk-overview">
+    Compare every supported language and framework.
+  </Card>
+</CardGroup>

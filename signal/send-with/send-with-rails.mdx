@@ -1,95 +1,57 @@
 ---
 title: "Send emails with Rails"
-description: "Send a transactional email from a Rails service"
+description: "Send a transactional email with the official Apollo Signal Rails SDK"
 ---
 
-Use this guide to send one server-side transactional email and confirm its lifecycle in Apollo Signal.
+The Rails gem adds configuration and a managed client around the Ruby SDK. It uses
+`https://api.signal.apollodeploy.com` by default.
 
-<Note>
-Replace every `mail.company.com` example with a domain that is verified in your project.
-</Note>
+Before you start, [create an API key](/signal/create-an-api-key) with **Emails: Send** permission
+and [verify the From domain](/signal/add-a-domain).
 
 <Steps>
-  <Step title="Create a sending key">
-Open **API keys** in Apollo Signal. Create a key with **Emails: Send** permission, copy it once, and store it in a server-side secret.
+  <Step title="Install the Rails gem">
+```bash
+bundle add apollo-deploy-signal-sdk-rails
+```
   </Step>
-  <Step title="Verify the From domain">
-Open **Domains**, add the sending domain, publish the required DNS records, and wait for the domain to show as verified.
-  </Step>
-  <Step title="Store the API key">
-Store `SIGNAL_API_KEY` in Rails credentials or your deployment secret manager.
-Keep the call in a server-side service or background job.
-  </Step>
-  <Step title="Send the message">
+  <Step title="Configure the client">
+Set `SIGNAL_API_KEY` in your Rails secrets, then create
+`config/initializers/apollo_signal.rb`:
+
 ```ruby
-require "net/http"
-
-class SignalEmail
-  ENDPOINT = URI("https://api.signal.apollodeploy.com/v1/emails")
-
-  def self.send_reset(user)
-    request = Net::HTTP::Post.new(ENDPOINT)
-    request["Authorization"] = "Bearer #{ENV.fetch("SIGNAL_API_KEY")}"
-    request["Content-Type"] = "application/json"
-    request.body = {
-      from: "auth@mail.company.com",
-      to: user.email,
-      subject: "Reset your password",
-      text: "Use the secure link in your account to choose a new password."
-    }.to_json
-
-    Net::HTTP.start(ENDPOINT.hostname, 443, use_ssl: true) do |http|
-      http.request(request)
-    end
-  end
+ApolloDeploySignalSdkRails.configure do |config|
+  config.default_headers = {
+    "Authorization" => "Bearer #{ENV.fetch('SIGNAL_API_KEY')}"
+  }
 end
+```
+  </Step>
+  <Step title="Send an email">
+```ruby
+request = ApolloDeploySignalSdkRails::SendEmailRequest.new(
+  from: "auth@mail.company.com",
+  to: ["alex@example.com"],
+  subject: "Reset your password",
+  text: "Use the secure link in your account to choose a new password."
+)
+
+email = ApolloDeploySignalSdkRails.rails_client.emails.send_email(body: request)
+Rails.logger.info("Apollo Signal accepted #{email['id']}")
 ```
   </Step>
 </Steps>
 
-## Required values
-
-| Value | Requirement |
-| --- | --- |
-| API key | Must belong to the active project and include `emails:send`. REST requests use `Authorization: Bearer <key>`. SMTP uses the key as the password. |
-| From | Must use a verified sending domain in the same project. A display name is optional. |
-| To | Must be a valid recipient address for this first send. Keep recipient input on the server and validate it before use. |
-| Content | Include a non-empty subject and at least one of `html` or `text`. |
-
-## Understand the response
-
-A successful request returns HTTP `201 Created`.
-The returned ID identifies the accepted message and lets you correlate dashboard activity, API reads, and webhook events.
-A normal immediate send starts in `queued`. A future send starts in `scheduled`. A request with `testMode: true` is recorded as a test instead of reaching a provider.
-
-## Check the message
-
-Open **Emails** and select the message. Check its current status, recipient, timestamps, provider response, content preview, and event timeline.
-Delivery events are asynchronous, so do not treat the initial API or SMTP acceptance as final delivery.
-
-## Common failures
-
-| Symptom | What to check |
-| --- | --- |
-| `401 Unauthorized` | The key is missing, malformed, expired, or no longer active. |
-| `403 Forbidden` | The key does not include `emails:send` or belongs to another project. |
-| Validation error | The From domain is unverified, the recipient is invalid, or both `html` and `text` are missing. |
-| `429 Too Many Requests` | Slow down, respect the response headers, and retry with backoff. |
-| Accepted but not delivered | Open the email timeline and check for bounce, complaint, suppression, rejection, or provider failure. |
-
-## Production checklist
-
-- Keep the API key in a secret manager.
-- Use a restricted key dedicated to this service.
-- Add an `idempotencyKey` when your job runner can retry the same logical send.
-- Configure signed webhooks for final delivery outcomes.
-- Monitor bounce, complaint, suppression, and quota signals in the dashboard.
+<Note>
+Keep delivery orchestration in a service or background job when the request should not wait for
+email acceptance. The From domain must be verified in the API key's Signal project.
+</Note>
 
 <CardGroup cols={2}>
-  <Card title="Email API" icon="code" href="/api-reference/emails/send-email">
-    Review every send field and response.
+  <Card title="Ruby" icon="code" href="/signal/send-with/send-with-ruby">
+    Use the core Ruby SDK outside Rails.
   </Card>
-  <Card title="Manage emails" icon="envelope" href="/signal/dashboard/emails/introduction">
-    Learn the statuses and troubleshooting workflow.
+  <Card title="All SDKs" icon="code" href="/signal/send-with/sdk-overview">
+    Compare every supported language and framework.
   </Card>
 </CardGroup>
