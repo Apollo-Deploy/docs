@@ -1,0 +1,335 @@
+---
+title: "SDK examples"
+description: "Production-ready Apollo Signal SDK examples for every supported language"
+---
+
+These examples build on the client setup in each language guide. Every client uses
+`https://api.signal.apollodeploy.com` by default.
+
+<Note>
+Run SDK code only in a trusted server, worker, or command-line process. Keep `SIGNAL_API_KEY` in
+your server-side secret manager.
+</Note>
+
+## Send HTML with retry protection
+
+Include a plain-text fallback for clients that cannot render HTML. Use a stable idempotency key
+for one logical message so a worker can safely retry an interrupted request. Keep the same key and
+payload on every retry.
+
+The snippets below assume you already created the authenticated client shown in the corresponding
+[language guide](/signal/send-with/sdk-overview).
+
+<CodeGroup dropdown>
+
+```typescript TypeScript
+const invoiceId = "inv_1042";
+
+const email = await signal.emails.sendEmail(
+  {
+    from: "billing@mail.company.com",
+    to: ["alex@example.com"],
+    subject: "Your invoice is ready",
+    html: `<h1>Invoice ${invoiceId}</h1><p>Your invoice is ready.</p>`,
+    text: `Invoice ${invoiceId}: Your invoice is ready.`,
+    metadata: { invoiceId },
+    idempotencyKey: `invoice-${invoiceId}-v1`,
+  },
+  {
+    headers: {
+      Authorization: `Bearer ${process.env.SIGNAL_API_KEY}`,
+    },
+  },
+);
+
+console.log(email.id);
+```
+
+```python Python
+invoice_id = "inv_1042"
+
+email = signal.emails.send_email(
+    SendEmailRequest(
+        from_="billing@mail.company.com",
+        to=["alex@example.com"],
+        subject="Your invoice is ready",
+        html=f"<h1>Invoice {invoice_id}</h1><p>Your invoice is ready.</p>",
+        text=f"Invoice {invoice_id}: Your invoice is ready.",
+        metadata={"invoiceId": invoice_id},
+        idempotency_key=f"invoice-{invoice_id}-v1",
+    )
+)
+
+print(email.id)
+```
+
+```go Go
+invoiceID := "inv_1042"
+metadata := map[string]string{"invoiceId": invoiceID}
+
+email, err := client.Emails.SendEmail(ctx, signal.SendEmailRequest{
+    From: "billing@mail.company.com",
+    To: []string{"alex@example.com"},
+    Subject: signal.String("Your invoice is ready"),
+    Html: signal.String(
+        "<h1>Invoice " + invoiceID + "</h1><p>Your invoice is ready.</p>",
+    ),
+    Text: signal.String("Invoice " + invoiceID + ": Your invoice is ready."),
+    Metadata: &metadata,
+    IdempotencyKey: signal.String("invoice-" + invoiceID + "-v1"),
+})
+if err != nil {
+    panic(err)
+}
+
+fmt.Println(email.Id)
+```
+
+```ruby Ruby
+invoice_id = "inv_1042"
+
+request = ApolloDeploySignalSdk::SendEmailRequest.new(
+  from: "billing@mail.company.com",
+  to: ["alex@example.com"],
+  subject: "Your invoice is ready",
+  html: "<h1>Invoice #{invoice_id}</h1><p>Your invoice is ready.</p>",
+  text: "Invoice #{invoice_id}: Your invoice is ready.",
+  metadata: { "invoiceId" => invoice_id },
+  idempotency_key: "invoice-#{invoice_id}-v1"
+)
+
+email = signal.emails.send_email(body: request)
+puts email["id"]
+```
+
+```ruby Rails
+invoice_id = "inv_1042"
+
+request = ApolloDeploySignalSdkRails::SendEmailRequest.new(
+  from: "billing@mail.company.com",
+  to: ["alex@example.com"],
+  subject: "Your invoice is ready",
+  html: "<h1>Invoice #{invoice_id}</h1><p>Your invoice is ready.</p>",
+  text: "Invoice #{invoice_id}: Your invoice is ready.",
+  metadata: { "invoiceId" => invoice_id },
+  idempotency_key: "invoice-#{invoice_id}-v1"
+)
+
+email = ApolloDeploySignalSdkRails.rails_client.emails.send_email(body: request)
+Rails.logger.info("Apollo Signal accepted #{email['id']}")
+```
+
+```php PHP
+$invoiceId = 'inv_1042';
+
+$request = new SendEmailRequest();
+$request->from = 'billing@mail.company.com';
+$request->to = ['alex@example.com'];
+$request->subject = 'Your invoice is ready';
+$request->html = "<h1>Invoice {$invoiceId}</h1><p>Your invoice is ready.</p>";
+$request->text = "Invoice {$invoiceId}: Your invoice is ready.";
+$request->metadata = ['invoiceId' => $invoiceId];
+$request->idempotencyKey = "invoice-{$invoiceId}-v1";
+
+$email = $signal->emails()->sendEmail($request);
+echo $email->id . PHP_EOL;
+```
+
+```java Java
+var invoiceId = "inv_1042";
+var request = new SendEmailRequest();
+request.from = "billing@mail.company.com";
+request.to = List.of("alex@example.com");
+request.subject = "Your invoice is ready";
+request.html = "<h1>Invoice " + invoiceId + "</h1><p>Your invoice is ready.</p>";
+request.text = "Invoice " + invoiceId + ": Your invoice is ready.";
+request.metadata = Map.of("invoiceId", invoiceId);
+request.idempotencyKey = "invoice-" + invoiceId + "-v1";
+
+var email = signal.emails().sendEmail(request);
+System.out.println(email.id);
+```
+
+```kotlin Kotlin
+val invoiceId = "inv_1042"
+
+val email = signal.emails.sendEmail(
+    SendEmailRequest(
+        from = "billing@mail.company.com",
+        to = listOf("alex@example.com"),
+        subject = "Your invoice is ready",
+        html = "<h1>Invoice $invoiceId</h1><p>Your invoice is ready.</p>",
+        text = "Invoice $invoiceId: Your invoice is ready.",
+        metadata = mapOf("invoiceId" to invoiceId),
+        idempotencyKey = "invoice-$invoiceId-v1",
+    ),
+)
+
+println(email.id)
+```
+
+```csharp .NET
+var invoiceId = "inv_1042";
+
+var email = await signal.Emails.SendEmailAsync(new SendEmailRequest
+{
+    From = "billing@mail.company.com",
+    To = new List<string> { "alex@example.com" },
+    Subject = "Your invoice is ready",
+    Html = $"<h1>Invoice {invoiceId}</h1><p>Your invoice is ready.</p>",
+    Text = $"Invoice {invoiceId}: Your invoice is ready.",
+    Metadata = new Dictionary<string, string> { ["invoiceId"] = invoiceId },
+    IdempotencyKey = $"invoice-{invoiceId}-v1",
+});
+
+Console.WriteLine(email.Id);
+```
+
+```rust Rust
+let invoice_id = "inv_1042";
+
+let email = signal.emails.send_email(&SendEmailRequest {
+    from: "billing@mail.company.com".into(),
+    to: vec!["alex@example.com".into()],
+    subject: Some("Your invoice is ready".into()),
+    html: Some(format!(
+        "<h1>Invoice {invoice_id}</h1><p>Your invoice is ready.</p>",
+    )),
+    text: Some(format!("Invoice {invoice_id}: Your invoice is ready.")),
+    metadata: Some(std::collections::HashMap::from([
+        ("invoiceId".into(), invoice_id.into()),
+    ])),
+    idempotency_key: Some(format!("invoice-{invoice_id}-v1")),
+    cc: None,
+    bcc: None,
+    reply_to: None,
+    tags: None,
+    test_mode: None,
+    attachments: None,
+    scheduled_at: None,
+    delivery_window: None,
+    send_time_category: None,
+    tracking_settings: None,
+}).await?;
+
+println!("{}", email.id);
+```
+
+```elixir Elixir
+invoice_id = "inv_1042"
+
+request = %ApolloSignal.Types.SendEmailRequest{
+  from: "billing@mail.company.com",
+  to: ["alex@example.com"],
+  subject: "Your invoice is ready",
+  html: "<h1>Invoice #{invoice_id}</h1><p>Your invoice is ready.</p>",
+  text: "Invoice #{invoice_id}: Your invoice is ready.",
+  metadata: %{"invoiceId" => invoice_id},
+  idempotency_key: "invoice-#{invoice_id}-v1"
+}
+
+{:ok, email, _metadata} = ApolloSignal.Client.send_email(client, request)
+IO.puts(email.id)
+```
+
+```swift Swift
+let invoiceId = "inv_1042"
+
+let email = try await signal.emails.sendEmail(
+    body: SendEmailRequest(
+        from: "billing@mail.company.com",
+        to: ["alex@example.com"],
+        subject: "Your invoice is ready",
+        html: "<h1>Invoice \(invoiceId)</h1><p>Your invoice is ready.</p>",
+        text: "Invoice \(invoiceId): Your invoice is ready.",
+        metadata: ["invoiceId": invoiceId],
+        idempotencyKey: "invoice-\(invoiceId)-v1"
+    )
+)
+
+print(email.id)
+```
+
+```zig Zig
+var recipients = [_][]const u8{"alex@example.com"};
+var result = try emails.sendEmail(.{
+    .from = "billing@mail.company.com",
+    .to = &recipients,
+    .subject = "Your invoice is ready",
+    .html = "<h1>Invoice inv_1042</h1><p>Your invoice is ready.</p>",
+    .text = "Invoice inv_1042: Your invoice is ready.",
+    .idempotencyKey = "invoice-inv_1042-v1",
+}, .{});
+defer result.deinit();
+
+switch (result) {
+    .success => |email| std.debug.print("{s}\n", .{email.value.id}),
+    .api_error => return error.SignalApiError,
+}
+```
+
+</CodeGroup>
+
+<Warning>
+Do not generate a new idempotency key when retrying the same logical message. A new key represents
+a new send and can create a duplicate email.
+</Warning>
+
+## Test without delivering
+
+Add the language-specific test-mode field to the same request. Signal validates and records the
+message without handing it to the delivery provider.
+
+| SDK | Field to add |
+| --- | --- |
+| TypeScript | `testMode: true` |
+| Python | `test_mode=True` |
+| Go | `TestMode: signal.Bool(true)` |
+| Ruby or Rails | `test_mode: true` |
+| PHP or Laravel | `$request->testMode = true;` |
+| Java | `request.testMode = true;` |
+| Kotlin | `testMode = true` |
+| .NET | `TestMode = true` |
+| Rust | `test_mode: Some(true)` |
+| Elixir | `test_mode: true` |
+| Swift | `testMode: true` |
+| Zig | `.testMode = true` |
+
+Use a distinct idempotency key for the test. Reusing a production key would refer to the existing
+logical send. See [Test mode](/signal/dashboard/emails/send-test-emails) for expected status and
+validation behavior.
+
+## Use a framework integration
+
+The framework guides show where to create and reuse the client, where to store the API key, and
+how to keep sending off the public client path.
+
+<CardGroup cols={2}>
+  <Card title="Next.js Route Handler" icon="code" href="/signal/send-with/send-with-nextjs">
+    Send from a server-only route without exposing the key to a Client Component.
+  </Card>
+  <Card title="Express route" icon="server" href="/signal/send-with/send-with-express">
+    Reuse one client and pass failures to your normal error middleware.
+  </Card>
+  <Card title="Rails integration" icon="code" href="/signal/send-with/send-with-rails">
+    Configure the Rails gem once and send from a service or background job.
+  </Card>
+  <Card title="Laravel integration" icon="code" href="/signal/send-with/send-with-laravel">
+    Inject the shared PHP client through the package service provider.
+  </Card>
+</CardGroup>
+
+## Follow the accepted message
+
+The send response contains the Signal email `id` and initial `status`. Acceptance is not final
+delivery. Store the ID with your application record, then use signed webhooks or the email timeline
+to follow delivery, bounce, complaint, and engagement events.
+
+<CardGroup cols={2}>
+  <Card title="Idempotency keys" icon="fingerprint" href="/signal/dashboard/emails/idempotency-keys">
+    Design stable keys for jobs, batches, and retries.
+  </Card>
+  <Card title="Email timelines" icon="envelope" href="/signal/dashboard/emails/introduction">
+    Understand message states after API acceptance.
+  </Card>
+</CardGroup>
